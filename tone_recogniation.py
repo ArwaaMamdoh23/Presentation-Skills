@@ -1,84 +1,67 @@
 import os
 import librosa
 import numpy as np
-import random
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM, BatchNormalization
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix
+import glob
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import learning_curve
 
-tone_recog_path = r"C:\Users\MOUSTAFA\OneDrive\Desktop\tone_recog"
-tone_detection_path = r"C:\\Users\\MOUSTAFA\\OneDrive\\Desktop\\tone_detection"
+dataset_path = r"D:\Senior\grad project\tone detection\tone detection"
+categories = ['Men_angry', 'Men_Sad', 'Men_neutral', 'Men_fear', 'Men_happy', 
+              'Female_angry', 'Female_fear', 'Female_happy', 'Female_sad', 'Female_neutral']
 
-def load_data_from_dir(directory):
-    data = []
+def extract_features(file_path):
+    audio, sr = librosa.load(file_path, sr=None)
+    mfcc = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=13)
+    mfcc_scaled = np.mean(mfcc.T, axis=0)
+    return mfcc_scaled
+
+def load_data(dataset_path):
+    features = []
     labels = []
-    for label in os.listdir(directory):
-        class_path = os.path.join(directory, label)
-        if os.path.isdir(class_path):
-            for file in os.listdir(class_path):
-                file_path = os.path.join(class_path, file)
-                try:
-                    audio, sr = librosa.load(file_path, sr=None)
-                    mfccs = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=40).mean(axis=1)
-                    data.append(mfccs)
-                    labels.append(label.lower())  
-                except Exception as e:
-                    print(f"Error loading {file_path}: {e}")
-    return np.array(data), np.array(labels)
+    label_encoder = LabelEncoder()
+    for category in categories:
+        file_path = os.path.join(dataset_path, category, '*.wav')
+        files = glob.glob(file_path)
+        for file in files:
+            features.append(extract_features(file))
+            labels.append(category)
+    features = np.array(features)
+    labels = label_encoder.fit_transform(labels)
+    return features, labels, label_encoder
 
+features, labels, label_encoder = load_data(dataset_path)
 
-X_recog, y_recog = load_data_from_dir(tone_recog_path)
-X_det, y_det = load_data_from_dir(tone_detection_path)
+X_train, X_temp, y_train, y_temp = train_test_split(features, labels, test_size=0.3, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
 
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_val = scaler.transform(X_val)
+X_test = scaler.transform(X_test)
 
-X = np.concatenate([X_recog, X_det], axis=0)
-y = np.concatenate([y_recog, y_det], axis=0)
+svm_model = SVC(kernel='linear')
+svm_model.fit(X_train, y_train)
 
-encoder = LabelEncoder()
-y_encoded = encoder.fit_transform(y)
-y_categorical = to_categorical(y_encoded)
+y_pred = svm_model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
-def balance_data(X, y, encoder):
-    unique_labels, counts = np.unique(y, return_counts=True)
-    min_count = min(counts)
-    balanced_X = []
-    balanced_y = []
-    
-    for label in unique_labels:
-        label_indices = np.where(y == label)[0]
-        selected_indices = np.random.choice(label_indices, min_count, replace=False)
-        balanced_X.extend(X[selected_indices])
-        balanced_y.extend(y[selected_indices])
-    
-    balanced_X = np.array(balanced_X)
-    balanced_y = np.array(balanced_y)
-    balanced_y_encoded = encoder.transform(balanced_y)
-    return balanced_X, to_categorical(balanced_y_encoded)
+y_val_pred = svm_model.predict(X_val)
+val_accuracy = accuracy_score(y_val, y_val_pred)
+print(f"Validation Accuracy: {val_accuracy * 100:.2f}%")
 
-X_balanced, y_balanced = balance_data(X, y, encoder)
+def predict_emotion(audio_path, model, scaler, label_encoder):
+    feature = extract_features(audio_path)
+    feature_scaled = scaler.transform([feature])
+    prediction = model.predict(feature_scaled)
+    predicted_label = label_encoder.inverse_transform(prediction)
+    return predicted_label[0]
 
-X_train, X_test, y_train, y_test = train_test_split(X_balanced, y_balanced, test_size=0.2, random_state=42)
-
-model = Sequential([
-    LSTM(128, input_shape=(X_train.shape[1], 1), return_sequences=True),
-    BatchNormalization(),
-    Dropout(0.3),
-    LSTM(64),
-    BatchNormalization(),
-    Dropout(0.3),
-    Dense(len(encoder.classes_), activation='softmax')
-])
-
-
-model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
-
-X_train = X_train[..., np.newaxis]
-X_test = X_test[..., np.newaxis]
-
-history = model.fit(X_train, y_train, epochs=30, batch_size=32, validation_data=(X_test, y_test))
-
-test_loss, test_accuracy = model.evaluate(X_test, y_test)
-print(f"Test Accuracy: {test_accuracy * 100:.2f}%")
+audio_file_path = r"C:\Users\MOUSTAFA\OneDrive\Documents\GitHub\Presentation-Skills\test\female_fear\YAF_bar_fear.wav"
+predicted_emotion = predict_emotion(audio_file_path, svm_model, scaler, label_encoder)
+print(f"Predicted Emotion: {predicted_emotion}")
