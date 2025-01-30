@@ -22,11 +22,7 @@ emotion_model = model_from_json(loaded_model_json)
 emotion_model.load_weights("model/emotion_model.h5")
 print("Loaded model from disk")
 
-# start the webcam feed
-#cap = cv2.VideoCapture(0)
 
-# pass here your video path
-# you may download one from here : https://www.pexels.com/video/three-girls-laughing-5273028/
 cap = cv2.VideoCapture("D:\GitHub\Presentation-Skills\Videos\happyvid.mp4")
 
 while True:
