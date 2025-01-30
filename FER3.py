@@ -6,11 +6,11 @@ from collections import Counter
 from deepface import DeepFace
 import dlib
 
-# 1️⃣ SETUP FACE & EYE DETECTOR
+#  SETUP FACE & EYE DETECTOR
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")  # Ensure the file is in your project folder
 
-# 2️⃣ FUNCTION TO REFINE EMOTIONS BASED ON EYE CONTACT
+#  FUNCTION TO REFINE EMOTIONS BASED ON EYE CONTACT
 def refine_emotion_prediction(emotion, eye_contact):
     """
     Adjusts emotion classification based on eye contact.
@@ -35,7 +35,7 @@ def refine_emotion_prediction(emotion, eye_contact):
 
     return emotion  # Default case, return the original emotion
 
-# 3️⃣ FUNCTION TO DETECT EYE CONTACT
+#  FUNCTION TO DETECT EYE CONTACT
 def detect_eye_contact(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
@@ -57,7 +57,7 @@ def detect_eye_contact(image):
     
     return "No Face Detected"
 
-# 4️⃣ FUNCTION TO CROP FACE FROM FRAME
+#  FUNCTION TO CROP FACE FROM FRAME
 def preprocess_frame(image_path):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -78,13 +78,13 @@ def preprocess_frame(image_path):
 
     return cv2.resize(image, (224, 224))  # Resize even if no face detected to avoid DeepFace errors
 
-# 5️⃣ FUNCTION TO EXTRACT FRAMES FROM VIDEO
+#  FUNCTION TO EXTRACT FRAMES FROM VIDEO
 def extract_frames(video_path, output_folder, frame_rate=5):
     """
     Extract frames from a video at a specified frame rate.
     """
     if not os.path.exists(video_path):
-        print(f"⚠ Error: Video file not found at {video_path}")
+        print(f" Error: Video file not found at {video_path}")
         return 0
 
     os.makedirs(output_folder, exist_ok=True)
@@ -94,7 +94,7 @@ def extract_frames(video_path, output_folder, frame_rate=5):
     print(f"🎥 FPS Detected: {fps}")
 
     if fps == 0:
-        print("⚠ Error: Unable to read FPS. Check if the video file is valid.")
+        print(" Error: Unable to read FPS. Check if the video file is valid.")
         return 0
 
     frame_interval = max(1, fps // frame_rate)  # Extract every nth frame
@@ -115,10 +115,10 @@ def extract_frames(video_path, output_folder, frame_rate=5):
         frame_count += 1
 
     cap.release()
-    print(f"✅ Extracted {extracted_count} frames.")
+    print(f" Extracted {extracted_count} frames.")
     return extracted_count
 
-# 6️⃣ FUNCTION TO PREDICT EMOTIONS & EYE CONTACT
+#  FUNCTION TO PREDICT EMOTIONS & EYE CONTACT
 def predict_emotions_on_frames(frame_folder):
     """
     Runs DeepFace on each extracted frame to detect emotions and eye contact.
@@ -128,7 +128,7 @@ def predict_emotions_on_frames(frame_folder):
     frame_files = sorted([f for f in os.listdir(frame_folder) if f.endswith(".jpg")])
 
     if not frame_files:
-        print("⚠ Error: No frames found in folder. Make sure the extraction step worked correctly.")
+        print(" Error: No frames found in folder. Make sure the extraction step worked correctly.")
         return results
 
     for frame_file in frame_files:
@@ -159,7 +159,7 @@ def predict_emotions_on_frames(frame_folder):
 
     return results
 
-# 7️⃣ FUNCTION TO DETERMINE OVERALL VIDEO EMOTION
+#  FUNCTION TO DETERMINE OVERALL VIDEO EMOTION
 def aggregate_emotions(predictions):
     """
     Uses a weighted approach to determine the most common emotion.
@@ -174,16 +174,16 @@ def aggregate_emotions(predictions):
     sorted_emotions = sorted(emotion_counts.items(), key=lambda x: x[1], reverse=True)
     dominant_emotion = sorted_emotions[0][0]
 
-    print(f"🎥 Most Common Emotion in Video (Refined): {dominant_emotion}")
+    print(f" Most Common Emotion in Video (Refined): {dominant_emotion}")
     return dominant_emotion
 
-# 8️⃣ FUNCTION TO PLOT EMOTIONS & EYE CONTACT OVER TIME
+#  FUNCTION TO PLOT EMOTIONS & EYE CONTACT OVER TIME
 def plot_emotions(predictions):
     """
     Plots the detected emotions and eye contact over time.
     """
     if not predictions:
-        print("⚠ No emotions detected, skipping the graph.")
+        print(" No emotions detected, skipping the graph.")
         return
 
     frame_numbers = list(range(len(predictions)))
@@ -206,7 +206,7 @@ def plot_emotions(predictions):
     plt.legend()
     plt.show()
 
-# 9️⃣ RUN THE FULL PIPELINE
+#  RUN THE FULL PIPELINE
 if __name__ == "__main__":
     video_path = r"D:\GitHub\Presentation-Skills\happyvid.mp4"
     frame_folder = "video_frames"
