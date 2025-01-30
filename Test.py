@@ -1,6 +1,13 @@
 import cv2
 import numpy as np
 from keras.models import model_from_json
+from keras.models import model_from_json, Sequential  # Import Sequential
+
+# Load JSON model
+with open("emotion_model.json", "r") as json_file:
+    loaded_model_json = json_file.read()
+
+emotion_model = model_from_json(loaded_model_json)
 
 
 emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
