@@ -65,7 +65,7 @@ with open("emotion_model.json", "w") as json_file:
     json_file.write(model_json)
 
 # save trained model weight in .h5 file
-
+emotion_model.save_weights("emotion_model.weights.h5")  # Saves only weights
 emotion_model.save('emotion_model.keras')  # Saves full model
 
 
