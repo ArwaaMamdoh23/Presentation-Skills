@@ -1,56 +1,79 @@
 import cv2
 import numpy as np
-from keras.models import model_from_json
-from keras.models import model_from_json, Sequential  # Import Sequential
+from keras.models import load_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-# Load JSON model
-with open("emotion_model.json", "r") as json_file:
-    loaded_model_json = json_file.read()
+# ---------------- Step 1: Load the Trained Model ----------------
+print("Loading trained model...")
+emotion_model = load_model("emotion_model.keras")  # Load full model
+print("✅ Model loaded successfully!")
 
-emotion_model = model_from_json(loaded_model_json)
+# ---------------- Step 2: Evaluate Model on Test Data ----------------
+# Initialize image data generator for test data
+test_data_gen = ImageDataGenerator(rescale=1./255)
 
+# Load test dataset
+test_generator = test_data_gen.flow_from_directory(
+    r'D:\GitHub\Presentation-Skills\DataSet\test',  # Path to test dataset
+    target_size=(48, 48),
+    batch_size=64,
+    color_mode="grayscale",
+    class_mode='categorical',
+    shuffle=False  # Important: Keep predictions aligned with labels
+)
 
-emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy", 4: "Neutral", 5: "Sad", 6: "Surprised"}
+# Evaluate model performance
+test_loss, test_acc = emotion_model.evaluate(test_generator, steps=len(test_generator))
+print(f"📊 Test Accuracy: {test_acc * 100:.2f}%")
 
-# load json and create model
-json_file = open('model/emotion_model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-emotion_model = model_from_json(loaded_model_json)
+# ---------------- Step 3: Real-Time Emotion Detection on Video ----------------
+emotion_dict = {0: "Angry", 1: "Disgusted", 2: "Fearful", 3: "Happy",
+                4: "Neutral", 5: "Sad", 6: "Surprised", 7: "Other"}
 
-# load weights into new model
-emotion_model.load_weights("model/emotion_model.h5")
-print("Loaded model from disk")
+# Load video for emotion detection
+video_path = r"D:\GitHub\Presentation-Skills\Videos\happyvid.mp4"
+cap = cv2.VideoCapture(video_path)
 
-
-cap = cv2.VideoCapture("D:\GitHub\Presentation-Skills\Videos\happyvid.mp4")
+# Load Haar Cascade for face detection
+face_detector = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
 
 while True:
-    # Find haar cascade to draw bounding box around face
+    # Read each frame
     ret, frame = cap.read()
-    frame = cv2.resize(frame, (1280, 720))
     if not ret:
         break
-    face_detector = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')
+    
+    # Resize and convert to grayscale
+    frame = cv2.resize(frame, (1280, 720))
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # detect faces available on camera
-    num_faces = face_detector.detectMultiScale(gray_frame, scaleFactor=1.3, minNeighbors=5)
+    # Detect faces in the frame
+    faces = face_detector.detectMultiScale(gray_frame, scaleFactor=1.3, minNeighbors=5)
 
-    # take each face available on the camera and Preprocess it
-    for (x, y, w, h) in num_faces:
+    # Process each detected face
+    for (x, y, w, h) in faces:
+        # Draw a rectangle around the face
         cv2.rectangle(frame, (x, y-50), (x+w, y+h+10), (0, 255, 0), 4)
+
+        # Extract the face region
         roi_gray_frame = gray_frame[y:y + h, x:x + w]
         cropped_img = np.expand_dims(np.expand_dims(cv2.resize(roi_gray_frame, (48, 48)), -1), 0)
 
-        # predict the emotions
+        # Predict the emotion
         emotion_prediction = emotion_model.predict(cropped_img)
         maxindex = int(np.argmax(emotion_prediction))
-        cv2.putText(frame, emotion_dict[maxindex], (x+5, y-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+        
+        # Display emotion label
+        cv2.putText(frame, emotion_dict[maxindex], (x+5, y-20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
+    # Show the output frame
     cv2.imshow('Emotion Detection', frame)
+    
+    # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+# Release resources
 cap.release()
 cv2.destroyAllWindows()
