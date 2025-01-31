@@ -39,3 +39,4 @@ print(classification_report(test_generator.classes, predictions.argmax(axis=1)))
 # Evaluate the model on the test data
 test_loss, test_acc = emotion_model.evaluate(test_generator)
 print(f"📊 Test Accuracy: {test_acc * 100:.2f}%")
+
