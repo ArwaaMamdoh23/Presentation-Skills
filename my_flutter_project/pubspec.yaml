@@ -17,6 +17,9 @@ dependencies:
   # Add the flutter_signin_button package here
   flutter_signin_button: ^2.0.0
 
+  # Add shared_preferences for local storage
+  shared_preferences: ^2.0.15
+
   # The following adds the Cupertino Icons font to your application.
   cupertino_icons: ^1.0.8
 
@@ -33,3 +36,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/google_icon.png
+    - assets/images/facebook_icon.png
+

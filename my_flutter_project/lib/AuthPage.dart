@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'SignUpPage.dart';
 import 'SignInPage.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart'; // Import the package for Google/Facebook buttons
 
 class AuthPage extends StatelessWidget {
   @override
@@ -42,7 +41,7 @@ class AuthPage extends StatelessWidget {
                       Navigator.pushNamed(context, '/sign-up');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 189, 191, 191), // Corrected this line
+                      backgroundColor: const Color.fromARGB(255, 189, 191, 191),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -62,7 +61,7 @@ class AuthPage extends StatelessWidget {
                       Navigator.pushNamed(context, '/sign-in');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 189, 191, 191), // Corrected this line
+                      backgroundColor: const Color.fromARGB(255, 189, 191, 191),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -77,27 +76,42 @@ class AuthPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 40),
-                  Text("Or Sign In With:"),
+                  Text(
+                    "Login with Social Media", // Added text above the social media buttons
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Google Sign-In Button
-                      SignInButton(
-                        Buttons.Google,
-                        onPressed: () {
-                          // Handle Google Sign-In here
-                          print("Sign in with Google");
-                        },
+                      // Google Sign-In Button with custom image in Circle
+                      ClipOval(
+                        child: Container(
+                          color: Colors.white, // Background color for the circle
+                          child: Image.asset(
+                            'assets/images/google_icon.png', // Path to Google icon
+                            width: 50, // Set the size of the icon
+                            height: 50, // Set the size of the icon
+                            fit: BoxFit.cover, // Make sure the icon fits within the circle
+                          ),
+                        ),
                       ),
                       SizedBox(width: 10),
-                      // Facebook Sign-In Button
-                      SignInButton(
-                        Buttons.Facebook,
-                        onPressed: () {
-                          // Handle Facebook Sign-In here
-                          print("Sign in with Facebook");
-                        },
+                      // Facebook Sign-In Button with custom image in Circle
+                      ClipOval(
+                        child: Container(
+                          color: Colors.white, // Background color for the circle
+                          child: Image.asset(
+                            'assets/images/facebook_icon.png', // Path to Facebook icon
+                            width: 50, // Set the size of the icon
+                            height: 50, // Set the size of the icon
+                            fit: BoxFit.cover, // Make sure the icon fits within the circle
+                          ),
+                        ),
                       ),
                     ],
                   ),
