@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.blue.shade50, // Light blue background
         textTheme: TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
-          bodyLarge: TextStyle(color: Colors.black), // Updated to bodyLarge
+          bodyLarge: TextStyle(color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(

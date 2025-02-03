@@ -1,5 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'SignUpPage.dart';
+import 'SignInPage.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart'; // Import the package for Google/Facebook buttons
 
 class AuthPage extends StatelessWidget {
   @override
@@ -11,7 +13,10 @@ class AuthPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [const Color.fromARGB(255, 169, 171, 172), const Color.fromARGB(255, 195, 213, 226),],
+                colors: [
+                  const Color.fromARGB(255, 169, 171, 172),  // Adjusted gradient for better contrast
+                  const Color.fromARGB(255, 195, 213, 226),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -27,46 +32,75 @@ class AuthPage extends StatelessWidget {
                     'PresentSense', // App name
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 30,
+                      fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(height: 50),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/sign-up');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 189, 191, 191), // Corrected this line
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                    ),
+                    child: Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: const Color.fromARGB(255, 175, 177, 177),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/sign-in');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 189, 191, 191), // Corrected this line
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                    ),
+                    child: Text(
+                      'Sign In',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: const Color.fromARGB(255, 175, 177, 177),
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 40),
-                 ElevatedButton(
-  onPressed: () {
-    Navigator.pushNamed(context, '/sign-up');
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 189, 191, 191),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // Optional: Rounded corners for the button
-    ),
-    padding: EdgeInsets.symmetric(vertical: 15), // Optional: Adjust padding
-  ),
-  child: Text(
-    'Sign Up',
-    style: TextStyle(fontSize: 18, color: const Color.fromARGB(255, 175, 177, 177)), // Set the font color here
-  ),
-),
-SizedBox(height: 20),
-ElevatedButton(
-  onPressed: () {
-    Navigator.pushNamed(context, '/sign-in');
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 189, 191, 191), // Set background color here for Sign In button
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // Optional: Rounded corners for the button
-    ),
-    padding: EdgeInsets.symmetric(vertical: 15), // Optional: Adjust padding
-  ),
-  child: Text(
-    'Sign In',
-    style: TextStyle(fontSize: 18, color: const Color.fromARGB(255, 175, 177, 177)), // Set the font color here
-  ),
-)
-
-                  
+                  Text("Or Sign In With:"),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Google Sign-In Button
+                      SignInButton(
+                        Buttons.Google,
+                        onPressed: () {
+                          // Handle Google Sign-In here
+                          print("Sign in with Google");
+                        },
+                      ),
+                      SizedBox(width: 10),
+                      // Facebook Sign-In Button
+                      SignInButton(
+                        Buttons.Facebook,
+                        onPressed: () {
+                          // Handle Facebook Sign-In here
+                          print("Sign in with Facebook");
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -76,4 +110,3 @@ ElevatedButton(
     );
   }
 }
-
