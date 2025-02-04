@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart'; // File picker package
-import 'dart:io'; // For handling files
+import 'dart:typed_data'; // For handling file bytes
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -13,7 +13,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  File? _image; // This will hold the selected image
+  Uint8List? _imageBytes; // Store image as bytes
 
   @override
   void initState() {
@@ -29,9 +29,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       emailController.text = prefs.getString('email') ?? '';
       phoneController.text = prefs.getString('phone') ?? '';
       passwordController.text = prefs.getString('password') ?? '';
-      String? imagePath = prefs.getString('profile_image');
-      if (imagePath != null) {
-        _image = File(imagePath); // Load saved image if available
+      String? imageBytesString = prefs.getString('profile_image_bytes');
+      if (imageBytesString != null) {
+        _imageBytes = Uint8List.fromList(imageBytesString.codeUnits); // Load bytes
       }
     });
   }
@@ -42,15 +42,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
 
     if (result != null) {
-      // Get the file path
+      // Get the file as bytes (for Flutter web)
       PlatformFile file = result.files.first;
       setState(() {
-        _image = File(file.path!); // Convert the picked file into a File object
+        _imageBytes = file.bytes; // Store the bytes instead of file path
       });
 
-      // Save the image path to SharedPreferences
+      // Save the image bytes to SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('profile_image', file.path!); // Save image path
+      prefs.setString('profile_image_bytes', String.fromCharCodes(_imageBytes!)); // Save as string
     }
   }
 
@@ -61,8 +61,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     prefs.setString('email', emailController.text);
     prefs.setString('phone', phoneController.text);
     prefs.setString('password', passwordController.text);
-    if (_image != null) {
-      prefs.setString('profile_image', _image!.path); // Save the selected profile image
+    if (_imageBytes != null) {
+      prefs.setString('profile_image_bytes', String.fromCharCodes(_imageBytes!)); // Save the selected image bytes
     }
     Navigator.pop(context); // Go back to ProfilePage after saving
   }
@@ -87,10 +87,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.blueAccent,
-                    backgroundImage: _image == null ? null : FileImage(_image!), // Show the selected image if available
-                    child: _image == null
+                    backgroundImage: _imageBytes == null
+                        ? null
+                        : MemoryImage(_imageBytes!), // Use MemoryImage to display image from bytes
+                    child: _imageBytes == null
                         ? Text(
-                            nameController.text.isNotEmpty ? nameController.text[0] : 'U', // Show initial if no image
+                            nameController.text.isNotEmpty ? nameController.text[0] : 'U', // Display initial if no image
                             style: TextStyle(fontSize: 40, color: Colors.white),
                           )
                         : null,
