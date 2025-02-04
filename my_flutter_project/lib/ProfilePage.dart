@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:image_picker/image_picker.dart'; // Image picker package
+import 'package:file_picker/file_picker.dart';  // Import file_picker instead of image_picker
 import 'dart:io'; // For handling files
+import 'EditProfilePage.dart';  // Import EditProfilePage
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,8 +14,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String? email;
   String? profession;
   File? _image; // This will hold the selected image
-
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -36,16 +35,21 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  // Select an image from the gallery or camera
+  // Select an image from the gallery using file_picker (for web)
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery); // Use ImageSource.camera for camera
-    if (pickedFile != null) {
+    // Use file_picker for web environments
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null) {
+      // Get the file path
+      PlatformFile file = result.files.first;
       setState(() {
-        _image = File(pickedFile.path);
+        _image = File(file.path!); // Convert the picked file into a File object
       });
+
       // Save the image path to SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('profile_image', pickedFile.path); // Save image path
+      prefs.setString('profile_image', file.path!); // Save image path
     }
   }
 
@@ -70,10 +74,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     radius: 50,
                     backgroundColor: Colors.blueAccent,
                     backgroundImage: _image == null ? null : FileImage(_image!), // Show the selected image if available
-                    child: _image == null ? Text(
-                      name != null ? name![0] : 'U', // Display initials if no image is selected
-                      style: TextStyle(fontSize: 40, color: Colors.white),
-                    ) : null,
+                    child: _image == null
+                        ? Text(
+                            name != null ? name![0] : 'U', // Display initials if no image is selected
+                            style: TextStyle(fontSize: 40, color: Colors.white),
+                          )
+                        : null,
                   ),
                   Positioned(
                     bottom: 0,
