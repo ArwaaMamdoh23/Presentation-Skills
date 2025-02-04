@@ -18,7 +18,7 @@ dependencies:
   shared_preferences: ^2.0.15
 
   # Use file_picker for selecting profile pictures on web
-  file_picker: ^5.0.1  # Use file_picker instead of image_picker for web
+  file_picker: ^5.0.1  # Keep the general package, this works on Web
 
   # The following adds the Cupertino Icons font to your application.
   cupertino_icons: ^1.0.8
