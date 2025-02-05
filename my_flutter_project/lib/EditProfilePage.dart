@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_picker/file_picker.dart'; // File picker package
+import 'dart:typed_data'; // For handling file bytes
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -11,11 +13,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  Uint8List? _imageBytes; // Store image as bytes
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    _loadUserProfile(); // Load the profile data from SharedPreferences
   }
 
   // Load user profile data from SharedPreferences
@@ -26,7 +29,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
       emailController.text = prefs.getString('email') ?? '';
       phoneController.text = prefs.getString('phone') ?? '';
       passwordController.text = prefs.getString('password') ?? '';
+      String? imageBytesString = prefs.getString('profile_image_bytes');
+      if (imageBytesString != null) {
+        _imageBytes = Uint8List.fromList(imageBytesString.codeUnits); // Load bytes
+      }
     });
+  }
+
+  // Select an image from the gallery using file_picker (for web)
+  Future<void> _pickImage() async {
+    // Use file_picker for web environments
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+
+    if (result != null) {
+      // Get the file as bytes (for Flutter web)
+      PlatformFile file = result.files.first;
+      setState(() {
+        _imageBytes = file.bytes; // Store the bytes instead of file path
+      });
+
+      // Save the image bytes to SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('profile_image_bytes', String.fromCharCodes(_imageBytes!)); // Save as string
+    }
   }
 
   // Save user profile data to SharedPreferences
@@ -36,6 +61,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     prefs.setString('email', emailController.text);
     prefs.setString('phone', phoneController.text);
     prefs.setString('password', passwordController.text);
+    if (_imageBytes != null) {
+      prefs.setString('profile_image_bytes', String.fromCharCodes(_imageBytes!)); // Save the selected image bytes
+    }
     Navigator.pop(context); // Go back to ProfilePage after saving
   }
 
@@ -52,6 +80,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // Profile Picture with Edit Icon
+            Center(
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.blueAccent,
+                    backgroundImage: _imageBytes == null
+                        ? null
+                        : MemoryImage(_imageBytes!), // Use MemoryImage to display image from bytes
+                    child: _imageBytes == null
+                        ? Text(
+                            nameController.text.isNotEmpty ? nameController.text[0] : 'U', // Display initial if no image
+                            style: TextStyle(fontSize: 40, color: Colors.white),
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        icon: Icon(Icons.edit, size: 16, color: Colors.blueAccent),
+                        onPressed: _pickImage, // Trigger the image picker when the icon is pressed
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: nameController,
               decoration: InputDecoration(labelText: 'Full Name', labelStyle: TextStyle(color: Colors.black)),
