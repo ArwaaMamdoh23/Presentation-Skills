@@ -100,7 +100,9 @@ if use_webcam:
     cap = cv2.VideoCapture(0)  # Use the first webcam
     output_video_path = "webcam_output.mp4"
 else:
-    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TasnimGesture.mp4"  # Change this to your video file path
+    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk.mp4"  # Change this to your video file path    
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk2.mp4"  # Change this to your video file path
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TasnimGesture.mp4"  # Change this to your video file path
     # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/MayarGesture.mp4"  # Change this to your video file path
     cap = cv2.VideoCapture(input_video_path)
     output_video_path = "output_video.mp4"
@@ -128,7 +130,7 @@ while cap.isOpened():
     # elif frame_height > frame_width and frame[0, 0, 0] < frame[-1, -1, 0]:
     #     frame = cv2.rotate(frame, cv2.ROTATE_180)
 
-    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
     # Convert to RGB (MediaPipe requires RGB format)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
