@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'ProfilePage.dart'; // Import the ProfilePage
+import 'package:my_flutter_project/UploadVideo.dart';// Import the Upload Video Page
 
 class SignInPage extends StatefulWidget {
   @override
@@ -10,18 +10,14 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Simulate the sign-in process
   void _signIn() {
-    // Here, you would normally call your authentication service (e.g., Firebase Auth)
-    // For now, we simulate a successful sign-in by just checking if the fields are filled.
     if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      // If sign-in is successful, navigate to ProfilePage
+      // Navigate to UploadVideoPage after successful sign-in
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfilePage()), // Navigate to ProfilePage
+        MaterialPageRoute(builder: (context) => UploadVideoPage()),
       );
     } else {
-      // Show error message if fields are empty
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter valid credentials')),
       );
