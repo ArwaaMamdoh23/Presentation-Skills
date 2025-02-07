@@ -19,29 +19,19 @@ current_frame = 0  # Track the current frame number
 
 # Gesture to Body Language Mapping
 gesture_to_body_language = {
-    "Open Palm 🖐️": "Honesty",
-    "Closed Fist ✊": "Determination",
-    "Pointing Finger ☝️": "Confidence",
-    "Thumbs Up 👍": "Encouragement",
-    "Thumbs Down 👎": "Criticism",
-    "Victory Sign ✌️": "Peace",
-    "OK Sign 👌": "Agreement",
-    "Rock Sign 🤘": "Excitement",
-    "Call Me 🤙": "Friendly"
+    "Open Palm": "Honesty",
+    "Closed Fist": "Determination",
+    "Pointing Finger": "Confidence",
+    "Thumbs Up": "Encouragement",
+    "Thumbs Down": "Criticism",
+    "Victory Sign": "Peace",
+    "OK Sign": "Agreement",
+    "Rock Sign": "Excitement",
+    "Call Me": "Friendly"
 }
-
-# **Create a Gesture Report file**
-gesture_report_path = "Gesture_Report.txt"
-with open(gesture_report_path, "w", encoding="utf-8") as file:
-    file.write("📝 Gesture Report\n")
-    file.write("=" * 30 + "\n")
 
 # Gesture classification function
 def classify_hand_gesture(hand_landmarks):
-    """
-    Detects common hand gestures based on MediaPipe landmarks.
-    Returns the detected gesture name.
-    """
 
     # Extract landmark coordinates
     landmarks = np.array([(lm.x, lm.y) for lm in hand_landmarks.landmark])
@@ -57,7 +47,6 @@ def classify_hand_gesture(hand_landmarks):
 
     
     thumb_extended = landmarks[THUMB_TIP][1] < landmarks[THUMB_IP][1]
-    # thumb_extended = landmarks[THUMB_TIP][0] > landmarks[THUMB_MCP][0]  # Thumb extended outward
     index_extended = is_finger_extended(INDEX_TIP, INDEX_DIP)
     middle_extended = is_finger_extended(MIDDLE_TIP, MIDDLE_DIP)
     ring_extended = is_finger_extended(RING_TIP, RING_DIP)
@@ -65,56 +54,45 @@ def classify_hand_gesture(hand_landmarks):
 
     # Gesture classification logic
     if all([index_extended, middle_extended, ring_extended, pinky_extended]) and not thumb_extended:
-        return "Open Palm 🖐️"
+        return "Open Palm"
 
     if not any([index_extended, middle_extended, ring_extended, pinky_extended, thumb_extended]):
-        return "Closed Fist ✊"
+        return "Closed Fist"
 
     if index_extended and not any([middle_extended, ring_extended, pinky_extended]):
-        return "Pointing Finger ☝️"
+        return "Pointing Finger"
 
     if thumb_extended and not any([index_extended, middle_extended, ring_extended, pinky_extended]):
-        return "Thumbs Up 👍"
+        return "Thumbs Up"
     
-# ✅ Thumbs Down Detection (Thumb down and other fingers curled)
     if not thumb_extended and not any([index_extended, middle_extended, ring_extended, pinky_extended]):
-        return "Thumbs Down 👎"
+        return "Thumbs Down"
 
     if not thumb_extended and all([index_extended, middle_extended]) and not any([ring_extended, pinky_extended]):
-        return "Victory Sign ✌️"
+        return "Victory Sign"
 
     if thumb_extended and index_extended and not any([middle_extended, ring_extended, pinky_extended]):
-        return "OK Sign 👌"
+        return "OK Sign"
 
     if index_extended and pinky_extended and not any([middle_extended, ring_extended]):
-        return "Rock Sign 🤘"
+        return "Rock Sign"
 
     if thumb_extended and pinky_extended and not any([index_extended, middle_extended, ring_extended]):
-        return "Call Me 🤙"
+        return "Call Me"
 
     return "Unknown Gesture"
 
-# **🔹 Read input video file instead of webcam**
 use_webcam = False  # Set to False if you want to use a video file
 if use_webcam:
     cap = cv2.VideoCapture(0)  # Use the first webcam
     output_video_path = "webcam_output.mp4"
 else:
-    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk.mp4"  # Change this to your video file path    
-    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk2.mp4"  # Change this to your video file path
-    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TasnimGesture.mp4"  # Change this to your video file path
-    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/MayarGesture.mp4"  # Change this to your video file path
+    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk.mp4"  # Change this to your video file path    
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk2.mp4"  # Change this to your video file path
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TasnimGesture.mp4"  # Change this to your video file path
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/MayarGesture.mp4"  # Change this to your video file path
     cap = cv2.VideoCapture(input_video_path)
-    output_video_path = "output_video.mp4"
 
-# Get video properties
-fps = int(cap.get(cv2.CAP_PROP_FPS))
-frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-# Save the output video
-fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
 paused = False  # Variable to track pause state
 
@@ -123,12 +101,6 @@ while cap.isOpened():
     if not ret:
         break
     current_frame += 1  # Increment frame counter
-
-# Rotate frame if needed
-    # if frame_width > frame_height:
-    #     frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
-    # elif frame_height > frame_width and frame[0, 0, 0] < frame[-1, -1, 0]:
-    #     frame = cv2.rotate(frame, cv2.ROTATE_180)
 
     # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
@@ -143,26 +115,16 @@ while cap.isOpened():
         for hand_landmarks in results.multi_hand_landmarks:
             # Classify gesture
             gesture_name = classify_hand_gesture(hand_landmarks)
-# ✅ Skip unknown gestures
+#  Skip unknown gestures
             if gesture_name == "Unknown Gesture":
-                continue  # 🚀 Skips counting, logging, and displaying Unknown Gesture
+                continue  # Skips counting, logging, and displaying Unknown Gesture
             
-# ✅ Count the gesture **only if 10 frames have passed since the last count**
+#  Count the gesture **only if 10 frames have passed since the last count**
             if gesture_name not in last_counted_frame or (current_frame - last_counted_frame[gesture_name]) >= FRAME_INTERVAL:
                 gesture_counter[gesture_name] += 1  # Count gesture
                 last_counted_frame[gesture_name] = current_frame  # Update last counted frame
 
-            # Get body language meaning
-            # body_language_meaning = gesture_to_body_language.get(gesture_name, "Unknown Meaning")
-            # print(f"🔍 Detected Gesture: {gesture_name}")
             body_language_meaning = gesture_to_body_language.get(gesture_name, "Unknown Meaning")
-            # print(f"📝 Meaning: {body_language_meaning}")
-
-            # Draw hand landmarks (optional)
-            # mp_drawing.draw_landmarks(frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
-
-# ✅ Count detected gestures
-            gesture_counter[gesture_name] += 1
 
             # Get bounding box coordinates
             x_min = int(min([lm.x for lm in hand_landmarks.landmark]) * frame.shape[1])
@@ -183,13 +145,7 @@ while cap.isOpened():
             cv2.putText(frame, f"Body: {body_language_meaning}", (x_min, y_max + 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
-# ✅ **Save gesture detection to file with timestamp**
-            timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            with open(gesture_report_path, "a", encoding="utf-8") as file:
-                file.write(f"[{timestamp}] Detected Gesture: {gesture_name} - Meaning: {body_language_meaning}\n")
 
-    # Save processed frame to output video
-    out.write(frame)
 
     # Show video preview
     cv2.imshow("Hand Gesture & Body Language Recognition", frame)
@@ -212,29 +168,17 @@ while cap.isOpened():
                 break
             elif key2 == ord('q'):  # Quit if 'q' is pressed while paused
                 cap.release()
-                out.release()
                 cv2.destroyAllWindows()
-                print(f"Processed video saved at: {output_video_path}")
                 exit()   
 
 
-# ✅ Print & Save the Most Repeated Gestures
-most_common_gestures = gesture_counter.most_common(5)
-print("\n📊 Most Repeated Gestures:")
-with open(gesture_report_path, "a", encoding="utf-8") as file:
-    file.write("\n📊 Most Repeated Gestures:\n")
-
-for gesture, count in most_common_gestures:
+# Print the most repeated gestures with their meaning
+print("\n Most Repeated Gestures with Meaning:")
+for gesture, count in gesture_counter.most_common(5):
     meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
-    print(f"{gesture} ({meaning}): {count} times")
-    with open(gesture_report_path, "a", encoding="utf-8") as file:
-        file.write(f"{gesture} ({meaning}): {count} times\n")
+    print(f"{gesture}: {count} times - Meaning: {meaning}")
 
+    
 cap.release()
-out.release()
 cv2.destroyAllWindows()
-
-
-print(f"Processed video saved at: {output_video_path}")
-print(f"Gesture report saved at: {gesture_report_path}")
 

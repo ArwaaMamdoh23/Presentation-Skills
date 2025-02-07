@@ -106,9 +106,6 @@ def extract_keypoints(results):
 # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TasnimGesture.mp4"  # Change this to your video file path
 # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/MayarGesture.mp4"  # Change this to your video file path
 # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk.mp4"  # Change this to your video file path
-# input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Sitting.mp4"  # Change this to your video file path
-# input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/WSitting.mp4"  # Change this to your video file path
-# input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/ManSitting.mp4"  # Change this to your video file path
 input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/TedTalk2.mp4"  # Change this to your video file path
 cap = cv2.VideoCapture(input_video_path)
 
