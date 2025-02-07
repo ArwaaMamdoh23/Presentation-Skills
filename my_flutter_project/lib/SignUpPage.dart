@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui'; // Added for ImageFilter
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -22,22 +23,33 @@ class _SignUpPageState extends State<SignUpPage> {
         children: [
           Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [const Color.fromARGB(255, 169, 171, 172), const Color.fromARGB(255, 195, 213, 226)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+              image: DecorationImage(
+                image: AssetImage('assets/images/back.jpg'), // Background image
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.4), // Slight dark overlay
+                  BlendMode.darken,
+                ),
+              ),
+            ),
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Slight blur
+                child: Container(
+                  color: Colors.transparent,
+                ),
               ),
             ),
           ),
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Form(
                 key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(
+                    const Text(
                       'Create Your Account',
                       style: TextStyle(
                         color: Colors.white,
@@ -45,18 +57,21 @@ class _SignUpPageState extends State<SignUpPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     TextFormField(
                       controller: _fullNameController,
                       decoration: InputDecoration(
                         hintText: 'Full Name',
+                        hintStyle: TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
                         ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your name';
@@ -64,18 +79,21 @@ class _SignUpPageState extends State<SignUpPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
+                        hintStyle: TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
                         ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
@@ -88,19 +106,22 @@ class _SignUpPageState extends State<SignUpPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: 'Password',
+                        hintStyle: TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
                         ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       obscureText: true,
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your password';
@@ -111,19 +132,22 @@ class _SignUpPageState extends State<SignUpPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _confirmPasswordController,
                       decoration: InputDecoration(
                         hintText: 'Confirm Password',
+                        hintStyle: TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
                         ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       obscureText: true,
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value != _passwordController.text) {
                           return 'Passwords do not match';
@@ -131,35 +155,60 @@ class _SignUpPageState extends State<SignUpPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          // Add Sign-Up Logic here
-                          print("Signed up!");
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 189, 190, 191),
-                        shape: RoundedRectangleBorder(
+                    const SizedBox(height: 20),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 280), // Match button size with Sign In page
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blueGrey.shade900,
+                              Colors.blueGrey.shade700,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.lightBlue.withOpacity(0.4),
+                              blurRadius: 15,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: const Color.fromARGB(255, 175, 177, 177),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              print("Signed up!");
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size(280, 60), // Fixed width (280) and height (60)
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/sign-in');
                       },
-                      child: Text(
+                      child: const Text(
                         'Already have an account? Sign In',
                         style: TextStyle(color: Colors.white),
                       ),

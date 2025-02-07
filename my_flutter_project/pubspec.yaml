@@ -22,6 +22,7 @@ dependencies:
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
+ 
 
 dev_dependencies:
   flutter_test:
@@ -38,10 +39,4 @@ flutter:
   assets:
     - assets/images/google_icon.png
     - assets/images/facebook_icon.png
-    - assets/images/free-user-icon-3296-thumb.png
-    - assets/images/4c96d16b-b972-4cb3-8523-331cbe0bfd82.png
-    - assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png
-    - assets/images/settings icon.png
-
-
- 
+    - assets/images/back.jpg

@@ -16,26 +16,29 @@ class MyApp extends StatelessWidget {
       title: 'Presentation Skills',
       initialRoute: '/splash', // Set initial route
       routes: {
-        '/splash': (context) => SplashScreen(),
-        '/auth': (context) => AuthPage(),
-        '/sign-in': (context) => SignInPage(),
-        '/sign-up': (context) => SignUpPage(),
-        '/upload-video': (context) => UploadVideoPage(),
-      },
-    );
-  }
-}
+       '/': (context) => AuthPage(),
 
-class SplashScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png', 
-            fit: BoxFit.cover,
+        '/sign-up': (context) => const SignUpPage(),
+        '/sign-in': (context) => const SignInPage(),
+      },
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue.shade400,
+          primary: Colors.blue.shade500,
+          secondary: Colors.grey.shade300,
+        ),
+        scaffoldBackgroundColor: Colors.blue.shade50, // Light blue background
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
+          bodyLarge: TextStyle(color: Colors.black),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue.shade600,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 15),
           ),
           Center(
             child: Column(

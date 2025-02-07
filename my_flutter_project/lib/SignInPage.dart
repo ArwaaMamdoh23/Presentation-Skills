@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:my_flutter_project/UploadVideo.dart';// Import the Upload Video Page
+import 'dart:ui'; // Added for ImageFilter
+import 'ProfilePage.dart'; // Import the ProfilePage
 
 class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
   @override
   _SignInPageState createState() => _SignInPageState();
 }
@@ -12,14 +15,13 @@ class _SignInPageState extends State<SignInPage> {
 
   void _signIn() {
     if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
-      // Navigate to UploadVideoPage after successful sign-in
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => UploadVideoPage()),
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter valid credentials')),
+        const SnackBar(content: Text('Please enter valid credentials')),
       );
     }
   }
@@ -32,23 +34,31 @@ class _SignInPageState extends State<SignInPage> {
         children: [
           Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color.fromARGB(255, 169, 171, 172),
-                  const Color.fromARGB(255, 195, 213, 226),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+              image: DecorationImage(
+                image: AssetImage('assets/images/back.jpg'), // Background image
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.4), // Slight dark overlay
+                  BlendMode.darken,
+                ),
+              ),
+            ),
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Slight blur
+                child: Container(
+                  color: Colors.transparent,
+                ),
               ),
             ),
           ),
           Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'Welcome Back',
                     style: TextStyle(
                       color: Colors.white,
@@ -56,54 +66,89 @@ class _SignInPageState extends State<SignInPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
                       hintText: 'Email',
+                      hintStyle: TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: _passwordController,
                     decoration: InputDecoration(
                       hintText: 'Password',
+                      hintStyle: TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                     obscureText: true,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _signIn,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 189, 190, 191),
-                      shape: RoundedRectangleBorder(
+                  const SizedBox(height: 20),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 280), // Match button width with Sign Up page
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.blueGrey.shade900,
+                            Colors.blueGrey.shade700,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.lightBlue.withOpacity(0.4),
+                            blurRadius: 15,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    child: Text(
-                      'Sign In',
-                      style: TextStyle(fontSize: 18, color: const Color.fromARGB(255, 175, 177, 177)),
+                      child: ElevatedButton(
+                        onPressed: _signIn,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(280, 60), // Fixed width (280) and height (60)
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 20), // Consistent padding
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/sign-up');
                     },
-                    child: Text(
+                    child: const Text(
                       'Don\'t have an account? Sign Up',
                       style: TextStyle(color: Colors.white),
                     ),
