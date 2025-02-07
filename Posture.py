@@ -142,6 +142,22 @@ while cap.isOpened():
     posture_meaning = posture_meanings.get(posture, "Unknown Meaning")
     # gesture_meaning = posture_meanings.get(gesture, "Unknown Meaning")
 
+# Draw bounding box around keypoints
+    for keypoint in keypoints:
+        if keypoint['confidence'] > 0.5:  # Only draw if confidence is high enough
+            x = int(keypoint['x'] * frame.shape[1])
+            y = int(keypoint['y'] * frame.shape[0])
+            cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
+
+    # Highlight posture area (head, shoulders, etc.)
+    shoulder_x = int(keypoints[5]['x'] * frame.shape[1])
+    shoulder_y = int(keypoints[5]['y'] * frame.shape[0])
+    head_x = int(keypoints[0]['x'] * frame.shape[1])
+    head_y = int(keypoints[0]['y'] * frame.shape[0])
+
+   
+
+
     # Display the detected posture and its meaning
     cv2.putText(frame, f"Posture: {posture}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.putText(frame, f"Posture Meaning: {posture_meaning}", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
