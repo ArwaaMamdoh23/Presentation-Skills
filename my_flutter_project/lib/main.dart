@@ -17,9 +17,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // Remove the debug banner
       initialRoute: '/',
       routes: {
-        '/': (context) => AuthPage(),
-        '/sign-up': (context) => SignUpPage(),
-        '/sign-in': (context) => SignInPage(),
+       '/': (context) => AuthPage(),
+
+        '/sign-up': (context) => const SignUpPage(),
+        '/sign-in': (context) => const SignInPage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
           secondary: Colors.grey.shade300,
         ),
         scaffoldBackgroundColor: Colors.blue.shade50, // Light blue background
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
           bodyLarge: TextStyle(color: Colors.black),
         ),
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
-            padding: EdgeInsets.symmetric(vertical: 15),
+            padding: const EdgeInsets.symmetric(vertical: 15),
           ),
         ),
       ),
