@@ -71,7 +71,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'),
+                image: const AssetImage('assets/images/back.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.4),
@@ -130,7 +130,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(height: 30),
                 Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 280),
+                    constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -146,14 +146,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           BoxShadow(
                             color: Colors.lightBlue.withOpacity(0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: ElevatedButton(
                         onPressed: _saveUserProfile,
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(280, 60),
+                          minimumSize: const Size(280, 60),
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -189,7 +189,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: TextStyle(color: Colors.white70),
+          labelStyle: const TextStyle(color: Colors.white70),
           filled: true,
           fillColor: Colors.white.withOpacity(0.2),
           border: OutlineInputBorder(

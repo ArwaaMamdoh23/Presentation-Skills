@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:file_picker/file_picker.dart';  // Import file_picker for Flutter Web
-import 'dart:typed_data'; // For handling image bytes
-import 'dart:ui'; // Import for ImageFilter
-import 'EditProfilePage.dart';  // Import EditProfilePage
-import 'SignOutPage.dart';  // Import SignOutPage
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
+import 'dart:ui';
+import 'EditProfilePage.dart';
+import 'SignOutPage.dart';
+import 'SettingsPage.dart';
+import 'package:my_flutter_project/AdminDashboard.dart'; // Import the AdminDashboard page
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? name;
   String? email;
   String? profession;
-  Uint8List? _imageBytes; // Store image as bytes
+  Uint8List? _imageBytes;
 
   @override
   void initState() {
@@ -53,8 +55,21 @@ class _ProfilePageState extends State<ProfilePage> {
   void _signOut() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => 
-       SignOutPage()),
+      MaterialPageRoute(builder: (context) => const SignOutPage()),
+    );
+  }
+
+  void _goToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
+  void _goToDashboard() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AdminDashboard()), // Navigate to AdminDashboard
     );
   }
 
@@ -67,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'),
+                image: const AssetImage('assets/images/back.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.4),
@@ -78,9 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.transparent,
-                ),
+                child: Container(color: Colors.transparent),
               ),
             ),
           ),
@@ -125,78 +138,27 @@ class _ProfilePageState extends State<ProfilePage> {
                   Text('Profession: $profession', style: const TextStyle(fontSize: 18, color: Colors.white)),
                   const SizedBox(height: 30),
 
-                  Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 280),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.blueGrey.shade900,
-                              Colors.blueGrey.shade700,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.lightBlue.withOpacity(0.4),
-                              blurRadius: 15,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: Size(280, 60),
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: const Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildButton('Edit Profile', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                    );
+                  }),
+
+                  const SizedBox(height: 20),
+
+                  _buildButton('Dashboard', _goToDashboard), // Updated button for Dashboard
+
                   const SizedBox(height: 30),
 
-                  const ListTile(
-                    leading: Icon(Icons.settings, color: Colors.white),
-                    title: Text('Settings', style: TextStyle(color: Colors.white)),
-                  ),
-                  const ListTile(
-                    leading: Icon(Icons.payment, color: Colors.white),
-                    title: Text('Billing Details', style: TextStyle(color: Colors.white)),
-                  ),
-                  const ListTile(
-                    leading: Icon(Icons.account_box, color: Colors.white),
-                    title: Text('User Management', style: TextStyle(color: Colors.white)),
-                  ),
-                  const ListTile(
-                    leading: Icon(Icons.info, color: Colors.white),
-                    title: Text('Information', style: TextStyle(color: Colors.white)),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.exit_to_app, color: Colors.white),
-                    title: Text('Logout', style: TextStyle(color: Colors.white)),
-                    onTap: _signOut, // Redirect to SignOutPage when tapped
+                  Column(
+                    children: [
+                      _buildListTile(Icons.payment, 'Billing Details'),
+                      _buildListTile(Icons.account_box, 'User Management'),
+                      _buildListTile(Icons.info, 'Information'),
+                      _buildListTile(Icons.settings, 'Settings', _goToSettings),
+                      _buildListTile(Icons.exit_to_app, 'Logout', _signOut),
+                    ],
                   ),
                 ],
               ),
@@ -204,6 +166,62 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildButton(String text, VoidCallback onPressed) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 280),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.blueGrey.shade900,
+                Colors.blueGrey.shade700,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.lightBlue.withOpacity(0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(280, 60),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListTile(IconData icon, String title, [VoidCallback? onTap]) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      onTap: onTap,
     );
   }
 }

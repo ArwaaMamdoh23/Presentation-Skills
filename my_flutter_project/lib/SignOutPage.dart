@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'UploadVideo.dart'; // Import UploadVideo for navigation
 import 'dart:ui'; // Import for ImageFilter
 
 class SignOutPage extends StatelessWidget {
+  const SignOutPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +14,7 @@ class SignOutPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'), // Background image
+                image: const AssetImage('assets/images/back.jpg'), // Background image
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.4), // Slight dark overlay
@@ -45,7 +48,7 @@ class SignOutPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 280),
+                    constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -61,16 +64,19 @@ class SignOutPage extends StatelessWidget {
                           BoxShadow(
                             color: Colors.lightBlue.withOpacity(0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const UploadVideoPage()), // Redirect to UploadVideoPage
+                          );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(280, 60),
+                          minimumSize: const Size(280, 60),
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -79,7 +85,7 @@ class SignOutPage extends StatelessWidget {
                           ),
                         ),
                         child: const Text(
-                          'Sign In Again',
+                          'Go to Upload Video',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
