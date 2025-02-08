@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'SettingsPage.dart'; // Import your SettingsPage here
-import 'EditProfilePage.dart';
-import 'AdminDashboard.dart'; // Import the Admin Dashboard page
+import 'SettingsPage.dart';
+import 'ProfilePage.dart';
 
 class UploadVideoPage extends StatefulWidget {
+  const UploadVideoPage({super.key});
+
   @override
   _UploadVideoPageState createState() => _UploadVideoPageState();
 }
@@ -14,11 +15,21 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   File? _videoFile;
 
   Future<void> _pickVideo() async {
-    final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _videoFile = File(pickedFile.path);
-      });
+    try {
+      final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _videoFile = File(pickedFile.path);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No video selected')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
@@ -27,38 +38,36 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0, // Remove AppBar shadow
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // Settings Icon
           IconButton(
             icon: Image.asset(
-              'assets/images/settings_icon.png', // Ensure this path is correct
+              'assets/images/settings_icon.png',
               width: 24,
               height: 24,
               errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.settings, color: Colors.black); // Fallback if image fails
+                return const Icon(Icons.settings, color: Colors.black);
               },
             ),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()), // Navigate to settings
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),
-          // Profile Icon
           IconButton(
-            icon: CircleAvatar(
+            icon: const CircleAvatar(
               backgroundImage: AssetImage('assets/images/free-user-icon-3296-thumb.png'),
             ),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EditProfilePage()),
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             },
           ),
@@ -68,14 +77,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 169, 171, 172),
-                  Color.fromARGB(255, 195, 213, 226),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/back.jpg'),
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -85,7 +90,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'Upload Your Presentation',
                     style: TextStyle(
                       color: Colors.white,
@@ -93,9 +98,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     width: double.infinity,
                     height: 60,
                     decoration: BoxDecoration(
@@ -106,44 +111,41 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                     alignment: Alignment.center,
                     child: Text(
                       _videoFile != null ? _videoFile!.path.split('/').last : 'No video selected',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: _pickVideo,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 189, 190, 191),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                     ),
-                    child: Text(
-                      'Upload Video',
-                      style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 175, 177, 177)),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigate to Admin Dashboard
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AdminDashboard()), // Navigate to Admin Dashboard
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.blueGrey.shade900,
+                            Colors.blueGrey.shade700,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                    ),
-                    child: Text(
-                      'Go to Admin Dashboard',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 200, minHeight: 50),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Upload Video',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
                     ),
                   ),
                 ],

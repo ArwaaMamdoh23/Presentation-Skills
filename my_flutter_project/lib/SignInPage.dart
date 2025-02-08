@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Added for ImageFilter
-import 'ProfilePage.dart'; // Import the ProfilePage
+import 'UploadVideo.dart'; // Corrected import for UploadVideo (without Page)
+// Import the ProfilePage
+import 'dart:ui';  // Add this line for ImageFilter
+
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -13,11 +15,13 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // Simulate the sign-in process
   void _signIn() {
     if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ProfilePage()),
+        MaterialPageRoute(builder: (context) => const UploadVideoPage()),
+// Corrected class name
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -35,7 +39,7 @@ class _SignInPageState extends State<SignInPage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'), // Background image
+                image: const AssetImage('assets/images/back.jpg'), // Background image
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.4), // Slight dark overlay
@@ -71,14 +75,14 @@ class _SignInPageState extends State<SignInPage> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       hintText: 'Email',
-                      hintStyle: TextStyle(color: Colors.white70),
+                      hintStyle: const TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
@@ -87,21 +91,21 @@ class _SignInPageState extends State<SignInPage> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       hintText: 'Password',
-                      hintStyle: TextStyle(color: Colors.white70),
+                      hintStyle: const TextStyle(color: Colors.white70),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                     obscureText: true,
                     style: const TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 280), // Match button width with Sign Up page
+                    constraints: const BoxConstraints(maxWidth: 280), // Match button width with Sign Up page
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -117,14 +121,14 @@ class _SignInPageState extends State<SignInPage> {
                           BoxShadow(
                             color: Colors.lightBlue.withOpacity(0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: ElevatedButton(
                         onPressed: _signIn,
                         style: ElevatedButton.styleFrom(
-                          minimumSize: Size(280, 60), // Fixed width (280) and height (60)
+                          minimumSize: const Size(280, 60), // Fixed width (280) and height (60)
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 20), // Consistent padding

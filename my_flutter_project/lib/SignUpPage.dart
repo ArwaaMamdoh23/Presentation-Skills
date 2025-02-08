@@ -1,5 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Added for ImageFilter
+import 'UploadVideo.dart'; // Import UploadVideo for redirection
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -24,17 +25,17 @@ class _SignUpPageState extends State<SignUpPage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'), // Background image
+                image: const AssetImage('assets/images/back.jpg'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4), // Slight dark overlay
+                  Colors.black.withOpacity(0.4),
                   BlendMode.darken,
                 ),
               ),
             ),
             child: ClipRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Slight blur
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
                   color: Colors.transparent,
                 ),
@@ -62,14 +63,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       controller: _fullNameController,
                       decoration: InputDecoration(
                         hintText: 'Full Name',
-                        hintStyle: TextStyle(color: Colors.white70),
+                        hintStyle: const TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       style: const TextStyle(color: Colors.white),
                       validator: (value) {
@@ -84,21 +85,21 @@ class _SignUpPageState extends State<SignUpPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        hintStyle: TextStyle(color: Colors.white70),
+                        hintStyle: const TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       style: const TextStyle(color: Colors.white),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your email';
                         }
-                        String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+                        String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\$';
                         RegExp regExp = RegExp(pattern);
                         if (!regExp.hasMatch(value)) {
                           return 'Please enter a valid email address';
@@ -111,14 +112,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       controller: _passwordController,
                       decoration: InputDecoration(
                         hintText: 'Password',
-                        hintStyle: TextStyle(color: Colors.white70),
+                        hintStyle: const TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       obscureText: true,
                       style: const TextStyle(color: Colors.white),
@@ -137,14 +138,14 @@ class _SignUpPageState extends State<SignUpPage> {
                       controller: _confirmPasswordController,
                       decoration: InputDecoration(
                         hintText: 'Confirm Password',
-                        hintStyle: TextStyle(color: Colors.white70),
+                        hintStyle: const TextStyle(color: Colors.white70),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: BorderSide.none,
                         ),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                       ),
                       obscureText: true,
                       style: const TextStyle(color: Colors.white),
@@ -157,7 +158,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     const SizedBox(height: 20),
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 280), // Match button size with Sign In page
+                      constraints: const BoxConstraints(maxWidth: 280),
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -173,18 +174,22 @@ class _SignUpPageState extends State<SignUpPage> {
                             BoxShadow(
                               color: Colors.lightBlue.withOpacity(0.4),
                               blurRadius: 15,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState?.validate() ?? false) {
-                              print("Signed up!");
+                              Navigator.pushReplacement(
+                                context,
+                              MaterialPageRoute(builder: (context) => const UploadVideoPage()),
+ // Redirect to Upload Video page
+                              );
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            minimumSize: Size(280, 60), // Fixed width (280) and height (60)
+                            minimumSize: const Size(280, 60),
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(vertical: 20),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Added for ImageFilter
-import 'SignUpPage.dart';
-import 'SignInPage.dart';
 
 class AuthPage extends StatelessWidget {
+  const AuthPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,7 +14,7 @@ class AuthPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/back.jpg'), // Background image
+                image: const AssetImage('assets/images/back.jpg'), // Background image
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.4), // Slight dark overlay
@@ -47,14 +47,14 @@ class AuthPage extends StatelessWidget {
                         Shadow(
                           blurRadius: 3.0, // Softer glow
                           color: Colors.white.withOpacity(0.5),
-                          offset: Offset(0, 0),
+                          offset: const Offset(0, 0),
                         ),
                       ],
                     ),
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 280), // Adjusted button width
+                    constraints: const BoxConstraints(maxWidth: 280), // Adjusted button width
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -70,7 +70,7 @@ class AuthPage extends StatelessWidget {
                           BoxShadow(
                             color: Colors.lightBlue.withOpacity(0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
@@ -81,12 +81,12 @@ class AuthPage extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'Sign Up',
                             style: TextStyle(
@@ -99,9 +99,9 @@ class AuthPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20), // Slightly closer spacing between buttons
+                  const SizedBox(height: 20), // Slightly closer spacing between buttons
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 280), // Adjusted button width
+                    constraints: const BoxConstraints(maxWidth: 280), // Adjusted button width
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -117,7 +117,7 @@ class AuthPage extends StatelessWidget {
                           BoxShadow(
                             color: Colors.lightBlue.withOpacity(0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
@@ -128,12 +128,12 @@ class AuthPage extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'Sign In',
                             style: TextStyle(

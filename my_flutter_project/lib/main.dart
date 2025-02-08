@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import 'AuthPage.dart'; 
-import 'SignInPage.dart'; 
+import 'AuthPage.dart';
 import 'SignUpPage.dart';
-import 'UploadVideo.dart';
+import 'SignInPage.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Presentation Skills',
-      initialRoute: '/splash', // Set initial route
+      title: 'PresentSense', // App name
+      debugShowCheckedModeBanner: false, // Remove the debug banner
+      initialRoute: '/',
       routes: {
-       '/': (context) => AuthPage(),
-
-        '/sign-up': (context) => const SignUpPage(),
-        '/sign-in': (context) => const SignInPage(),
+        '/': (context) => const AuthPage(),  // ❌ Removed const
+        '/sign-up': (context) => const SignUpPage(), // ❌ Removed const
+        '/sign-in': (context) => const SignInPage(), // ❌ Removed const
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.blue.shade500,
           secondary: Colors.grey.shade300,
         ),
-        scaffoldBackgroundColor: Colors.blue.shade50, // Light blue background
+        scaffoldBackgroundColor: Colors.transparent, // Make scaffold background transparent
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
           bodyLarge: TextStyle(color: Colors.black),
@@ -40,31 +40,23 @@ class MyApp extends StatelessWidget {
             ),
             padding: const EdgeInsets.symmetric(vertical: 15),
           ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Welcome to AI Presentation Feedback",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/auth'); // Navigate using named route
-                  },
-                  child: Text("Get Started"),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
+      builder: (context, child) {
+        return Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/back.png'), // Ensure this path is correct
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            if (child != null) child,
+          ],
+        );
+      },
     );
   }
 }
