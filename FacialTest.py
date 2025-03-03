@@ -4,6 +4,11 @@ from keras.models import load_model
 from keras import Model
 from keras.layers import Conv2D, Input
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import gdown
+
+url = "https://drive.google.com/uc?id=FILE_ID"  # Replace with your actual file ID
+output = "emotion_model.keras"
+gdown.download(url, output, quiet=False)
 
 # ---------------- Step 1: Load the Trained Model ----------------
 print("Loading trained model...")
