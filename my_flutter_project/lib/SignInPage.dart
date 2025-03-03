@@ -165,4 +165,8 @@ class _SignInPageState extends State<SignInPage> {
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196

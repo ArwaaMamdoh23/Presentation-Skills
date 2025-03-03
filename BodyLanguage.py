@@ -6,6 +6,7 @@ from collections import Counter
 
 # Initialize MediaPipe Hands
 mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
+<<<<<<< HEAD
 mp_drawing = mp.solutions.drawing_utils  
 
 gesture_counter = Counter()
@@ -13,6 +14,18 @@ last_counted_frame = {}
 
 FRAME_INTERVAL = 60
 current_frame = 0  
+=======
+mp_drawing = mp.solutions.drawing_utils  # Optional: for visualization
+
+# **Dictionary to Count Gesture Frequency**
+gesture_counter = Counter()
+# **Track last counted frame for each gesture**
+last_counted_frame = {}
+
+# Frame interval for counting (every 10 frames)
+FRAME_INTERVAL = 60
+current_frame = 0  # Track the current frame number
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 
 # Gesture to Body Language Mapping
 gesture_to_body_language = {
@@ -79,11 +92,16 @@ def classify_hand_gesture(hand_landmarks):
 
     return "Unknown Gesture"
 
+<<<<<<< HEAD
 use_webcam = False  
+=======
+use_webcam = False  # Set to False if you want to use a video file
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 if use_webcam:
     cap = cv2.VideoCapture(0)  # Use the first webcam
     output_video_path = "webcam_output.mp4"
 else:
+<<<<<<< HEAD
     input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk.mp4"     
     # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk2.mp4"  
     # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TasnimGesture.mp4"  
@@ -92,18 +110,33 @@ else:
 
 
 paused = False  
+=======
+    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk.mp4"  # Change this to your video file path    
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk2.mp4"  # Change this to your video file path
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TasnimGesture.mp4"  # Change this to your video file path
+    # input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/MayarGesture.mp4"  # Change this to your video file path
+    cap = cv2.VideoCapture(input_video_path)
+
+
+paused = False  # Variable to track pause state
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
+<<<<<<< HEAD
     current_frame += 1  
+=======
+    current_frame += 1  # Increment frame counter
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 
     # frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
     # Convert to RGB (MediaPipe requires RGB format)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
+<<<<<<< HEAD
     results = mp_hands.process(rgb_frame)
 
     if results.multi_hand_landmarks:
@@ -119,27 +152,66 @@ while cap.isOpened():
 
             body_language_meaning = gesture_to_body_language.get(gesture_name, "Unknown Meaning")
 
+=======
+    # Process frame with MediaPipe Hands
+    results = mp_hands.process(rgb_frame)
+
+    # Check for detected hands
+    if results.multi_hand_landmarks:
+        for hand_landmarks in results.multi_hand_landmarks:
+            # Classify gesture
+            gesture_name = classify_hand_gesture(hand_landmarks)
+#  Skip unknown gestures
+            if gesture_name == "Unknown Gesture":
+                continue  # Skips counting, logging, and displaying Unknown Gesture
+            
+#  Count the gesture **only if 10 frames have passed since the last count**
+            if gesture_name not in last_counted_frame or (current_frame - last_counted_frame[gesture_name]) >= FRAME_INTERVAL:
+                gesture_counter[gesture_name] += 1  # Count gesture
+                last_counted_frame[gesture_name] = current_frame  # Update last counted frame
+
+            body_language_meaning = gesture_to_body_language.get(gesture_name, "Unknown Meaning")
+
+            # Get bounding box coordinates
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
             x_min = int(min([lm.x for lm in hand_landmarks.landmark]) * frame.shape[1])
             y_min = int(min([lm.y for lm in hand_landmarks.landmark]) * frame.shape[0])
             x_max = int(max([lm.x for lm in hand_landmarks.landmark]) * frame.shape[1])
             y_max = int(max([lm.y for lm in hand_landmarks.landmark]) * frame.shape[0])
 
+<<<<<<< HEAD
+=======
+            # Draw bounding box
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
             cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
             gesture_display = gesture_name if gesture_name in gesture_to_body_language else "Unknown Gesture"
             body_language_display = body_language_meaning if body_language_meaning != "Unknown Meaning" else "No Interpretation"
+<<<<<<< HEAD
             cv2.putText(frame, f"Gesture: {gesture_name}", (x_min, y_min - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
 
+=======
+            # Display gesture label
+            cv2.putText(frame, f"Gesture: {gesture_name}", (x_min, y_min - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+            # Display body language meaning
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
             cv2.putText(frame, f"Body: {body_language_meaning}", (x_min, y_max + 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
 
 
 
+<<<<<<< HEAD
+=======
+    # Show video preview
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
     cv2.imshow("Hand Gesture & Body Language Recognition", frame)
 
     key = cv2.waitKey(1) & 0xFF
 
+<<<<<<< HEAD
     if key == ord('q'):
         break
 
@@ -152,11 +224,32 @@ while cap.isOpened():
                 paused = False
                 break
             elif key2 == ord('q'):  
+=======
+    # Press 'q' to exit
+    if key == ord('q'):
+        break
+
+    # Press 'SPACE' to pause/resume
+    if key == ord(' '):  
+        paused = not paused  # Toggle pause state
+
+     # **Wait until the user presses SPACE again to resume**
+        while paused:
+            key2 = cv2.waitKey(0) & 0xFF  # Wait indefinitely for key press
+            if key2 == ord(' '):  # Resume when SPACE is pressed again
+                paused = False
+                break
+            elif key2 == ord('q'):  # Quit if 'q' is pressed while paused
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
                 cap.release()
                 cv2.destroyAllWindows()
                 exit()   
 
 
+<<<<<<< HEAD
+=======
+# Print the most repeated gestures with their meaning
+>>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 print("\n Most Repeated Gestures with Meaning:")
 for gesture, count in gesture_counter.most_common(5):
     meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
