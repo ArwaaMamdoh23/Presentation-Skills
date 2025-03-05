@@ -4,13 +4,13 @@ from keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import gdown
 
-url = "https://drive.google.com/uc?id=FILE_ID"  # Replace with your actual file ID
+url = "https://github.com/ArwaaMamdoh23/Presentation-Skills/blob/6f6de0a28c7b10a8e591f97634ec4539d7b6969b/facial3.py"  
 output = "emotion_model.keras"
 gdown.download(url, output, quiet=False)
 
 # ---------------- Step 1: Load the Trained Model ----------------
 print("Loading trained model...")
-emotion_model = load_model("emotion_model.keras")  # Load full model
+emotion_model = load_model("emotion_model.keras")  
 print("✅ Model loaded successfully!")
 
 # ---------------- Step 2: Evaluate Model on Test Data ----------------
