@@ -22,10 +22,6 @@ dependencies:
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
-<<<<<<< HEAD
- 
-=======
->>>>>>> a87fc6103458e5b3aeee47788427a1c6068ba196
 
 dev_dependencies:
   flutter_test:
