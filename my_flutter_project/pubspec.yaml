@@ -18,7 +18,7 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # File picker for selecting files (profile pictures, documents, etc.)
-  file_picker: ^6.1.1 # Ensure this version works with your platform
+  file_picker: ^9.0.2 # Ensure this version works with your platform
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
@@ -28,7 +28,7 @@ dev_dependencies:
     sdk: flutter
 
   # Linter for Flutter best practices
-  flutter_lints: ^3.0.0
+  flutter_lints: ^5.0.0
 
   # Image picker for uploading images/videos
   image_picker: ^1.0.4  # Make sure to use the latest version
@@ -45,10 +45,3 @@ flutter:
     - assets/images/settings icon.png
     - assets/images/back.jpg  # Updated to correct path
 
-# Specify platform-specific dependencies if needed
-platforms:
-  android: true
-  ios: true
-  # linux: false
-  # macos: false
-  # windows: false
