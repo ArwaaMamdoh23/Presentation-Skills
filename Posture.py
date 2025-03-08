@@ -22,7 +22,9 @@ posture_meanings = {
     "Leaning Forward": "Interest",
     "Head Down": "Lack of confidence",
     "Leaning Back": "Relaxation",
-    "Arms on Hips": "Confidence"
+    "Arms on Hips": "Confidence",
+    "Crossed Arms": "Defensive",
+    "Hands in Pockets": "Casual"
 }
 
 # Function to classify posture based on keypoints
@@ -57,6 +59,12 @@ def classify_posture(keypoints):
     # **Arms on Hips Posture**: Shoulders and hips are in line but arms are placed on hips
     if abs(keypoints[5]['x'] - keypoints[6]['x']) < 0.1 and abs(keypoints[11]['x'] - keypoints[12]['x']) < 0.1:
         return "Arms on Hips"
+    if keypoints[9]['y'] < keypoints[3]['y'] and keypoints[10]['y'] < keypoints[4]['y']:
+        return "Crossed Arms"
+
+# Hands in Pockets
+    if keypoints[9]['y'] > hip_y and keypoints[10]['y'] > hip_y:
+        return "Hands in Pockets"
 
     return "Unknown Posture"
 
@@ -88,7 +96,8 @@ posture_counter = {
     "Head Down": 0,
     "Leaning Back": 0,
     "Arms on Hips": 0,
-    "Unknown Posture": 0
+    "Hands in Pockets": 0,
+    "Crossed Arms": 0
 }
 
 
@@ -132,11 +141,8 @@ while cap.isOpened():
     posture = classify_posture(keypoints)
     
     # Increment posture counter
-    if posture in posture_counter:
+    if posture != "Unknown Posture":
         posture_counter[posture] += 1
-    else:
-        posture_counter["Unknown Posture"] += 1
-
     
     # Get the posture and gesture meanings
     posture_meaning = posture_meanings.get(posture, "Unknown Meaning")
