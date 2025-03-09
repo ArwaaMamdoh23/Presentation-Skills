@@ -21,7 +21,6 @@ class _SignInPageState extends State<SignInPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const UploadVideoPage()),
-// Corrected class name
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

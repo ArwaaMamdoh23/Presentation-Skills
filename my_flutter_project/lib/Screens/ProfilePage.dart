@@ -6,7 +6,7 @@ import 'dart:ui';
 import 'EditProfilePage.dart';
 import 'SignOutPage.dart';
 import 'SettingsPage.dart';
-import 'package:my_flutter_project/AdminDashboard.dart'; // Import the AdminDashboard page
+import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart'; // Import the AdminDashboard page
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
