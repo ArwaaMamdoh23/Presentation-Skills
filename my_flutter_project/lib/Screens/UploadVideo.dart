@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'SettingsPage.dart';
-import 'ProfilePage.dart';
+import '../widgets/custom_app_bar.dart'; // ✅ Use custom AppBar
+// import 'SettingsPage.dart';
+// import 'ProfilePage.dart';
 
 class UploadVideoPage extends StatefulWidget {
   const UploadVideoPage({super.key});
@@ -35,47 +36,18 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: Image.asset(
-              'assets/images/settings_icon.png',
-              width: 24,
-              height: 24,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.settings, color: Colors.black);
-              },
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsPage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const CircleAvatar(
-              backgroundImage: AssetImage('assets/images/free-user-icon-3296-thumb.png'),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
-              );
-            },
-          ),
-        ],
-      ),
+      extendBodyBehindAppBar: true, // ✅ Extends content behind the AppBar
+      appBar: CustomAppBar(
+      showSignIn: false, // User is signed in, so we hide the Sign-In button
+      isUserSignedIn: true, // Ensures Profile & Settings icons appear
+),
+
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
+          // ✅ Background Image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -99,6 +71,8 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                     ),
                   ),
                   const SizedBox(height: 30),
+                  
+                  // ✅ Video Selection Box
                   Container(
                     padding: const EdgeInsets.all(10),
                     width: double.infinity,
@@ -110,18 +84,23 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      _videoFile != null ? _videoFile!.path.split('/').last : 'No video selected',
+                      _videoFile != null
+                          ? _videoFile!.path.split('/').last
+                          : 'No video selected', // ✅ Ensures proper display
                       style: const TextStyle(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
+                  
                   const SizedBox(height: 20),
+
+                  // ✅ Upload Video Button
                   ElevatedButton(
                     onPressed: _pickVideo,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                      padding: EdgeInsets.zero, // ✅ Removes default button padding
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
