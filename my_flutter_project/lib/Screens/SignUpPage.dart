@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'UploadVideo.dart'; // Import UploadVideo for redirection
+import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
+import '../widgets/background_wrapper.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -18,7 +20,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+      bool isUserSignedIn = false; // Simulate user authentication
+
     return Scaffold(
+      extendBodyBehindAppBar: true, // ✅ Fix: Extend body behind AppBar
+      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: isUserSignedIn), // ✅ Hide "Sign In" button
+
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
