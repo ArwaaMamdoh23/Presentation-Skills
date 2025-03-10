@@ -25,20 +25,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _loadUserProfile();
   }
 
-  void _loadUserProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      nameController.text = prefs.getString('name') ?? '';
-      emailController.text = prefs.getString('email') ?? '';
-      phoneController.text = prefs.getString('phone') ?? '';
-      passwordController.text = prefs.getString('password') ?? '';
-      String? imageBytesString = prefs.getString('profile_image_bytes');
-      if (imageBytesString != null) {
-        _imageBytes = Uint8List.fromList(imageBytesString.codeUnits);
-      }
-    });
-  }
-
+void _loadUserProfile() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    nameController.text = prefs.getString('name') ?? '';
+    emailController.text = prefs.getString('email') ?? '';
+    phoneController.text = prefs.getString('phone') ?? '';
+    passwordController.text = prefs.getString('password') ?? '';
+    String? imageBytesString = prefs.getString('profile_image_bytes');
+    if (imageBytesString != null) {
+      _imageBytes = Uint8List.fromList(imageBytesString.codeUnits);
+    }
+  });
+}
   Future<void> _pickImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
     if (result != null) {

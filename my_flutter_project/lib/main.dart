@@ -4,9 +4,7 @@ import 'Screens/SignUpPage.dart';
 import 'Screens/SignInPage.dart';
 import 'Screens/HomePage.dart'; // ✅ Import Home Page
 import 'Screens/SettingsPage.dart'; // Import Settings Page
-import 'Screens/ProfilePage.dart'; // Import Profile Page
-
-
+import 'Screens/ProfilePage.dart'; // Import Profile Page;
 void main() {
   runApp(const MyApp());
 }
