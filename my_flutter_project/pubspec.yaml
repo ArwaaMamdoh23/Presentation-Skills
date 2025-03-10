@@ -24,6 +24,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   firebase_core: ^3.12.1
   cloud_firestore: ^5.6.5
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -45,5 +46,7 @@ flutter:
     - assets/images/4c96d16b-b972-4cb3-8523-331cbe0bfd82.png
     - assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png
     - assets/images/settings icon.png
+    - assets/images/Present1.jpg
+    - assets/images/Present2.jpg 
     - assets/images/back.jpg  # Updated to correct path
 
