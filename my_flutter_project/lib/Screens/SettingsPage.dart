@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
+import 'package:my_flutter_project/Screens/SignInPage.dart'; // ✅ Import Sign-In Page for navigation
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -10,7 +11,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true, // ✅ Extends content behind AppBar
       appBar: CustomAppBar(
-        showSignIn: false, 
+        showSignIn: false,
         isUserSignedIn: true, // ✅ User is signed in, show Profile & Settings
       ),
       body: BackgroundWrapper( // ✅ Apply fixed background
@@ -77,7 +78,7 @@ class SettingsPage extends StatelessWidget {
                       title: "Sign Out",
                       subtitle: "Log out from your account",
                       onTap: () {
-                        // Implement sign-out functionality
+                        _signOut(context);
                       },
                     ),
                   ],
@@ -111,246 +112,14 @@ class SettingsPage extends StatelessWidget {
       ),
     );
   }
+
+  void _signOut(BuildContext context) {
+    // Perform sign-out logic (e.g., FirebaseAuth.instance.signOut();)
+    
+    // Navigate to the sign-in page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInPage()),
+    );
+  }
 }
-
-
-
-
-
-
-
-// import 'package:flutter/material.dart';
-// import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
-// import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
-
-// class SettingsPage extends StatelessWidget {
-//   const SettingsPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       extendBodyBehindAppBar: true, // ✅ Extends content behind AppBar
-//       appBar: CustomAppBar(
-//         isUserSignedIn: true, // ✅ User is signed in, show Profile & Settings
-//       ),
-//       body: BackgroundWrapper( // ✅ Apply fixed background
-//         child: Column(
-//           children: [
-//             const SizedBox(height: kToolbarHeight), // ✅ Ensure content doesn't overlap AppBar
-//             const Padding(
-//               padding: EdgeInsets.symmetric(vertical: 20),
-//               child: Text(
-//                 "Settings",
-//                 style: TextStyle(
-//                   color: Colors.white,
-//                   fontSize: 26,
-//                   fontWeight: FontWeight.bold,
-//                   shadows: [
-//                     Shadow(
-//                       blurRadius: 3.0,
-//                       color: Colors.white54,
-//                       offset: Offset(0, 0),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//             Expanded(
-//               child: Padding(
-//                 padding: const EdgeInsets.all(16),
-//                 child: Column(
-//                   children: [
-//                     _buildSettingsItem(
-//                       icon: Icons.dark_mode,
-//                       title: "Theme",
-//                       subtitle: "Switch between Light and Dark mode",
-//                       onTap: () {
-//                         // Add theme switching logic here
-//                       },
-//                     ),
-//                     _buildSettingsItem(
-//                       icon: Icons.notifications,
-//                       title: "Notifications",
-//                       subtitle: "Manage notification preferences",
-//                       onTap: () {
-//                         // Navigate to notification settings
-//                       },
-//                     ),
-//                     _buildSettingsItem(
-//                       icon: Icons.privacy_tip,
-//                       title: "Terms & Privacy",
-//                       subtitle: "View our terms and privacy policy",
-//                       onTap: () {
-//                         // Navigate to Terms & Privacy page
-//                       },
-//                     ),
-//                     _buildSettingsItem(
-//                       icon: Icons.delete_forever,
-//                       title: "Delete Account",
-//                       subtitle: "Permanently remove your account",
-//                       onTap: () {
-//                         // Implement account deletion confirmation
-//                       },
-//                     ),
-//                     _buildSettingsItem(
-//                       icon: Icons.logout,
-//                       title: "Sign Out",
-//                       subtitle: "Log out from your account",
-//                       onTap: () {
-//                         // Implement sign-out functionality
-//                       },
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildSettingsItem({
-//     required IconData icon,
-//     required String title,
-//     required String subtitle,
-//     required VoidCallback onTap,
-//   }) {
-//     return Card(
-//       color: Colors.grey[900]?.withOpacity(0.8), // ✅ Slight transparency
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-//       child: ListTile(
-//         leading: Icon(icon, color: Colors.white),
-//         title: Text(
-//           title,
-//           style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-//         ),
-//         subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey)),
-//         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-//         onTap: onTap,
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // import 'package:flutter/material.dart';
-// // import 'dart:ui';
-
-// // class SettingsPage extends StatelessWidget {
-// //   const SettingsPage({super.key});
-
-// //   @override
-// //   Widget build(BuildContext context) {
-// //     return Scaffold(
-// //       body: Stack(
-// //         children: [
-// //           // Background Image with Blur Effect
-// //           Container(
-// //             decoration: BoxDecoration(
-// //               image: DecorationImage(
-// //                 image: const AssetImage('assets/images/back.jpg'),
-// //                 fit: BoxFit.cover,
-// //                 colorFilter: ColorFilter.mode(
-// //                   Colors.black.withOpacity(0.4),
-// //                   BlendMode.darken,
-// //                 ),
-// //               ),
-// //             ),
-// //             child: ClipRect(
-// //               child: BackdropFilter(
-// //                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-// //                 child: Container(
-// //                   color: Colors.transparent,
-// //                 ),
-// //               ),
-// //             ),
-// //           ),
-// //           Column(
-// //             children: [
-// //               AppBar(
-// //                 title: const Text("Settings"),
-// //                 backgroundColor: Colors.transparent,
-// //                 elevation: 0,
-// //               ),
-// //               Expanded(
-// //                 child: Padding(
-// //                   padding: const EdgeInsets.all(16),
-// //                   child: Column(
-// //                     children: [
-// //                       _buildSettingsItem(
-// //                         icon: Icons.dark_mode,
-// //                         title: "Theme",
-// //                         subtitle: "Switch between Light and Dark mode",
-// //                         onTap: () {
-// //                           // Add theme switching logic here
-// //                         },
-// //                       ),
-// //                       _buildSettingsItem(
-// //                         icon: Icons.notifications,
-// //                         title: "Notifications",
-// //                         subtitle: "Manage notification preferences",
-// //                         onTap: () {
-// //                           // Navigate to notification settings
-// //                         },
-// //                       ),
-// //                       _buildSettingsItem(
-// //                         icon: Icons.privacy_tip,
-// //                         title: "Terms & Privacy",
-// //                         subtitle: "View our terms and privacy policy",
-// //                         onTap: () {
-// //                           // Navigate to Terms & Privacy page
-// //                         },
-// //                       ),
-// //                       _buildSettingsItem(
-// //                         icon: Icons.delete_forever,
-// //                         title: "Delete Account",
-// //                         subtitle: "Permanently remove your account",
-// //                         onTap: () {
-// //                           // Implement account deletion confirmation
-// //                         },
-// //                       ),
-// //                       _buildSettingsItem(
-// //                         icon: Icons.logout,
-// //                         title: "Sign Out",
-// //                         subtitle: "Log out from your account",
-// //                         onTap: () {
-// //                           // Implement sign-out functionality
-// //                         },
-// //                       ),
-// //                     ],
-// //                   ),
-// //                 ),
-// //               ),
-// //             ],
-// //           ),
-// //         ],
-// //       ),
-// //     );
-// //   }
-
-// //   Widget _buildSettingsItem({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
-// //     return Card(
-// //       color: Colors.grey[900]?.withOpacity(0.8), // Slight transparency for blending with background
-// //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-// //       child: ListTile(
-// //         leading: Icon(icon, color: Colors.white),
-// //         title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-// //         subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey)),
-// //         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
-// //         onTap: onTap,
-// //       ),
-// //     );
-// //   }
-// // }

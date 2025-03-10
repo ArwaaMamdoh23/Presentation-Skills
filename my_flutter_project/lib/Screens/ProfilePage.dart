@@ -27,19 +27,18 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _loadUserProfile();
   }
-
-  void _loadUserProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      name = prefs.getString('name') ?? 'Arwaa Mamdoh';
-      email = prefs.getString('email') ?? 'arwaa2110478@miuegypt.edu.eg';
-      profession = prefs.getString('profession') ?? 'Student';
-      String? imageBytesString = prefs.getString('profile_image_bytes');
-      if (imageBytesString != null) {
-        _imageBytes = Uint8List.fromList(imageBytesString.codeUnits);
-      }
-    });
-  }
+void _loadUserProfile() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    name = prefs.getString('name') ?? 'Arwaa Mamdoh';
+    email = prefs.getString('email') ?? 'arwaa2110478@miuegypt.edu.eg';
+    profession = prefs.getString('profession') ?? 'Student';
+    String? imageBytesString = prefs.getString('profile_image_bytes');
+    if (imageBytesString != null) {
+      _imageBytes = Uint8List.fromList(imageBytesString.codeUnits);
+    }
+  });
+}
 
   Future<void> _pickImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);

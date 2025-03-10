@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Email validation package
+  email_validator: ^2.1.17  # ✅ Move here under dependencies
+
   # Sign-in buttons (Google, Facebook, etc.)
   flutter_signin_button: ^2.0.0
 
@@ -18,20 +21,17 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # File picker for selecting files (profile pictures, documents, etc.)
-  file_picker: ^9.0.2 # Ensure this version works with your platform
+  file_picker: ^6.1.1 # Ensure this version works with your platform
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
-  firebase_core: ^3.12.1
-  cloud_firestore: ^5.6.5
-  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   # Linter for Flutter best practices
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
   # Image picker for uploading images/videos
   image_picker: ^1.0.4  # Make sure to use the latest version
@@ -46,7 +46,12 @@ flutter:
     - assets/images/4c96d16b-b972-4cb3-8523-331cbe0bfd82.png
     - assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png
     - assets/images/settings icon.png
-    - assets/images/Present1.jpg
-    - assets/images/Present2.jpg 
     - assets/images/back.jpg  # Updated to correct path
 
+# Specify platform-specific dependencies if needed
+platforms:
+  android: true
+  ios: true
+  # linux: false
+  # macos: false
+  # windows: false
