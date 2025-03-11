@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'UploadVideo.dart'; // Import UploadVideoPage
 import 'dart:ui'; // For ImageFilter (Blur Effect)
 import 'package:email_validator/email_validator.dart'; // Add email validation
+import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
+import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
+// import '../widgets/CustomDrawer .dart'; 
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -28,45 +31,39 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true, // ✅ Allows background behind the AppBar
+  appBar: CustomAppBar(
+    showSignIn: false, // ✅ No Sign-In button on Sign-In page
+    isUserSignedIn: false, // ✅ Ensure it's false since we're signing in
+    hideSignInButton: true, // ✅ Explicitly hide Sign-In button
+  ),
+  // drawer: CustomDrawer(isSignedIn: false), // ✅ Sidebar (won't be visible until signed in)
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background Image with Blur Effect
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const AssetImage('assets/images/back.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
-                  BlendMode.darken,
-                ),
+      body: BackgroundWrapper( // ✅ Apply background
+  child: Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'Welcome',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    blurRadius: 3.0,
+                    color: Colors.white54,
+                    offset: Offset(0, 0),
+                  ),
+                ],
               ),
             ),
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-          // Centered Content
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      'Welcome Back',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+
                     const SizedBox(height: 40),
                     // Email Field with Validation
                     TextFormField(
@@ -179,7 +176,6 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
           ),
-        ],
       ),
     );
   }

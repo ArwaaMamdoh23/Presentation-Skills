@@ -1,6 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_project/Screens/SignInPage.dart';
+import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
+import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
+// import '../widgets/CustomDrawer .dart'; 
+
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -49,91 +53,92 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const AssetImage('assets/images/back.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
-                  BlendMode.darken,
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      'Create Your Account',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    _buildTextField(_fullNameController, 'Full Name'),
-                    const SizedBox(height: 20),
-                    _buildEmailField(),
-                    const SizedBox(height: 20),
-                    _buildPasswordField(),
-                    
-                    // Password Requirements Box
-                    Visibility(
-                      visible: showPasswordRequirements,
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Password Requirements",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 5),
-                            _buildPasswordRequirement('At least one uppercase letter', hasUppercase),
-                            _buildPasswordRequirement('At least one number', hasNumber),
-                            _buildPasswordRequirement('At least one special character', hasSpecialChar),
-                            _buildPasswordRequirement('Minimum 8 characters', hasMinLength),
-                          ],
-                        ),
-                      ),
-                    ),
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    extendBodyBehindAppBar: true, // ✅ Allows background behind the AppBar
+    appBar: CustomAppBar(
+      showSignIn: false, // ✅ No Sign-In button on Sign-Up page
+      isUserSignedIn: false, // ✅ User is not signed in at this stage
+      hideSignInButton: true, // ✅ Explicitly hide the Sign-In button
+    ),
+    // drawer: CustomDrawer(isSignedIn: false), // ✅ Sidebar (will be hidden until signed in)
 
-                    const SizedBox(height: 20),
-                    _buildTextField(_confirmPasswordController, 'Confirm Password', obscureText: true, validator: (value) {
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    }),
-                    const SizedBox(height: 20),
-                    _buildSignUpButton(),
-                  ],
+    body: BackgroundWrapper( // ✅ Apply background
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'Create Your Account',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 3.0,
+                        color: Colors.white54,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 40),
+                _buildTextField(_fullNameController, 'Full Name'),
+                const SizedBox(height: 20),
+                _buildEmailField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+
+                Visibility(
+                  visible: showPasswordRequirements,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Password Requirements",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 5),
+                        _buildPasswordRequirement('At least one uppercase letter', hasUppercase),
+                        _buildPasswordRequirement('At least one number', hasNumber),
+                        _buildPasswordRequirement('At least one special character', hasSpecialChar),
+                        _buildPasswordRequirement('Minimum 8 characters', hasMinLength),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                _buildTextField(_confirmPasswordController, 'Confirm Password', obscureText: true, validator: (value) {
+                  if (value != _passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                }),
+                const SizedBox(height: 20),
+                _buildSignUpButton(),
+              ],
             ),
           ),
-        ],
+        ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildTextField(TextEditingController controller, String hintText, {bool obscureText = false, String? Function(String?)? validator}) {
     return TextFormField(
@@ -225,52 +230,69 @@ class _SignUpPageState extends State<SignUpPage> {
       ],
     );
   }
-   Widget _buildSignUpButton() {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 280),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Colors.blueGrey.shade900,
-              Colors.blueGrey.shade700,
+  Widget _buildSignUpButton() {
+  return Column(
+    children: [
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 280),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.blueGrey.shade900,
+                Colors.blueGrey.shade700,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.lightBlue.withOpacity(0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.lightBlue.withOpacity(0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
+          child: ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState?.validate() ?? false) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInPage()),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(280, 60),
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
             ),
-          ],
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const SignInPage()),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(280, 60),
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+            child: const Text(
+              'Sign Up',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-          ),
-          child: const Text(
-            'Sign Up',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
       ),
-    );
-  }
+
+      const SizedBox(height: 20), // Spacing between buttons
+
+      // ✅ "Already have an account? Sign In" Button
+      TextButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/sign-in'); // ✅ Navigate to Sign-In Page
+        },
+        child: const Text(
+          'Already have an account? Sign In',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    ],
+  );
+}
 }

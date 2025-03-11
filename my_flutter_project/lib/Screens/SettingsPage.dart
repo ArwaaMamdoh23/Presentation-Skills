@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/Screens/HomePage.dart';
 import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
 import 'package:my_flutter_project/Screens/SignInPage.dart'; // ✅ Import Sign-In Page for navigation
+import '../widgets/CustomDrawer .dart'; 
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    bool isUserSignedIn = true; // ✅ Change based on user authentication status
+
     return Scaffold(
       extendBodyBehindAppBar: true, // ✅ Extends content behind AppBar
       appBar: CustomAppBar(
         showSignIn: false,
         isUserSignedIn: true, // ✅ User is signed in, show Profile & Settings
       ),
+      drawer: CustomDrawer(isSignedIn: isUserSignedIn), // ✅ Sidebar on the RIGHT
+
       body: BackgroundWrapper( // ✅ Apply fixed background
         child: Column(
           children: [
@@ -70,6 +76,7 @@ class SettingsPage extends StatelessWidget {
                       title: "Delete Account",
                       subtitle: "Permanently remove your account",
                       onTap: () {
+                        _showDeleteConfirmationDialog(context);
                         // Implement account deletion confirmation
                       },
                     ),
@@ -119,7 +126,49 @@ class SettingsPage extends StatelessWidget {
     // Navigate to the sign-in page
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const SignInPage()),
+      MaterialPageRoute(builder: (context) => const HomePage()),
     );
   }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+        actions: [
+          // Cancel Button
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
+          ),
+          
+          // Confirm Delete Button
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              // _deleteAccount(); // Call the delete function
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+        
+      );
+        Navigator.pushNamed(context, '/home');
+
+    },
+  );
+}
+
+// void _deleteAccount() {
+//   // TODO: Implement account deletion logic (Firebase Auth, API request, etc.)
+
+//   // After deletion, navigate to Home
+//   Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+// }
+
+
 }
