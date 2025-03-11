@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/sign-in': (context) => const SignInPage(), // ❌ Removed const
         '/settings': (context) => const SettingsPage(), // ✅ Define settings route
         '/profile': (context) => const ProfilePage(), // ✅ Define profile route
-        '/report': (context) => const ReportsPage(), // ✅ Define profile route
+        '/report': (context) =>  ReportsPage(), // ✅ Define profile route
         '/upload': (context) => const UploadVideoPage(), // ✅ Define profile route
       },
       theme: ThemeData(

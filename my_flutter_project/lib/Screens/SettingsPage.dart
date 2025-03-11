@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
-import 'package:my_flutter_project/Screens/SignInPage.dart'; // ✅ Import Sign-In Page for navigation
+// import 'package:my_flutter_project/Screens/SignInPage.dart'; // ✅ Import Sign-In Page for navigation
 import '../widgets/CustomDrawer .dart'; 
 
 class SettingsPage extends StatelessWidget {
@@ -157,7 +157,7 @@ class SettingsPage extends StatelessWidget {
         ],
         
       );
-        Navigator.pushNamed(context, '/home');
+        // Navigator.pushNamed(context, '/home');
 
     },
   );
