@@ -23,6 +23,12 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         setState(() {
           _videoFile = File(pickedFile.path);
         });
+
+         // ✅ Navigate to Reports Page After Upload
+      Future.delayed(const Duration(seconds: 1), () {  // ✅ Delay for better UX
+        Navigator.pushReplacementNamed(context, '/report');  // ✅ Change route name if needed
+      });
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No video selected')),
