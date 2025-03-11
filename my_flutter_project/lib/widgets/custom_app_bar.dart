@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showSignIn;
   final bool isUserSignedIn;
+  final bool hideSignInButton;  // New parameter to hide button on sign-in page
 
   const CustomAppBar({
     super.key,
     required this.showSignIn,
     required this.isUserSignedIn,
+    this.hideSignInButton = false,  // Default value to show sign-in button
   });
 
   @override
@@ -22,15 +24,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: const Text(
           "PresentSense",
           style: TextStyle(
-            color: Colors.white, 
-            fontSize: 28, 
+            color: Colors.white,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
       centerTitle: false, // Aligns title to the left
       actions: [
-        if (showSignIn && !isUserSignedIn)
+        // 🔹 **Fix: Separated `hideSignInButton` logic from `showSignIn` check**
+        if (showSignIn && !hideSignInButton) 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ElevatedButton(
@@ -38,7 +41,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Navigator.pushNamed(context, '/sign-in');
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor:Colors.transparent,
+                backgroundColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -51,22 +54,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
 
-        if (isUserSignedIn) ...[
-          // ✅ Settings Icon
+        if (isUserSignedIn) 
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white), // ✅ Standard Settings Icon
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings'); // Navigate to Settings Page
-            },
-          ),
-          // ✅ Profile Icon
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white), // ✅ Standard Profile Icon
+            icon: const Icon(Icons.person, color: Colors.white), 
+            iconSize: 40, 
             onPressed: () {
               Navigator.pushNamed(context, '/profile'); // Navigate to Profile Page
             },
           ),
-        ],
       ],
     );
   }

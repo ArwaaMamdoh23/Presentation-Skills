@@ -10,21 +10,6 @@ class CustomDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          // ✅ User Account Header
-          // UserAccountsDrawerHeader(
-          //   accountName: isSignedIn
-          //       ? const Text('John Doe')  // Replace with actual user name
-          //       : const Text('Guest'),
-          //   accountEmail: isSignedIn
-          //       ? const Text('john.doe@example.com')  // Replace with actual user email
-          //       : const Text('Not signed in'),
-          //   currentAccountPicture: CircleAvatar(
-          //     backgroundColor: Colors.white,
-          //     child: Icon(isSignedIn ? Icons.person : Icons.account_circle, size: 40),
-          //   ),
-          // ),
-          
-
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
@@ -80,7 +65,7 @@ class CustomDrawer extends StatelessWidget {
                 title: const Text('Log Out', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   // Handle log out logic
-                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/home');
                 },
               ),
             ),
