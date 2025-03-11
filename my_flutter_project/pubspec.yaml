@@ -47,6 +47,7 @@ flutter:
     - assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png
     - assets/images/settings icon.png
     - assets/images/back.jpg  # Updated to correct path
+    - assets/images/Present2.jpg  # Updated to correct path
 
 # Specify platform-specific dependencies if needed
 platforms:

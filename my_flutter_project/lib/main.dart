@@ -5,6 +5,10 @@ import 'Screens/SignInPage.dart';
 import 'Screens/HomePage.dart'; // ✅ Import Home Page
 import 'Screens/SettingsPage.dart'; // Import Settings Page
 import 'Screens/ProfilePage.dart'; // Import Profile Page;
+import 'Screens/ReportsPage.dart';
+import 'Screens/UploadVideo.dart';
+
+
 void main() {
   runApp(const MyApp());
 }
@@ -25,7 +29,8 @@ class MyApp extends StatelessWidget {
         '/sign-in': (context) => const SignInPage(), // ❌ Removed const
         '/settings': (context) => const SettingsPage(), // ✅ Define settings route
         '/profile': (context) => const ProfilePage(), // ✅ Define profile route
-
+        '/report': (context) => const ReportsPage(), // ✅ Define profile route
+        '/upload': (context) => const UploadVideoPage(), // ✅ Define profile route
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -48,21 +53,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      // builder: (context, child) {
-      //   return Stack(
-      //     children: [
-      //       Container(
-      //         decoration: const BoxDecoration(
-      //           image: DecorationImage(
-      //             image: AssetImage('assets/images/back.png'), // Ensure this path is correct
-      //             fit: BoxFit.cover,
-      //           ),
-      //         ),
-      //       ),
-      //       if (child != null) child,
-      //     ],
-      //   );
-      // },
     );
   }
 }
