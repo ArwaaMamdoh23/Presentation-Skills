@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path/path.dart' as path;
 import 'SettingsPage.dart';
 import 'ProfilePage.dart';
 
@@ -13,6 +16,8 @@ class UploadVideoPage extends StatefulWidget {
 
 class _UploadVideoPageState extends State<UploadVideoPage> {
   File? _videoFile;
+  bool _isUploading = false;
+  String? _downloadURL;
 
   Future<void> _pickVideo() async {
     try {
@@ -21,6 +26,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         setState(() {
           _videoFile = File(pickedFile.path);
         });
+
+        // Upload video to Firebase Storage
+        await _uploadVideo();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No video selected')),
@@ -29,6 +37,47 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _uploadVideo() async {
+    if (_videoFile == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      String fileName = path.basename(_videoFile!.path);
+      Reference storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
+
+      UploadTask uploadTask = storageRef.putFile(_videoFile!);
+      TaskSnapshot snapshot = await uploadTask;
+
+      String downloadURL = await snapshot.ref.getDownloadURL();
+
+      // Save video URL in Firestore temporarily
+      await FirebaseFirestore.instance.collection('videos').add({
+        'url': downloadURL,
+        'timestamp': FieldValue.serverTimestamp(),
+        'processed': false, // Indicates it hasn't been processed yet
+      });
+
+      setState(() {
+        _downloadURL = downloadURL;
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Upload successful! Video saved temporarily.')),
+      );
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: $e')),
       );
     }
   }
@@ -110,14 +159,14 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      _videoFile != null ? _videoFile!.path.split('/').last : 'No video selected',
+                      _videoFile != null ? path.basename(_videoFile!.path) : 'No video selected',
                       style: const TextStyle(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _pickVideo,
+                    onPressed: _isUploading ? null : _pickVideo,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -129,10 +178,12 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.blueGrey.shade900,
-                            Colors.blueGrey.shade700,
-                          ],
+                          colors: _isUploading
+                              ? [Colors.grey, Colors.grey]
+                              : [
+                                  Colors.blueGrey.shade900,
+                                  Colors.blueGrey.shade700,
+                                ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -141,13 +192,21 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                       child: Container(
                         constraints: const BoxConstraints(minWidth: 200, minHeight: 50),
                         alignment: Alignment.center,
-                        child: const Text(
-                          'Upload Video',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        child: Text(
+                          _isUploading ? 'Uploading...' : 'Upload Video',
+                          style: const TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
                     ),
                   ),
+                  if (_downloadURL != null) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      'Uploaded: $_downloadURL',
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  ]
                 ],
               ),
             ),

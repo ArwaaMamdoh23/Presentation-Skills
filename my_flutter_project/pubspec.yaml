@@ -22,7 +22,11 @@ dependencies:
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
-  firebase_core: ^3.12.1
+
+  firebase_core: any
+  firebase_storage: any
+  firebase_auth: any 
+  image_picker: any
   cloud_firestore: ^5.6.5
 
 dev_dependencies:
@@ -46,4 +50,5 @@ flutter:
     - assets/images/e304c83d-ad29-4296-b695-7cefbcd4a3d0.png
     - assets/images/settings icon.png
     - assets/images/back.jpg  # Updated to correct path
+   
 

@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // Ensure this file exists
+
 import 'Screens/AuthPage.dart';
 import 'Screens/SignUpPage.dart';
 import 'Screens/SignInPage.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); 
 
-void main() {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform, // ✅ Correct initialization
+    ); 
+    debugPrint("✅ Firebase Initialized Successfully");
+  } catch (e) {
+    debugPrint("❌ Firebase Initialization Error: $e");
+  }
+
   runApp(const MyApp());
 }
 
@@ -14,13 +27,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PresentSense', // App name
-      debugShowCheckedModeBanner: false, // Remove the debug banner
-      initialRoute: '/',
+      title: 'PresentSense',
+      debugShowCheckedModeBanner: false,
+      home: const AuthPage(),
       routes: {
-        '/': (context) => const AuthPage(),  // ❌ Removed const
-        '/sign-up': (context) => const SignUpPage(), // ❌ Removed const
-        '/sign-in': (context) => const SignInPage(), // ❌ Removed const
+        '/sign-up': (context) => const SignUpPage(),
+        '/sign-in': (context) => const SignInPage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -28,7 +40,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.blue.shade500,
           secondary: Colors.grey.shade300,
         ),
-        scaffoldBackgroundColor: Colors.transparent, // Make scaffold background transparent
+        scaffoldBackgroundColor: Colors.transparent,
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
           bodyLarge: TextStyle(color: Colors.black),
@@ -46,10 +58,11 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return Stack(
           children: [
+            // 🟢 Ensure the asset path is correct
             Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/back.png'), // Ensure this path is correct
+                  image: AssetImage('assets/images/back.png'),
                   fit: BoxFit.cover,
                 ),
               ),
