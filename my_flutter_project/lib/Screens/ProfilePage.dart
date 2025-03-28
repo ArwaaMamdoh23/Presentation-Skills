@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
-import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
+import 'dart:convert'; // For base64 encoding/decoding
+import 'package:connectivity_plus/connectivity_plus.dart'; // For internet check
+
+import '../widgets/custom_app_bar.dart';
+import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
-import 'SignOutPage.dart';
 import 'SettingsPage.dart';
-import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart'; // ✅ Import Admin Dashboard
-import '../widgets/CustomDrawer .dart'; 
+import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -23,38 +26,77 @@ class _ProfilePageState extends State<ProfilePage> {
   String? email;
   String? profession;
   Uint8List? _imageBytes;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
+    _loadImage();
   }
-void _loadUserProfile() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  setState(() {
-    name = prefs.getString('name') ?? 'Arwaa Mamdoh';
-    email = prefs.getString('email') ?? 'arwaa2110478@miuegypt.edu.eg';
-    profession = prefs.getString('profession') ?? 'Student';
-    String? imageBytesString = prefs.getString('profile_image_bytes');
-    if (imageBytesString != null) {
-      _imageBytes = Uint8List.fromList(imageBytesString.codeUnits);
-    }
-  });
-}
 
-  Future<void> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      PlatformFile file = result.files.first;
+  /// ✅ Check if there's an internet connection
+  Future<bool> hasInternet() async {
+    var result = await Connectivity().checkConnectivity();
+    return result != ConnectivityResult.none;
+  }
+
+  /// ✅ Load user data from Firestore
+  Future<void> _loadUserProfile() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+      return;
+    }
+
+    String userId = user.uid;
+
+    if (!await hasInternet()) {
+      print("⚠️ No internet connection.");
+      setState(() => isLoading = false);
+      return;
+    }
+
+    try {
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('User').doc(userId).get();
+
+      print("📌 Firestore Data: ${userDoc.data()}");
+
+      if (userDoc.exists && mounted) {
+        setState(() {
+          name = userDoc['Name'] ?? "N/A";
+          email = userDoc['Email'] ?? user.email;
+          profession = userDoc['Role'] ?? "N/A";
+        });
+      } else {
+        print("⚠️ User document not found in Firestore!");
+      }
+    } catch (e) {
+      print("❌ Firestore Error: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  /// ✅ Load profile image from SharedPreferences
+  Future<void> _loadImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedImage = prefs.getString('profile_image_bytes');
+
+    if (storedImage != null) {
       setState(() {
-        _imageBytes = file.bytes;
+        _imageBytes = base64Decode(storedImage);
       });
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('profile_image_bytes', String.fromCharCodes(_imageBytes!));
     }
   }
 
-  void _signOut() {
+  /// ✅ Sign out and go to HomePage
+  void _signOut() async {
+    await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
@@ -71,99 +113,87 @@ void _loadUserProfile() async {
   void _goToDashboard() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AdminDashboard()), // ✅ Navigate to AdminDashboard
+      MaterialPageRoute(builder: (context) => const AdminDashboard()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isUserSignedIn = true; // ✅ Change based on user authentication status
-
     return Scaffold(
-      extendBodyBehindAppBar: true, // ✅ Extends content behind the AppBar
+      extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
-        showSignIn: false, 
-        isUserSignedIn: true, // ✅ Ensures Profile & Settings icons appear
+        showSignIn: false,
+        isUserSignedIn: true,
       ),
-      drawer: CustomDrawer(isSignedIn: isUserSignedIn), // ✅ Sidebar on the RIGHT
 
-      body: BackgroundWrapper( // ✅ Apply fixed background
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Center(
-                  child: Stack(
-                    children: [
-                      // ✅ Profile Image with Transparent Background & White Border
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2), // ✅ Thin white border
-                        ),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.transparent, // ✅ Fully transparent
-                          backgroundImage: _imageBytes == null ? null : MemoryImage(_imageBytes!),
-                          child: _imageBytes == null
-                              ? Text(
-                                  name != null ? name![0] : 'U',
-                                  style: const TextStyle(fontSize: 40, color: Colors.white),
-                                )
-                              : null,
+      body: BackgroundWrapper(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Center(
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: _imageBytes == null
+                                    ? null
+                                    : MemoryImage(_imageBytes!),
+                                child: _imageBytes == null
+                                    ? Text(
+                                        name != null ? name![0] : 'U',
+                                        style: const TextStyle(
+                                            fontSize: 40, color: Colors.white),
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      _buildInfoTile('Name', name),
+                      _buildInfoTile('Email', email),
+                      _buildInfoTile('Profession', profession),
+                      const SizedBox(height: 30),
 
-                      // ✅ Edit Profile Image Button
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          child: IconButton(
-                            icon: const Icon(Icons.edit, size: 16, color: Colors.blueAccent),
-                            onPressed: _pickImage,
-                          ),
-                        ),
+                      _buildButton('Edit Profile', () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const EditProfilePage()),
+                        );
+                      }),
+
+                      const SizedBox(height: 20),
+
+                      _buildButton('Dashboard', _goToDashboard),
+
+                      const SizedBox(height: 30),
+
+                      Column(
+                        children: [
+                          _buildListTile(Icons.payment, 'Billing Details'),
+                          _buildListTile(Icons.account_box, 'User Management'),
+                          _buildListTile(Icons.info, 'Information'),
+                          _buildListTile(Icons.settings, 'Settings', _goToSettings),
+                          _buildListTile(Icons.exit_to_app, 'Logout', _signOut),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                _buildInfoTile('Name', name),
-                _buildInfoTile('Email', email),
-                _buildInfoTile('Profession', profession),
-                const SizedBox(height: 30),
-
-                _buildButton('Edit Profile', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                  );
-                }),
-
-                const SizedBox(height: 20),
-
-                _buildButton('Dashboard', _goToDashboard), // ✅ Updated button for Dashboard
-
-                const SizedBox(height: 30),
-
-                Column(
-                  children: [
-                    _buildListTile(Icons.payment, 'Billing Details'),
-                    _buildListTile(Icons.account_box, 'User Management'),
-                    _buildListTile(Icons.info, 'Information'),
-                    _buildListTile(Icons.settings, 'Settings', _goToSettings),
-                    _buildListTile(Icons.exit_to_app, 'Logout', _signOut),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }
@@ -182,43 +212,21 @@ void _loadUserProfile() async {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 280),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.blueGrey.shade900,
-                Colors.blueGrey.shade700,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(280, 60),
+            backgroundColor: Colors.blueGrey.shade700,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
             ),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.lightBlue.withOpacity(0.4),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
           ),
-          child: ElevatedButton(
-            onPressed: onPressed,
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(280, 60),
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),

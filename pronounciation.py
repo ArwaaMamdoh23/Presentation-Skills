@@ -7,10 +7,12 @@ import numpy as np
 pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
 
 # Path to your local audio file
-audio_file = r"audio/WhatsApp Audio 2024-10-21 at 8.55.53 PM.wav"
+audio_file = r"D:\GitHub\Presentation-Skills\audio\WhatsApp Audio 2024-10-21 at 8.55.53 PM.wav"
+
 
 # Load the audio
-waveform, sample_rate = torchaudio.load(audio_file)
+waveform, sample_rate = torchaudio.load(audio_file, format="wav")
+
 
 # Convert stereo to mono if needed
 if waveform.shape[0] > 1:
