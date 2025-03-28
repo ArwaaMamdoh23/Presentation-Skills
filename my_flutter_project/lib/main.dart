@@ -7,10 +7,18 @@ import 'Screens/SettingsPage.dart'; // Import Settings Page
 import 'Screens/ProfilePage.dart'; // Import Profile Page;
 import 'Screens/ReportsPage.dart';
 import 'Screens/UploadVideo.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';  // ✅ Import Firebase options
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // ✅ Proper Firebase Initialization with Web Support
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -23,14 +31,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // Remove the debug banner
       initialRoute: '/home',
       routes: {
-        '/home': (context) => const HomePage(), // ✅ Add Home Page route
-        '/auth': (context) => const AuthPage(),  // ❌ Removed const
-        '/sign-up': (context) => const SignUpPage(), // ❌ Removed const
-        '/sign-in': (context) => const SignInPage(), // ❌ Removed const
-        '/settings': (context) => const SettingsPage(), // ✅ Define settings route
-        '/profile': (context) => const ProfilePage(), // ✅ Define profile route
-        '/report': (context) =>  ReportsPage(), // ✅ Define profile route
-        '/upload': (context) => const UploadVideoPage(), // ✅ Define profile route
+        '/home': (context) => HomePage(), // ✅ Add Home Page route
+        '/auth': (context) => AuthPage(), 
+        '/sign-up': (context) => SignUpPage(),
+        '/sign-in': (context) => SignInPage(),
+        '/settings': (context) => SettingsPage(), 
+        '/profile': (context) => ProfilePage(), 
+        '/report': (context) => ReportsPage(), 
+        '/upload': (context) => UploadVideoPage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -38,7 +46,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.blue.shade500,
           secondary: Colors.grey.shade300,
         ),
-        scaffoldBackgroundColor: Colors.transparent, // Make scaffold background transparent
+        scaffoldBackgroundColor: Colors.white, // ✅ Changed from transparent to white
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
           bodyLarge: TextStyle(color: Colors.black),

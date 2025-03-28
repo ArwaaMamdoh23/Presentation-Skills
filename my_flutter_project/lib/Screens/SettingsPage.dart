@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
-import '../widgets/custom_app_bar.dart'; // ✅ Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // ✅ Import Background Wrapper
-// import 'package:my_flutter_project/Screens/SignInPage.dart'; // ✅ Import Sign-In Page for navigation
-import '../widgets/CustomDrawer .dart'; 
+import '../widgets/custom_app_bar.dart';
+import '../widgets/background_wrapper.dart';
+import 'package:my_flutter_project/Screens/SignInPage.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    bool isUserSignedIn = true; // ✅ Change based on user authentication status
-
     return Scaffold(
-      extendBodyBehindAppBar: true, // ✅ Extends content behind AppBar
+      extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
         showSignIn: false,
-        isUserSignedIn: true, // ✅ User is signed in, show Profile & Settings
+        isUserSignedIn: true,
       ),
-      drawer: CustomDrawer(isSignedIn: isUserSignedIn), // ✅ Sidebar on the RIGHT
-
-      body: BackgroundWrapper( // ✅ Apply fixed background
+      body: BackgroundWrapper(
         child: Column(
           children: [
-            const SizedBox(height: kToolbarHeight), // ✅ Ensure content doesn't overlap AppBar
+            const SizedBox(height: kToolbarHeight),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
               child: Text(
@@ -51,25 +48,19 @@ class SettingsPage extends StatelessWidget {
                       icon: Icons.dark_mode,
                       title: "Theme",
                       subtitle: "Switch between Light and Dark mode",
-                      onTap: () {
-                        // Add theme switching logic here
-                      },
+                      onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.notifications,
                       title: "Notifications",
                       subtitle: "Manage notification preferences",
-                      onTap: () {
-                        // Navigate to notification settings
-                      },
+                      onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.privacy_tip,
                       title: "Terms & Privacy",
                       subtitle: "View our terms and privacy policy",
-                      onTap: () {
-                        // Navigate to Terms & Privacy page
-                      },
+                      onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.delete_forever,
@@ -77,7 +68,6 @@ class SettingsPage extends StatelessWidget {
                       subtitle: "Permanently remove your account",
                       onTap: () {
                         _showDeleteConfirmationDialog(context);
-                        // Implement account deletion confirmation
                       },
                     ),
                     _buildSettingsItem(
@@ -105,7 +95,7 @@ class SettingsPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Card(
-      color: Colors.grey[900]?.withOpacity(0.8), // ✅ Slight transparency
+      color: Colors.grey[900]?.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(icon, color: Colors.white),
@@ -120,10 +110,8 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  void _signOut(BuildContext context) {
-    // Perform sign-out logic (e.g., FirebaseAuth.instance.signOut();)
-    
-    // Navigate to the sign-in page
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
@@ -131,44 +119,105 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showDeleteConfirmationDialog(BuildContext context) {
-  showDialog(
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteAccount(context);
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+Future<String?> _askForPassword(BuildContext context) async {
+  TextEditingController passwordController = TextEditingController();
+
+  return await showDialog<String>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text("Confirm Deletion"),
-        content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
-        actions: [
-          // Cancel Button
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
+        title: const Text("Confirm Password"),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: "Enter your password",
           ),
-          
-          // Confirm Delete Button
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text("Cancel"),
+          ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-              // _deleteAccount(); // Call the delete function
+              Navigator.pop(context, passwordController.text.trim());
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("Confirm"),
           ),
         ],
-        
       );
-        // Navigator.pushNamed(context, '/home');
-
     },
   );
 }
+void _deleteAccount(BuildContext context) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
 
-// void _deleteAccount() {
-//   // TODO: Implement account deletion logic (Firebase Auth, API request, etc.)
+  try {
+    // ✅ Ask for the current password if the user signed in via email/password
+    if (user.email != null) {
+      String? currentPassword = await _askForPassword(context);
+      if (currentPassword == null) return; // User canceled the password input
 
-//   // After deletion, navigate to Home
-//   Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-// }
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      // ✅ Re-authenticate user before deleting the account
+      await user.reauthenticateWithCredential(credential);
+    }
+
+    // ✅ Delete user from Firestore
+    await FirebaseFirestore.instance.collection('User').doc(user.uid).delete();
+    print("✅ User document deleted from Firestore");
+
+    // ✅ Delete user from Firebase Authentication
+    await user.delete();
+    print("✅ User deleted from Firebase Auth");
+
+    // ✅ Sign out the user
+    await FirebaseAuth.instance.signOut();
+    print("✅ User signed out");
+
+    // ✅ Navigate to SignInPage immediately after deletion
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInPage()),
+      (route) => false, // Clears all previous routes
+    );
+    print("✅ Redirected to SignInPage");
+  } catch (e) {
+    print("❌ Error deleting account: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error deleting account: $e")),
+    );
+  }
+}
 
 
 }

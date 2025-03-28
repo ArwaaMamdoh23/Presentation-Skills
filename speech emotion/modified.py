@@ -8,12 +8,12 @@ from keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
-model_path = r"C:\Users\MOUSTAFA\OneDrive\Desktop\speech emotion_recog\CNN_Model_Weights (1).h5"
+model_path = r"speech emotion/CNN_Model_Weights (1).h5"
 loaded_model = load_model(model_path)
 loaded_model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
 # Load the scaler
-scaler_path = r"C:\Users\MOUSTAFA\OneDrive\Desktop\speech emotion_recog\D__Speech Emotion Recognition-20250207T115414Z-001_Speech Emotion Recognition_Scaler.pickle"
+scaler_path = r"speech emotion/D__Speech Emotion Recognition-20250207T115414Z-001_Speech Emotion Recognition_Scaler.pickle"
 with open(scaler_path, "rb") as file:
     scaler = pickle.load(file)
 
