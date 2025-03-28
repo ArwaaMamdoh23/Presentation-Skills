@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_flutter_project/Screens/HomePage.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/background_wrapper.dart';
+import 'package:my_flutter_project/Screens/SignInPage.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -7,103 +12,212 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Image with Blur Effect
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const AssetImage('assets/images/back.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
-                  BlendMode.darken,
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(
+        showSignIn: false,
+        isUserSignedIn: true,
+      ),
+      body: BackgroundWrapper(
+        child: Column(
+          children: [
+            const SizedBox(height: kToolbarHeight),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                "Settings",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 3.0,
+                      color: Colors.white54,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
                 ),
               ),
             ),
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.transparent,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildSettingsItem(
+                      icon: Icons.dark_mode,
+                      title: "Theme",
+                      subtitle: "Switch between Light and Dark mode",
+                      onTap: () {},
+                    ),
+                    _buildSettingsItem(
+                      icon: Icons.notifications,
+                      title: "Notifications",
+                      subtitle: "Manage notification preferences",
+                      onTap: () {},
+                    ),
+                    _buildSettingsItem(
+                      icon: Icons.privacy_tip,
+                      title: "Terms & Privacy",
+                      subtitle: "View our terms and privacy policy",
+                      onTap: () {},
+                    ),
+                    _buildSettingsItem(
+                      icon: Icons.delete_forever,
+                      title: "Delete Account",
+                      subtitle: "Permanently remove your account",
+                      onTap: () {
+                        _showDeleteConfirmationDialog(context);
+                      },
+                    ),
+                    _buildSettingsItem(
+                      icon: Icons.logout,
+                      title: "Sign Out",
+                      subtitle: "Log out from your account",
+                      onTap: () {
+                        _signOut(context);
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          Column(
-            children: [
-              AppBar(
-                title: const Text("Settings"),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      _buildSettingsItem(
-                        icon: Icons.dark_mode,
-                        title: "Theme",
-                        subtitle: "Switch between Light and Dark mode",
-                        onTap: () {
-                          // Add theme switching logic here
-                        },
-                      ),
-                      _buildSettingsItem(
-                        icon: Icons.notifications,
-                        title: "Notifications",
-                        subtitle: "Manage notification preferences",
-                        onTap: () {
-                          // Navigate to notification settings
-                        },
-                      ),
-                      _buildSettingsItem(
-                        icon: Icons.privacy_tip,
-                        title: "Terms & Privacy",
-                        subtitle: "View our terms and privacy policy",
-                        onTap: () {
-                          // Navigate to Terms & Privacy page
-                        },
-                      ),
-                      _buildSettingsItem(
-                        icon: Icons.delete_forever,
-                        title: "Delete Account",
-                        subtitle: "Permanently remove your account",
-                        onTap: () {
-                          // Implement account deletion confirmation
-                        },
-                      ),
-                      _buildSettingsItem(
-                        icon: Icons.logout,
-                        title: "Sign Out",
-                        subtitle: "Log out from your account",
-                        onTap: () {
-                          // Implement sign-out functionality
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSettingsItem({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _buildSettingsItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Card(
-      color: Colors.grey[900]?.withOpacity(0.8), // Slight transparency for blending with background
+      color: Colors.grey[900]?.withOpacity(0.8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(icon, color: Colors.white),
-        title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey)),
         trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white),
         onTap: onTap,
       ),
     );
   }
+
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomePage()),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteAccount(context);
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+Future<String?> _askForPassword(BuildContext context) async {
+  TextEditingController passwordController = TextEditingController();
+
+  return await showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Confirm Password"),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: "Enter your password",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, passwordController.text.trim());
+            },
+            child: const Text("Confirm"),
+          ),
+        ],
+      );
+    },
+  );
+}
+void _deleteAccount(BuildContext context) async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
+
+  try {
+    // ✅ Ask for the current password if the user signed in via email/password
+    if (user.email != null) {
+      String? currentPassword = await _askForPassword(context);
+      if (currentPassword == null) return; // User canceled the password input
+
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      // ✅ Re-authenticate user before deleting the account
+      await user.reauthenticateWithCredential(credential);
+    }
+
+    // ✅ Delete user from Firestore
+    await FirebaseFirestore.instance.collection('User').doc(user.uid).delete();
+    print("✅ User document deleted from Firestore");
+
+    // ✅ Delete user from Firebase Authentication
+    await user.delete();
+    print("✅ User deleted from Firebase Auth");
+
+    // ✅ Sign out the user
+    await FirebaseAuth.instance.signOut();
+    print("✅ User signed out");
+
+    // ✅ Navigate to SignInPage immediately after deletion
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInPage()),
+      (route) => false, // Clears all previous routes
+    );
+    print("✅ Redirected to SignInPage");
+  } catch (e) {
+    print("❌ Error deleting account: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error deleting account: $e")),
+    );
+  }
+}
+
+
 }

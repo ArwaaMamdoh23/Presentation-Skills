@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
 
 void main() {
   runApp(const MyApp());
@@ -22,62 +22,69 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background with blur effect
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const AssetImage('assets/images/back.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4),
-                  BlendMode.darken,
-                ),
-              ),
-            ),
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(color: Colors.transparent),
-              ),
-            ),
-          ),
-
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              title: const Text('Admin Dashboard'),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            drawer: const AdminDrawer(),
-            body: const SingleChildScrollView(
-              child: Column(
-                children: [
-                  SystemOverview(),
-                  UserManagement(),
-                  PresentationAnalysisSummary(),
-                  AIInsights(),
-                  Footer(),
-                ],
-              ),
-            ),
-          ),
-        ],
+      extendBodyBehindAppBar: true, // ✅ Allows background behind the AppBar
+      appBar: AppBar(
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+    // ✅ App Name on the Left
+  title: const Text(
+        'PresentSense', // Change this to your app name
+        style: TextStyle(
+          color: Colors.white, 
+          fontWeight: FontWeight.bold, 
+          fontSize: 28,
+        ),
       ),
-    );
+    
+  centerTitle: false, // ✅ Ensures left alignment for app name
+),
+
+      drawer: const AdminDrawer(),
+
+      // ✅ Apply BackgroundWrapper
+        // ✅ Wrap content in BackgroundWrapper
+      body: BackgroundWrapper(
+  child: SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ✅ Add some space below AppBar for better appearance
+        const SizedBox(height: 20), 
+
+        // ✅ "Admin Dashboard" should scroll with the content
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Center(
+            child: Text(
+              'Admin Dashboard',
+              style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 3.0,
+                        color: Colors.white54,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                  ),
+            ),
+          ),
+        ),
+
+        // ✅ Keep the rest of the sections
+        const SizedBox(height: 20),
+        const SystemOverview(),
+        const UserManagement(),
+        const PresentationAnalysisSummary(),
+        const AIInsights(),
+        const Footer(),
+      ],
+    ),
+  ),
+),
+);
   }
 }
 
@@ -92,20 +99,20 @@ class AdminDrawer extends StatelessWidget {
         children: [
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.white,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.person, size: 40, color: Colors.white),
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 40, color: Colors.black),
                 ),
                 SizedBox(height: 10),
                 Text(
                   'Admin Name',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                  style: TextStyle(color: Colors.black, fontSize: 18),
                 ),
               ],
             ),

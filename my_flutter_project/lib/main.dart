@@ -5,20 +5,23 @@ import 'firebase_options.dart'; // Ensure this file exists
 import 'Screens/AuthPage.dart';
 import 'Screens/SignUpPage.dart';
 import 'Screens/SignInPage.dart';
+import 'Screens/HomePage.dart'; // ✅ Import Home Page
+import 'Screens/SettingsPage.dart'; // Import Settings Page
+import 'Screens/ProfilePage.dart'; // Import Profile Page;
+import 'Screens/ReportsPage.dart';
+import 'Screens/UploadVideo.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';  // ✅ Import Firebase options
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); 
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // ✅ Proper Firebase Initialization with Web Support
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform, // ✅ Correct initialization
-    ); 
-    debugPrint("✅ Firebase Initialized Successfully");
-  } catch (e) {
-    debugPrint("❌ Firebase Initialization Error: $e");
-  }
-
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -27,12 +30,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PresentSense',
-      debugShowCheckedModeBanner: false,
-      home: const AuthPage(),
+      title: 'PresentSense', // App name
+      debugShowCheckedModeBanner: false, // Remove the debug banner
+      initialRoute: '/home',
       routes: {
-        '/sign-up': (context) => const SignUpPage(),
-        '/sign-in': (context) => const SignInPage(),
+        '/home': (context) => HomePage(), // ✅ Add Home Page route
+        '/auth': (context) => AuthPage(), 
+        '/sign-up': (context) => SignUpPage(),
+        '/sign-in': (context) => SignInPage(),
+        '/settings': (context) => SettingsPage(), 
+        '/profile': (context) => ProfilePage(), 
+        '/report': (context) => ReportsPage(), 
+        '/upload': (context) => UploadVideoPage(),
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -40,7 +49,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.blue.shade500,
           secondary: Colors.grey.shade300,
         ),
-        scaffoldBackgroundColor: Colors.transparent,
+        scaffoldBackgroundColor: Colors.white, // ✅ Changed from transparent to white
         textTheme: const TextTheme(
           headlineLarge: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
           bodyLarge: TextStyle(color: Colors.black),
@@ -55,22 +64,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      builder: (context, child) {
-        return Stack(
-          children: [
-            // 🟢 Ensure the asset path is correct
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/back.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            if (child != null) child,
-          ],
-        );
-      },
     );
   }
 }
