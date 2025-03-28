@@ -4,6 +4,8 @@ import 'package:my_flutter_project/Screens/SignInPage.dart';
 import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
 // import '../widgets/CustomDrawer .dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -255,12 +257,9 @@ Widget build(BuildContext context) {
             ],
           ),
           child: ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState?.validate() ?? false) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SignInPage()),
-                );
+                await _registerUser();
               }
             },
             style: ElevatedButton.styleFrom(
@@ -279,8 +278,7 @@ Widget build(BuildContext context) {
           ),
         ),
       ),
-
-      const SizedBox(height: 20), // Spacing between buttons
+      const SizedBox(height: 20),
 
       // ✅ "Already have an account? Sign In" Button
       TextButton(
@@ -295,4 +293,34 @@ Widget build(BuildContext context) {
     ],
   );
 }
+Future<void> _registerUser() async {
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    String userId = userCredential.user!.uid;
+
+    // Save user info in Firestore
+    await FirebaseFirestore.instance.collection('User').doc(userId).set({
+      'Email': _emailController.text.trim(),
+      'Name': _fullNameController.text.trim(),
+      'Role': 'user',  // Default role
+      'User_id': userId,
+    });
+
+    // Navigate to Sign-In page after successful signup
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInPage()),
+    );
+  } catch (e) {
+    print("Error during registration: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Registration failed: $e')),
+    );
+  }
+}
+
 }
