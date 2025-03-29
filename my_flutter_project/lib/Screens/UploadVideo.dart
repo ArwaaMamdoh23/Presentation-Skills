@@ -4,6 +4,11 @@ import 'package:image_picker/image_picker.dart';
 import '../widgets/custom_app_bar.dart'; // ✅ Use custom AppBar
 import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
 import '../widgets/CustomDrawer .dart'; 
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path/path.dart' as path;
+import 'SettingsPage.dart';
+import 'ProfilePage.dart';
 
 class UploadVideoPage extends StatefulWidget {
   const UploadVideoPage({super.key});
@@ -37,6 +42,47 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Future<void> _uploadVideo() async {
+    if (_videoFile == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      String fileName = path.basename(_videoFile!.path);
+      Reference storageRef = FirebaseStorage.instance.ref().child('uploads/$fileName');
+
+      UploadTask uploadTask = storageRef.putFile(_videoFile!);
+      TaskSnapshot snapshot = await uploadTask;
+
+      String downloadURL = await snapshot.ref.getDownloadURL();
+
+      // Save video URL in Firestore temporarily
+      await FirebaseFirestore.instance.collection('videos').add({
+        'url': downloadURL,
+        'timestamp': FieldValue.serverTimestamp(),
+        'processed': false, // Indicates it hasn't been processed yet
+      });
+
+      setState(() {
+        _downloadURL = downloadURL;
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Upload successful! Video saved temporarily.')),
+      );
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: $e')),
       );
     }
   }

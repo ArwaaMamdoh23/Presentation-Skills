@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // Ensure this file exists
+
 import 'Screens/AuthPage.dart';
 import 'Screens/SignUpPage.dart';
 import 'Screens/SignInPage.dart';
