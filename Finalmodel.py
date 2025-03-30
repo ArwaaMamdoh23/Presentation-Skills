@@ -74,8 +74,8 @@ posture_meanings = {
 }
 
 # Define counters for gestures and postures
-gesture_counter = Counter()
-# posture_counter = Counter()
+# gesture_counter = Counter()
+# # posture_counter = Counter()
 posture_counter = {
     "Head Up": 0,
     "Slouching": 0,
@@ -85,6 +85,17 @@ posture_counter = {
     "Arms on Hips": 0,
     "Hands in Pockets": 0,
     "Crossed Arms": 0
+}
+gesture_counter = {
+    "Open Palm": 0,
+    "Closed Fist": 0,
+    "Pointing Finger": 0,
+    "Thumbs Up": 0,
+    "Thumbs Down": 0,
+    "Victory Sign": 0,
+    "OK Sign": 0,
+    "Rock Sign": 0,
+    "Call Me": 0
 }
 
 # Facial emotion recognition using DeepFace
@@ -239,7 +250,7 @@ def run_inference(frame):
     return posenet_model.signatures['serving_default'](**model_input)
 
 # Main video processing loop
-cap = cv2.VideoCapture(r"D:\GitHub\Presentation-Skills\Videos\TedTalk.mp4")
+cap = cv2.VideoCapture("Videos/TedTalk.mp4")
 frame_count = 0
 is_paused = False
 playback_speed = 1
@@ -272,7 +283,8 @@ while cap.isOpened():
         if results_hands.multi_hand_landmarks:
             for hand_landmarks in results_hands.multi_hand_landmarks:
                 gesture = classify_hand_gesture(hand_landmarks)
-                gesture_counter[gesture] += 1
+                if gesture != "Unknown Gesture":
+                    gesture_counter[gesture] += 1
                 print(f"Detected Gesture: {gesture}")
 
         # Detect emotions and eye contact
@@ -319,7 +331,8 @@ for posture, count in posture_counter.items():
 
 # Print most repeated gestures with meaning
 print("\nMost Repeated Gestures with Meaning: ")
-for gesture, count in gesture_counter.most_common():  # Show top 2 most common gestures
+print("\nGesture Summary:")
+for gesture, count in gesture_counter.items():
     meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
     print(f"{gesture}: {count} times - Meaning: {meaning}")
     
@@ -339,7 +352,7 @@ def extract_audio_from_video(video_file_path):
     return audio_file_path
 
 # Specify your video file path
-video_file_path = r"D:\GitHub\Presentation-Skills\Videos\TedTalk.mp4"
+video_file_path = "Videos/TedTalk.mp4"
 
 # Automatically generate the audio file path and extract the audio
 audio_file_path = extract_audio_from_video(video_file_path)
@@ -652,62 +665,38 @@ def get_gesture_feedback(gesture):
         return "Unknown gesture. Be mindful of the context and cultural interpretations of different gestures."
 
 # Add emotion and eye contact improvement tips
-def get_emotion_feedback(emotion, eye_contact):
-  
-    if emotion == "neutral":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "attentive"
-            feedback = "You appear attentive. Keep your facial expressions engaging."
-        else:
-            refined_emotion = "indifferent"
-            feedback = "Try to add more warmth to your expression for a more approachable look."
-    
-    elif emotion == "angry":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "intense"
-            feedback = "Your intensity shows determination, but be mindful not to appear hostile."
-        else:
-            refined_emotion = "defensive"
-            feedback = "Lack of eye contact with anger may appear defensive. Try to calm down and engage more openly."
-    
-    elif emotion == "fear":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "nervous"
-            feedback = "Nervousness is noticeable. Maintain steady eye contact to show confidence."
-        else:
-            refined_emotion = "distrust"
-            feedback = "Avoid avoiding eye contact; it can make you appear untrustworthy. Try to relax and engage more."
-    
-    elif emotion == "happy":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "joyful"
-            feedback = "You're radiating joy! Keep the positivity and maintain eye contact for a more connected look."
-        else:
-            refined_emotion = "content"
-            feedback = "You're happy, but make sure to engage with your audience by maintaining eye contact."
-    
-    elif emotion == "sad":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "vulnerable"
-            feedback = "You seem vulnerable. Try smiling to lighten the mood if you’re comfortable."
-        else:
-            refined_emotion = "isolated"
-            feedback = "Lack of eye contact combined with sadness may appear disengaged. Try to make eye contact for a stronger presence."
-    
-    elif emotion == "surprise":
-        if eye_contact == "Eye Contact":
-            refined_emotion = "alert"
-            feedback = "You seem alert! Maintain eye contact to help convey your surprise more clearly."
-        else:
-            refined_emotion = "disoriented"
-            feedback = "You’re surprised but seem disconnected. Try focusing and engaging with your audience."
-    
+def get_emotion_feedback(refined_emotion, eye_contact):
+    # Use the refined emotion here instead of raw emotion
+    if refined_emotion == "attentive":
+        feedback = "You appear attentive. Keep your facial expressions engaging."
+    elif refined_emotion == "indifferent":
+        feedback = "Try to add more warmth to your expression for a more approachable look."
+    elif refined_emotion == "intense":
+        feedback = "Your intensity shows determination, but be mindful not to appear hostile."
+    elif refined_emotion == "defensive":
+        feedback = "Lack of eye contact with anger may appear defensive. Try to calm down and engage more openly."
+    elif refined_emotion == "nervous":
+        feedback = "Nervousness is noticeable. Maintain steady eye contact to show confidence."
+    elif refined_emotion == "distrust":
+        feedback = "Avoid avoiding eye contact; it can make you appear untrustworthy. Try to relax and engage more."
+    elif refined_emotion == "joyful":
+        feedback = "You're radiating joy! Keep the positivity and maintain eye contact for a more connected look."
+    elif refined_emotion == "content":
+        feedback = "You're happy, but make sure to engage with your audience by maintaining eye contact."
+    elif refined_emotion == "vulnerable":
+        feedback = "You seem vulnerable. Try smiling to lighten the mood if you’re comfortable."
+    elif refined_emotion == "isolated":
+        feedback = "Lack of eye contact combined with sadness may appear disengaged. Try to make eye contact for a stronger presence."
+    elif refined_emotion == "alert":
+        feedback = "You seem alert! Maintain eye contact to help convey your surprise more clearly."
+    elif refined_emotion == "disoriented":
+        feedback = "You’re surprised but seem disconnected. Try focusing and engaging with your audience."
     else:
-        refined_emotion = emotion
         feedback = "Unknown emotion. Try to maintain a balanced expression to convey clarity."
     
     return refined_emotion, feedback
 
+# Get detailed feedback for each posture, gesture, and emotion detected
 # Get detailed feedback for each posture, gesture, and emotion detected
 posture_feedback = get_posture_feedback(posture)
 gesture_feedback = get_gesture_feedback(gesture)
@@ -724,26 +713,27 @@ combined_feedback_report.append(f"Emotion Feedback: {emotion_feedback}")
 print(f"Refined Emotion: {refined_emotion}")
 print(f"Emotion Feedback: {emotion_feedback}")
 
+dominant_posture, posture_count = Counter(posture_counter).most_common(1)[0]
+posture_feedback = get_posture_feedback(dominant_posture)
 # Add posture analysis
-combined_feedback_report.append("\nPosture Analysis:")
-for posture, count in posture_counter.items():
-    if count > 0:
-        meaning = posture_meanings.get(posture, "Unknown Meaning")
-        combined_feedback_report.append(f"{posture}: {count} times - Meaning: {meaning}")
-
-
+combined_feedback_report.append("\n--- Posture Analysis ---")
+if dominant_posture != "Unknown":
+    meaning = posture_meanings.get(dominant_posture, "Unknown Meaning")
+    combined_feedback_report.append(f"Dominant Posture: {dominant_posture} - Meaning: {meaning}")
 combined_feedback_report.append(f"Posture Feedback: {posture_feedback}")
 
 
+
+dominant_gesture, gesture_count = Counter(gesture_counter).most_common(1)[0]
+gesture_feedback = get_gesture_feedback(dominant_gesture)
 # Add gesture analysis (top 2 most frequent)
-combined_feedback_report.append("\nGesture Analysis:")
-for gesture, count in gesture_counter.most_common(2):  # Show top 2 most frequent gestures
+combined_feedback_report.append("\n--- Gesture Analysis ---")
+for gesture, count in Counter(gesture_counter).most_common(2):
     if count > 0:
         meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
-        combined_feedback_report.append(f"{gesture}: {count} times - Meaning: {meaning}")
+        combined_feedback_report.append(f"Dominant Gesture: {gesture} - Meaning: {meaning}")
 
 combined_feedback_report.append(f"Gesture Feedback: {gesture_feedback}")
-
 
 # Add speech analysis feedback (grammar, pace, fluency, pronunciation)
 combined_feedback_report.append("\n--- Speech Analysis ---")
