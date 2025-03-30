@@ -22,16 +22,16 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # File picker for selecting files (profile pictures, documents, etc.)
-  file_picker: ^9.2.2 # Ensure this version works with your platform
+  file_picker: ^8.0.7 # Ensure this version works with your platform
 
   # Cupertino Icons (iOS-style icons)
   cupertino_icons: ^1.0.8
 
-  firebase_core: any
-  firebase_storage: any
-  firebase_auth: any 
-  image_picker: any
-  cloud_firestore: ^5.6.5
+  firebase_core: ^1.10.6
+  firebase_storage: ^10.0.3
+  firebase_auth: ^3.3.4 
+  image_picker: ^1.0.4
+  cloud_firestore: ^3.5.1
 
 dev_dependencies:
   flutter_test:
@@ -41,7 +41,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
   # Image picker for uploading images/videos
-  image_picker: ^1.0.4  # Make sure to use the latest version
+  # image_picker: ^1.0.4  # Make sure to use the latest version
 
 flutter:
   uses-material-design: true
