@@ -30,6 +30,18 @@ gesture_to_body_language = {
     "Call Me": "Friendly"
 }
 
+gesture_counter = {
+    "Open Palm": 0,
+    "Closed Fist": 0,
+    "Pointing Finger": 0,
+    "Thumbs Up": 0,
+    "Thumbs Down": 0,
+    "Victory Sign": 0,
+    "OK Sign": 0,
+    "Rock Sign": 0,
+    "Call Me": 0
+}
+
 # Gesture classification function
 def classify_hand_gesture(hand_landmarks):
 
@@ -172,9 +184,8 @@ while cap.isOpened():
                 exit()   
 
 
-# Print the most repeated gestures with their meaning
-print("\n Most Repeated Gestures with Meaning:")
-for gesture, count in gesture_counter.most_common(5):
+print("\nGesture Summary:")
+for gesture, count in gesture_counter.items():
     meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
     print(f"{gesture}: {count} times - Meaning: {meaning}")
 
