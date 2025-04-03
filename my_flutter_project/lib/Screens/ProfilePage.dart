@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
-import 'dart:convert'; // For base64 encoding/decoding
-import 'package:connectivity_plus/connectivity_plus.dart'; // For internet check
-
+import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
@@ -27,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String? profession;
   Uint8List? _imageBytes;
   bool isLoading = true;
+  final _supabase = Supabase.instance.client;
 
   @override
   void initState() {
@@ -35,15 +34,13 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadImage();
   }
 
-  /// ✅ Check if there's an internet connection
   Future<bool> hasInternet() async {
     var result = await Connectivity().checkConnectivity();
     return result != ConnectivityResult.none;
   }
 
-  /// ✅ Load user data from Firestore
   Future<void> _loadUserProfile() async {
-    User? user = FirebaseAuth.instance.currentUser;
+    final user = _supabase.auth.currentUser;
     if (user == null) {
       Navigator.pushReplacement(
         context,
@@ -52,8 +49,6 @@ class _ProfilePageState extends State<ProfilePage> {
       return;
     }
 
-    String userId = user.uid;
-
     if (!await hasInternet()) {
       print("⚠️ No internet connection.");
       setState(() => isLoading = false);
@@ -61,28 +56,28 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     try {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      final response = await _supabase
+          .from('User')
+          .select()
+          .eq('User_id', user.id)
+          .single();
 
-      print("📌 Firestore Data: ${userDoc.data()}");
+      print("📌 Supabase Data: $response");
 
-      if (userDoc.exists && mounted) {
+      if (mounted) {
         setState(() {
-          name = userDoc['Name'] ?? "N/A";
-          email = userDoc['Email'] ?? user.email;
-          profession = userDoc['Role'] ?? "N/A";
+          name = response['Name'] ?? "N/A";
+          email = response['Email'] ?? user.email;
+          profession = response['Role'] ?? "N/A";
         });
-      } else {
-        print("⚠️ User document not found in Firestore!");
       }
     } catch (e) {
-      print("❌ Firestore Error: $e");
+      print("❌ Supabase Error: $e");
     } finally {
       setState(() => isLoading = false);
     }
   }
 
-  /// ✅ Load profile image from SharedPreferences
   Future<void> _loadImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedImage = prefs.getString('profile_image_bytes');
@@ -94,9 +89,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  /// ✅ Sign out and go to HomePage
   void _signOut() async {
-    await FirebaseAuth.instance.signOut();
+    await _supabase.auth.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
@@ -106,7 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void _goToSettings() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SettingsPage()),
+      MaterialPageRoute(builder: (context) =>  SettingsPage()),
     );
   }
 
@@ -125,7 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
         showSignIn: false,
         isUserSignedIn: true,
       ),
-
       body: BackgroundWrapper(
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -166,7 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       _buildInfoTile('Email', email),
                       _buildInfoTile('Profession', profession),
                       const SizedBox(height: 30),
-
                       _buildButton('Edit Profile', () {
                         Navigator.push(
                           context,
@@ -174,13 +166,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               builder: (context) => const EditProfilePage()),
                         );
                       }),
-
                       const SizedBox(height: 20),
-
                       _buildButton('Dashboard', _goToDashboard),
-
                       const SizedBox(height: 30),
-
                       Column(
                         children: [
                           _buildListTile(Icons.payment, 'Billing Details'),

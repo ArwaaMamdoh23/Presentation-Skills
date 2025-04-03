@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
-import 'dart:convert'; // For base64 encoding/decoding
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 
@@ -12,25 +10,26 @@ class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController currentPasswordController = TextEditingController();
-  TextEditingController newPasswordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController(); // Added for confirm password
+  final _supabase = Supabase.instance.client;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
-  Uint8List? _imageBytes;
-  String? userId;
+  Uint8List? _profileImageBytes;
+  bool _isLoading = false;
 
   // Password validation states
-  bool hasUppercase = false;
-  bool hasNumber = false;
-  bool hasSpecialChar = false;
-  bool hasMinLength = false;
-  bool showPasswordRequirements = false;
-  bool passwordsMatch = true; // To track if passwords match
+  bool _hasUppercase = false;
+  bool _hasNumber = false;
+  bool _hasSpecialChar = false;
+  bool _hasMinLength = false;
+  bool _showPasswordRequirements = false;
+  bool _passwordsMatch = true;
 
   @override
   void initState() {
@@ -38,172 +37,170 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _loadUserProfile();
   }
 
-  /// ✅ Load user profile from Firestore
-  void _loadUserProfile() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No user signed in")),
-      );
-      return;
-    }
-
-    userId = user.uid;
+  Future<void> _loadUserProfile() async {
+    setState(() => _isLoading = true);
+    final user = _supabase.auth.currentUser;
+    if (user == null || !mounted) return;
 
     try {
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('User').doc(userId).get();
+      final response = await _supabase
+          .from('User')
+          .select()
+          .eq('User_id', user.id)
+          .single();
 
-      if (userDoc.exists) {
-        setState(() {
-          nameController.text = userDoc['Name'] ?? '';
-          String? imageString = userDoc['ProfileImage'];
-          if (imageString != null) {
-            _imageBytes = base64Decode(imageString);
-          }
-        });
+      if (response != null && mounted) {
+        _nameController.text = response['Name'] ?? '';
+        final imageString = response['ProfileImage'] as String?;
+        if (imageString != null && imageString.isNotEmpty) {
+          setState(() => _profileImageBytes = base64Decode(imageString));
+        }
       }
     } catch (e) {
-      print("❌ Firestore Error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load profile: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  /// ✅ Pick and store profile image
   Future<void> _pickImage() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result != null) {
-      setState(() {
-        _imageBytes = result.files.first.bytes!;
-      });
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.isNotEmpty && mounted) {
+        setState(() => _profileImageBytes = result.files.first.bytes);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
+        );
+      }
     }
   }
 
-  /// ✅ Validate password requirements
   void _validatePassword(String password) {
     setState(() {
-      hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
-      hasNumber = RegExp(r'[0-9]').hasMatch(password);
-      hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
-      hasMinLength = password.length >= 8;
-      showPasswordRequirements = password.isNotEmpty;
-
-      // Check if passwords match
-      if (confirmPasswordController.text.isNotEmpty) {
-        passwordsMatch = newPasswordController.text == confirmPasswordController.text;
-      }
+      _hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
+      _hasNumber = RegExp(r'[0-9]').hasMatch(password);
+      _hasSpecialChar = RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password);
+      _hasMinLength = password.length >= 8;
+      _showPasswordRequirements = password.isNotEmpty;
+      _validatePasswordMatch();
     });
   }
 
-  /// ✅ Validate confirm password
-  void _validateConfirmPassword(String confirmPassword) {
+  void _validatePasswordMatch() {
     setState(() {
-      passwordsMatch = newPasswordController.text == confirmPassword;
+      _passwordsMatch = _newPasswordController.text == _confirmPasswordController.text;
     });
   }
 
-  /// ✅ Save profile changes to Firestore & FirebaseAuth
-  Future<void> _saveUserProfile() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    String newName = nameController.text.trim();
-    String newPassword = newPasswordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
-    String currentPassword = currentPasswordController.text.trim();
-    String? base64Image = _imageBytes != null ? base64Encode(_imageBytes!) : null;
-
-    // Input validation
-    if (newName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Name cannot be empty")),
-      );
-      return;
-    }
-    if (newPassword.isNotEmpty && currentPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Current password is required to change password")),
-      );
-      return;
-    }
-
-    // Check password requirements if new password is provided
-    if (newPassword.isNotEmpty) {
-      _validatePassword(newPassword);
-      if (!(hasUppercase && hasNumber && hasSpecialChar && hasMinLength)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Password doesn't meet all requirements")),
-        );
-        return;
-      }
-
-      // Check if passwords match
-      if (newPassword != confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("New password and confirm password do not match")),
-        );
-        return;
-      }
-    }
-
+  Future<bool> _reauthenticateUser(String email, String password) async {
     try {
-      // ✅ Re-authenticate user before updating password
-      if (newPassword.isNotEmpty) {
-        bool isAuthenticated = await _reauthenticateUser(user, currentPassword);
-        if (!isAuthenticated) return;
-      }
-
-      // ✅ 1. Update Firestore
-      await FirebaseFirestore.instance.collection('User').doc(user.uid).update({
-        'Name': newName,
-        if (base64Image != null) 'ProfileImage': base64Image,
-      });
-
-      // ✅ 2. Update Firebase Auth
-      if (newPassword.isNotEmpty) {
-        await user.updatePassword(newPassword);
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully!")),
+      final response = await _supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
       );
-
-      Navigator.pop(context);
+      return response.user != null;
     } catch (e) {
-      print("❌ Error updating profile: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating profile: $e")),
-      );
-    }
-  }
-
-  /// ✅ Re-authenticate user with current password
-  Future<bool> _reauthenticateUser(User user, String currentPassword) async {
-    if (currentPassword.isEmpty) return false;
-
-    try {
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: currentPassword,
-      );
-
-      await user.reauthenticateWithCredential(credential);
-      return true;
-    } catch (e) {
-      print("⚠️ Re-authentication failed: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Incorrect current password. Please try again.")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Incorrect current password')),
+        );
+      }
       return false;
     }
   }
 
+Future<void> _saveProfile() async {
+  if (!mounted) return;
+  setState(() => _isLoading = true);
+
+  final user = _supabase.auth.currentUser;
+  if (user == null || user.email == null) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No authenticated user found')),
+      );
+    }
+    return;
+  }
+
+  final newName = _nameController.text.trim();
+  final newPassword = _newPasswordController.text.trim();
+  final currentPassword = _currentPasswordController.text.trim();
+  final base64Image = _profileImageBytes != null ? base64Encode(_profileImageBytes!) : null;
+
+  // Validate inputs
+  if (newName.isEmpty) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Name cannot be empty')),
+      );
+    }
+    return;
+  }
+
+  try {
+    // Update user data in database
+    final updateResponse = await _supabase
+        .from('User')
+        .update({
+          'Name': newName,
+          if (base64Image != null) 'ProfileImage': base64Image,
+          if (newPassword.isNotEmpty) 'Password': newPassword,
+        })
+        .eq('User_id', user.id);
+
+    // Update password if changed
+    if (newPassword.isNotEmpty) {
+      // First reauthenticate
+      final authResponse = await _supabase.auth.signInWithPassword(
+        email: user.email!,
+        password: currentPassword,
+      );
+      
+      if (authResponse.user == null) {
+        throw Exception('Reauthentication failed');
+      }
+
+      // Then update password
+      await _supabase.auth.updateUser(
+        UserAttributes(password: newPassword),
+      );
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully!')),
+      );
+      Navigator.pop(context);
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
+      );
+    }
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
+
   @override
   void dispose() {
-    nameController.dispose();
-    currentPasswordController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose(); // Dispose the new controller
+    _nameController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -216,160 +213,176 @@ class _EditProfilePageState extends State<EditProfilePage> {
         isUserSignedIn: true,
       ),
       body: BackgroundWrapper(
-        child: Container(
-          color: Colors.black.withOpacity(0.5), // Add overlay for better readability
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.transparent,
-                        backgroundImage: _imageBytes == null
-                            ? null
-                            : MemoryImage(_imageBytes!),
-                        child: _imageBytes == null
-                            ? Text(
-                                nameController.text.isNotEmpty
-                                    ? nameController.text[0]
-                                    : 'U',
-                                style: const TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              )
-                            : null,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: kToolbarHeight + 20),
+                    Center(
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.grey[800],
+                            backgroundImage: _profileImageBytes != null
+                                ? MemoryImage(_profileImageBytes!)
+                                : null,
+                            child: _profileImageBytes == null
+                                ? const Icon(Icons.person, size: 60, color: Colors.white)
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickImage,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blue,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.edit, size: 20, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.white,
-                          child: IconButton(
-                            icon: const Icon(Icons.edit,
-                                size: 16, color: Colors.blueAccent),
-                            onPressed: _pickImage,
+                    ),
+                    const SizedBox(height: 24),
+                    _buildTextField(_nameController, 'Full Name'),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      _currentPasswordController,
+                      'Current Password',
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      _newPasswordController,
+                      'New Password',
+                      obscureText: true,
+                      onChanged: _validatePassword,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      _confirmPasswordController,
+                      'Confirm New Password',
+                      obscureText: true,
+                      onChanged: (_) => _validatePasswordMatch(),
+                    ),
+                    if (_showPasswordRequirements) ...[
+                      const SizedBox(height: 16),
+                      _buildPasswordRequirements(),
+                    ],
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _saveProfile,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Save Changes',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(nameController, 'Full Name'),
-                _buildTextField(currentPasswordController, 'Current Password', obscureText: true),
-                _buildTextField(
-                  newPasswordController,
-                  'New Password',
-                  obscureText: true,
-                  onChanged: _validatePassword,
-                ),
-                _buildTextField(
-                  confirmPasswordController,
-                  'Confirm New Password',
-                  obscureText: true,
-                  onChanged: _validateConfirmPassword,
-                ),
-                Visibility(
-                  visible: showPasswordRequirements,
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.8),
-                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Password Requirements",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 5),
-                        _buildPasswordRequirement('At least one uppercase letter', hasUppercase),
-                        _buildPasswordRequirement('At least one number', hasNumber),
-                        _buildPasswordRequirement('At least one special character', hasSpecialChar),
-                        _buildPasswordRequirement('Minimum 8 characters', hasMinLength),
-                        _buildPasswordRequirement('Passwords must match', passwordsMatch),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                _buildSaveButton(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: _saveUserProfile,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blueGrey.shade900,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-        ),
-        child: const Text('Save Changes', style: TextStyle(fontSize: 18)),
+              ),
       ),
     );
   }
 
   Widget _buildTextField(
     TextEditingController controller,
-    String labelText, {
+    String label, {
     bool obscureText = false,
     void Function(String)? onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: labelText,
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.2),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
-        style: const TextStyle(color: Colors.white),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.1),
+      ),
+      style: const TextStyle(color: Colors.white),
+    );
+  }
+
+  Widget _buildPasswordRequirements() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Password Requirements:',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildRequirementRow('8+ characters', _hasMinLength),
+          _buildRequirementRow('1 uppercase letter', _hasUppercase),
+          _buildRequirementRow('1 number', _hasNumber),
+          _buildRequirementRow('1 special character', _hasSpecialChar),
+          _buildRequirementRow('Passwords match', _passwordsMatch),
+        ],
       ),
     );
   }
 
-  Widget _buildPasswordRequirement(String text, bool isValid) {
-    return Row(
-      children: [
-        Icon(
-          isValid ? Icons.check_circle : Icons.cancel,
-          size: 16,
-          color: isValid ? Colors.green : Colors.red,
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
+  Widget _buildRequirementRow(String text, bool isValid) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.circle,
+            size: 16,
+            color: isValid ? Colors.green : Colors.grey,
           ),
-        ),
-      ],
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: isValid ? Colors.white : Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
