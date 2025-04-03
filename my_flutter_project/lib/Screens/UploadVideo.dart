@@ -20,7 +20,8 @@ class UploadVideoPage extends StatefulWidget {
 class _UploadVideoPageState extends State<UploadVideoPage> {
   File? _videoFile;
   bool isSignedIn = true;  // Simulate user sign-in status
-
+  bool _isUploading = false;
+  String? _downloadURL;
   Future<void> _pickVideo() async {
     try {
       final pickedFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
