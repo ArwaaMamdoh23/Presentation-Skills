@@ -186,7 +186,7 @@ class _SignInPageState extends State<SignInPage> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
-                      decoration: _buttonDecoration(),
+                      decoration: _buttonDecoration(),  
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _signIn,
                         style: _buttonStyle(),

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
+import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
+import 'EditProfilePage.dart'; // Import EditProfilePage
+import 'ProfilePage.dart';
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -22,7 +25,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         source: ImageSource.gallery,
         maxDuration: const Duration(minutes: 10),
       );
-      
+
       if (pickedFile != null) {
         setState(() {
           _videoFile = File(pickedFile.path);
@@ -58,7 +61,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       await _supabase.storage
           .from('videos')
           .upload(
-            filePath, 
+            filePath,
             _videoFile!,
             fileOptions: FileOptions(
               contentType: _getMimeType(fileExt),
@@ -93,10 +96,14 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
   String _getMimeType(String extension) {
     switch (extension) {
-      case '.mp4': return 'video/mp4';
-      case '.mov': return 'video/quicktime';
-      case '.avi': return 'video/x-msvideo';
-      default: return 'video/mp4';
+      case '.mp4':
+        return 'video/mp4';
+      case '.mov':
+        return 'video/quicktime';
+      case '.avi':
+        return 'video/x-msvideo';
+      default:
+        return 'video/mp4';
     }
   }
 
@@ -127,63 +134,89 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Upload Video'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_videoFile != null) ...[
-              const Icon(Icons.video_library, size: 60),
-              const SizedBox(height: 10),
-              Text(
-                path.basename(_videoFile!.path),
-                style: Theme.of(context).textTheme.titleMedium,
-                textAlign: TextAlign.center,
+  title: const Text('Upload Video'),
+  centerTitle: true,
+  backgroundColor: Colors.transparent,
+  elevation: 0,
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.person, color: Colors.white),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProfilePage(),
+          ),
+        );
+      },
+    ),
+  ],
+),
+
+      body: BackgroundWrapper(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_videoFile != null) ...[
+                const Icon(Icons.video_library, size: 60),
+                const SizedBox(height: 10),
+                Text(
+                  path.basename(_videoFile!.path),
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+              ],
+              if (_isUploading) ...[
+                LinearProgressIndicator(value: _uploadProgress),
+                const SizedBox(height: 15),
+                Text(
+                  'Uploading: ${(_uploadProgress * 100).toStringAsFixed(1)}%',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 30),
+              ],
+              ElevatedButton.icon(
+                onPressed: _pickVideo,
+                icon: const Icon(Icons.video_library),
+                label: const Text('Select Video'),
+                style: _buttonStyle(),
               ),
               const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _isUploading ? null : _uploadVideo,
+                icon: _isUploading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.cloud_upload),
+                label: const Text('Upload Video'),
+                style: _buttonStyle(),
+              ),
             ],
-            if (_isUploading) ...[
-              LinearProgressIndicator(value: _uploadProgress),
-              const SizedBox(height: 15),
-              Text(
-                'Uploading: ${(_uploadProgress * 100).toStringAsFixed(1)}%',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 30),
-            ],
-            ElevatedButton.icon(
-              onPressed: _pickVideo,
-              icon: const Icon(Icons.video_library),
-              label: const Text('Select Video'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _isUploading ? null : _uploadVideo,
-              icon: _isUploading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.cloud_upload),
-              label: const Text('Upload Video'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: _isUploading ? Colors.grey : null,
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  ButtonStyle _buttonStyle() {
+    return ElevatedButton.styleFrom(
+      minimumSize: const Size(double.infinity, 50),
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
       ),
     );
   }

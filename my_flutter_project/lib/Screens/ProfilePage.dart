@@ -11,6 +11,7 @@ import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
 import 'SettingsPage.dart';
 import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart';
+import 'package:my_flutter_project/Screens/EditProfilePage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -79,15 +80,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadImage() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedImage = prefs.getString('profile_image_bytes');
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? storedImage = prefs.getString('profile_image_bytes');
 
-    if (storedImage != null) {
-      setState(() {
-        _imageBytes = base64Decode(storedImage);
-      });
-    }
+  if (storedImage != null) {
+    setState(() {
+      _imageBytes = base64Decode(storedImage);
+    });
   }
+}
+
 
   void _signOut() async {
     await _supabase.auth.signOut();
