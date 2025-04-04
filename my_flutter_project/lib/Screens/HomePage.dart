@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
+import '../widgets/background_wrapper.dart'; // Import the wrapper
 import '../widgets/CustomDrawer .dart'; 
+import 'package:my_flutter_project/Screens/AuthPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -14,12 +15,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(
         showSignIn: !isUserSignedIn,
-        isUserSignedIn: isUserSignedIn
-        ), 
+        isUserSignedIn: isUserSignedIn,
+      ), 
       drawer: isUserSignedIn ? CustomDrawer(isSignedIn: isUserSignedIn) : null,
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      body: BackgroundWrapper( // ✅ Wrap the entire page content
+      body: BackgroundWrapper( // Wrap the entire page content
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -28,6 +29,7 @@ class HomePage extends StatelessWidget {
                 "Welcome to PresentSense\nEnhance Your Presentation Skills with AI!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontFamily: 'MyCustomFont', // Apply the custom font
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -40,6 +42,31 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 40),  // Add space between the text and the button
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to AuthPage when the "Get Started" button is pressed
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AuthPage()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey.shade800, // Set background color
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  "Get Started",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -47,3 +74,52 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+// import 'package:flutter/material.dart';
+// import 'dart:ui';
+// import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
+// import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
+// import '../widgets/CustomDrawer .dart'; 
+
+// class HomePage extends StatelessWidget {
+//   const HomePage({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     bool isUserSignedIn = false; // Simulate user authentication
+
+//     return Scaffold(
+//       appBar: CustomAppBar(
+//         showSignIn: !isUserSignedIn,
+//         isUserSignedIn: isUserSignedIn
+//         ), 
+//       drawer: isUserSignedIn ? CustomDrawer(isSignedIn: isUserSignedIn) : null,
+//       backgroundColor: Colors.transparent,
+//       extendBodyBehindAppBar: true,
+//       body: BackgroundWrapper( // ✅ Wrap the entire page content
+//         child: Center(
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               const Text(
+//                 "Welcome to PresentSense\nEnhance Your Presentation Skills with AI!",
+//                 textAlign: TextAlign.center,
+//                 style: TextStyle(
+//                   color: Colors.white,
+//                   fontSize: 32,
+//                   fontWeight: FontWeight.bold,
+//                   shadows: [
+//                     Shadow(
+//                       blurRadius: 3.0,
+//                       color: Colors.white54,
+//                       offset: Offset(0, 0),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
