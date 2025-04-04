@@ -6,6 +6,9 @@ import 'package:path/path.dart' as path;
 import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
 import 'EditProfilePage.dart'; // Import EditProfilePage
 import 'ProfilePage.dart';
+import '../widgets/custom_app_bar.dart'; 
+import '../widgets/CustomDrawer .dart'; 
+
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -135,25 +138,11 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-  title: const Text('Upload Video'),
-  centerTitle: true,
-  backgroundColor: Colors.transparent,
-  elevation: 0,
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.person, color: Colors.white),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const ProfilePage(),
-          ),
-        );
-      },
-    ),
-  ],
-),
+      appBar: CustomAppBar(  // Using CustomAppBar
+        showSignIn: true,  // You can adjust these parameters as needed
+        isUserSignedIn: true,  // Adjust according to your app's authentication logic
+      ),
+      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
 
       body: BackgroundWrapper(
         child: Padding(
@@ -161,6 +150,23 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const Text(
+                'Upload Presentation',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 3.0,
+                      color: Colors.white54,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20), // Add space between title and content
+
               if (_videoFile != null) ...[
                 const Icon(Icons.video_library, size: 60),
                 const SizedBox(height: 10),

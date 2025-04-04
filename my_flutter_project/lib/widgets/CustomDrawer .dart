@@ -11,13 +11,13 @@ class CustomDrawer extends StatelessWidget {
       child: SafeArea(  // Use SafeArea here to ensure the drawer content is inside safe bounds
         child: Column(
           children: [
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pushNamed(context, '/home');
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.home),
+            //   title: const Text('Home'),
+            //   onTap: () {
+            //     Navigator.pushNamed(context, '/home');
+            //   },
+            // ),
             
             // Main Menu Options
             ListTile(

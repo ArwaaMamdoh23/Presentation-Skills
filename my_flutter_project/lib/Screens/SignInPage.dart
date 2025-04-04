@@ -195,7 +195,7 @@ class _SignInPageState extends State<SignInPage> {
                             : const Text(
                                 'Sign In',
                                 style: TextStyle(
-                                  fontSize: 18, 
+                                  fontSize: 16, // Font size change
                                   fontWeight: FontWeight.bold, 
                                   color: Colors.white
                                 ),
@@ -263,7 +263,7 @@ class _SignInPageState extends State<SignInPage> {
   ButtonStyle _buttonStyle() {
     return ElevatedButton.styleFrom(
       minimumSize: const Size(280, 60),
-      backgroundColor: Colors.transparent,
+      backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
       shadowColor: Colors.transparent,
       padding: const EdgeInsets.symmetric(vertical: 20),
       shape: RoundedRectangleBorder(

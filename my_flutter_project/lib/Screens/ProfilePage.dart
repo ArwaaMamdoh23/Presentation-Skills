@@ -12,6 +12,7 @@ import 'EditProfilePage.dart';
 import 'SettingsPage.dart';
 import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart';
 import 'package:my_flutter_project/Screens/EditProfilePage.dart';
+import '../widgets/CustomDrawer .dart'; 
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -121,6 +122,9 @@ class _ProfilePageState extends State<ProfilePage> {
         showSignIn: false,
         isUserSignedIn: true,
       ),
+      
+      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
+
       body: BackgroundWrapper(
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -206,7 +210,7 @@ class _ProfilePageState extends State<ProfilePage> {
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(280, 60),
-            backgroundColor: Colors.blueGrey.shade700,
+            backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
@@ -214,7 +218,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16, // Font size change
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),

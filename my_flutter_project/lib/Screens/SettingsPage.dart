@@ -4,6 +4,7 @@ import 'package:my_flutter_project/Screens/HomePage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'package:my_flutter_project/Screens/SignInPage.dart';
+import '../widgets/CustomDrawer .dart'; 
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({super.key});
@@ -17,6 +18,9 @@ class SettingsPage extends StatelessWidget {
         showSignIn: false,
         isUserSignedIn: true,
       ),
+      
+      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
+
       body: BackgroundWrapper(
         child: Column(
           children: [

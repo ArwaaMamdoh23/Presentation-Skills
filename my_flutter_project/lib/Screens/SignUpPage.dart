@@ -224,7 +224,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
-                BoxShadow(color: Colors.lightBlue.withOpacity(0.4), blurRadius: 15, offset: const Offset(0, 5)),
+                BoxShadow(color:  Color.fromARGB(137, 255, 255, 255), blurRadius: 15, offset: const Offset(0, 5)),
               ],
             ),
             child: ElevatedButton(
@@ -234,14 +234,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
+                backgroundColor:  const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5),
                 shadowColor: Colors.transparent,
                 minimumSize: const Size(280, 60),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
               child: _isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Sign Up', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  : const Text('Sign Up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ),
         ),

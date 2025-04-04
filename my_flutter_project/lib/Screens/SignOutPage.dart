@@ -77,7 +77,7 @@ class SignOutPage extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(280, 60),
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           shape: RoundedRectangleBorder(
@@ -87,7 +87,7 @@ class SignOutPage extends StatelessWidget {
                         child: const Text(
                           'Go to Upload Video',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16, // Font size change
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

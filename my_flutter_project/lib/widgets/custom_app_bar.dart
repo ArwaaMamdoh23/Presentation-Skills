@@ -18,9 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       title: GestureDetector(
-        onTap: () {
-          Navigator.pushNamed(context, '/home'); // Navigate to Home Page
-        },
+      
         child: const Text(
           "PresentSense",
           style: TextStyle(
@@ -33,26 +31,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false, // Aligns title to the left
       actions: [
         // 🔹 **Fix: Separated `hideSignInButton` logic from `showSignIn` check**
-        if (showSignIn && !hideSignInButton) 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/sign-in');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
-              child: const Text(
-                "Sign In",
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ),
 
         if (isUserSignedIn) 
           IconButton(

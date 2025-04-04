@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # google_fonts: ^2.3.3  # Use the latest stable version of google_fonts
+
   # UI & Icons
   cupertino_icons: ^1.0.8
   flutter_signin_button: ^2.0.0
@@ -18,7 +20,6 @@ dependencies:
   # State & Storage
   shared_preferences: ^2.2.2
   path_provider: ^2.1.1
-
 
   # Supabase
   supabase_flutter: ^2.8.4
