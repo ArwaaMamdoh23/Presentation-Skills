@@ -33,7 +33,7 @@ def extract_audio_from_video(video_file_path):
     return audio_file_path
 
 # Specify your video file path
-video_file_path = r"D:\GitHub\Presentation-Skills\Videos\TedTalk.mp4"
+video_file_path = "Videos/TedTalk.mp4"
 
 # Automatically generate the audio file path and extract the audio
 audio_file_path = extract_audio_from_video(video_file_path)
