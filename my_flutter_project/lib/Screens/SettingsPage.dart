@@ -6,7 +6,7 @@ import '../widgets/background_wrapper.dart';
 import 'package:my_flutter_project/Screens/SignInPage.dart';
 
 class SettingsPage extends StatelessWidget {
-   SettingsPage({super.key});
+  SettingsPage({super.key});
   final _supabase = Supabase.instance.client;
 
   @override
@@ -180,41 +180,55 @@ class SettingsPage extends StatelessWidget {
     if (user == null) return;
 
     try {
-      // Ask for password if email/password auth
       if (user.email != null) {
         String? currentPassword = await _askForPassword(context);
-        if (currentPassword == null) return;
+        if (currentPassword == null || currentPassword.isEmpty) return;
 
-        // Re-authenticate before deletion
-        await _supabase.auth.signInWithPassword(
+        final authResponse = await _supabase.auth.signInWithPassword(
           email: user.email!,
           password: currentPassword,
         );
+
+        if (authResponse.user == null) {
+          throw Exception("Reauthentication failed");
+        }
       }
 
-      // Delete user from database
-      await _supabase.from('User').delete().eq('id', user.id);
-      print("✅ User document deleted from database");
+      final existingRow = await _supabase
+          .from('User')
+          .select()
+          .eq('User_id', user.id)
+          .maybeSingle();
 
-      // Delete auth user
+      if (existingRow != null) {
+        await _supabase.from('User').delete().eq('User_id', user.id);
+        print("✅ User deleted from 'User' table");
+      } else {
+        print("⚠️ No matching row found in User table for deletion.");
+      }
+
       await _supabase.auth.admin.deleteUser(user.id);
-      print("✅ User deleted from auth");
+      print("✅ Deleted from Supabase Auth");
 
-      // Sign out
       await _supabase.auth.signOut();
-      print("✅ User signed out");
 
-      // Navigate to SignInPage
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const SignInPage()),
-        (route) => false,
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account deleted successfully")),
+        );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const SignInPage()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       print("❌ Error deleting account: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error deleting account: ${e.toString()}")),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error deleting account: \${e.toString()}")),
+        );
+      }
     }
   }
 }
