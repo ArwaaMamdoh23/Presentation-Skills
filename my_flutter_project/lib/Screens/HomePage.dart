@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
-import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // Import the wrapper
-import '../widgets/CustomDrawer .dart'; 
-<<<<<<< HEAD
 import 'package:my_flutter_project/Screens/AuthPage.dart';
-=======
 import 'package:supabase_flutter/supabase_flutter.dart';
->>>>>>> d918e83b012316de464d5489cbc6046090043acf
+import 'package:my_flutter_project/widgets/custom_app_bar.dart';
+import 'package:my_flutter_project/widgets/CustomDrawer .dart';
+import 'package:my_flutter_project/Screens/UploadVideo.dart';
+import 'package:my_flutter_project/Screens/ProfilePage.dart';
+import 'package:my_flutter_project/Screens/EditProfilePage.dart';
+import 'package:my_flutter_project/Screens/SignInPage.dart';
+import 'package:my_flutter_project/Screens/SignUpPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  final _supabase = Supabase.instance.client;
   bool _isUserSignedIn = false;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -27,94 +27,88 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _checkAuthState() async {
-    try {
-      final session = await Supabase.instance.client.auth.currentSession;
-      if (mounted) {
-        setState(() {
-          _isUserSignedIn = session != null;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error checking auth state: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    final session = _supabase.auth.currentSession;
+    setState(() {
+      _isUserSignedIn = session != null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
     return Scaffold(
       appBar: CustomAppBar(
-<<<<<<< HEAD
-        showSignIn: !isUserSignedIn,
-        isUserSignedIn: isUserSignedIn,
-      ), 
-      drawer: isUserSignedIn ? CustomDrawer(isSignedIn: isUserSignedIn) : null,
-=======
         showSignIn: !_isUserSignedIn,
         isUserSignedIn: _isUserSignedIn,
       ),
       drawer: _isUserSignedIn ? CustomDrawer(isSignedIn: _isUserSignedIn) : null,
->>>>>>> d918e83b012316de464d5489cbc6046090043acf
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      body: BackgroundWrapper( // Wrap the entire page content
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blue.shade900,
+              Colors.blue.shade700,
+              Colors.blue.shade500,
+            ],
+          ),
+        ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Welcome to PresentSense\nEnhance Your Presentation Skills with AI!",
-                textAlign: TextAlign.center,
+                'Welcome to Video Upload App',
                 style: TextStyle(
-                  fontFamily: 'MyCustomFont', // Apply the custom font
-                  color: Colors.white,
-                  fontSize: 32,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 3.0,
-                      color: Colors.white54,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 40),  // Add space between the text and the button
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to AuthPage when the "Get Started" button is pressed
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey.shade800, // Set background color
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+              const SizedBox(height: 20),
+              if (!_isUserSignedIn) ...[
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignInPage()),
+                    );
+                  },
+                  child: const Text('Sign In'),
                 ),
-                child: const Text(
-                  "Get Started",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignUpPage()),
+                    );
+                  },
+                  child: const Text('Sign Up'),
                 ),
-              ),
+              ] else ...[
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UploadVideoPage()),
+                    );
+                  },
+                  child: const Text('Upload Video'),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                  child: const Text('View Profile'),
+                ),
+              ],
             ],
           ),
         ),
@@ -122,52 +116,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-// import 'package:flutter/material.dart';
-// import 'dart:ui';
-// import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
-// import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
-// import '../widgets/CustomDrawer .dart'; 
-
-// class HomePage extends StatelessWidget {
-//   const HomePage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     bool isUserSignedIn = false; // Simulate user authentication
-
-//     return Scaffold(
-//       appBar: CustomAppBar(
-//         showSignIn: !isUserSignedIn,
-//         isUserSignedIn: isUserSignedIn
-//         ), 
-//       drawer: isUserSignedIn ? CustomDrawer(isSignedIn: isUserSignedIn) : null,
-//       backgroundColor: Colors.transparent,
-//       extendBodyBehindAppBar: true,
-//       body: BackgroundWrapper( // ✅ Wrap the entire page content
-//         child: Center(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               const Text(
-//                 "Welcome to PresentSense\nEnhance Your Presentation Skills with AI!",
-//                 textAlign: TextAlign.center,
-//                 style: TextStyle(
-//                   color: Colors.white,
-//                   fontSize: 32,
-//                   fontWeight: FontWeight.bold,
-//                   shadows: [
-//                     Shadow(
-//                       blurRadius: 3.0,
-//                       color: Colors.white54,
-//                       offset: Offset(0, 0),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
