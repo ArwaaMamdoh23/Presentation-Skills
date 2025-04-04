@@ -48,14 +48,14 @@ filler_rate = total_fillers / total_segments if total_segments > 0 else 0
 score = max(100 - (filler_rate * 100), 0)
 
 if score > 90:
-    feedback = "Excellent! You used very few filler words. Keep it up! 🎯"
+    feedback = "Excellent! You used very few filler words. Keep it up! "
 elif score > 75:
-    feedback = "Good job! You have some fillers, but it's not distracting. Try to be more mindful. 😊"
+    feedback = "Good job! You have some fillers, but it's not distracting. Try to be more mindful. "
 elif score > 50:
-    feedback = "You're using filler words often. Consider pausing instead of saying 'Uh' or 'Um'. 🧐"
+    feedback = "You're using filler words often. Consider pausing instead of saying 'Uh' or 'Um'. "
 else:
-    feedback = "High use of filler words detected! Try slowing down and structuring your thoughts before speaking. 🚀"
+    feedback = "High use of filler words detected! Try slowing down and structuring your thoughts before speaking. "
 
-print(f"\n🎤 Speech Fluency Score: {score:.2f}/100")
-print(f"📝 Feedback: {feedback}")
-print(f"📊 Filler Word Breakdown: {filler_counts}")
+print(f" Speech Fluency Score: {score:.2f}/100")
+print(f" Feedback: {feedback}")
+print(f" Filler Word Breakdown: {filler_counts}")
