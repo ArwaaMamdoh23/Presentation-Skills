@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
+import '../widgets/background_wrapper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,13 +22,12 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // ✅ Allows background behind the AppBar
+      extendBodyBehindAppBar: true, 
       appBar: AppBar(
   backgroundColor: Colors.transparent,
   elevation: 0,
-    // ✅ App Name on the Left
   title: const Text(
-        'PresentSense', // Change this to your app name
+        'PresentSense', 
         style: TextStyle(
           color: Colors.white, 
           fontWeight: FontWeight.bold, 
@@ -36,22 +35,17 @@ class AdminDashboard extends StatelessWidget {
         ),
       ),
     
-  centerTitle: false, // ✅ Ensures left alignment for app name
+  centerTitle: false, 
 ),
 
       drawer: const AdminDrawer(),
-
-      // ✅ Apply BackgroundWrapper
-        // ✅ Wrap content in BackgroundWrapper
       body: BackgroundWrapper(
   child: SingleChildScrollView(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ✅ Add some space below AppBar for better appearance
         const SizedBox(height: 20), 
 
-        // ✅ "Admin Dashboard" should scroll with the content
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Center(
@@ -73,7 +67,6 @@ class AdminDashboard extends StatelessWidget {
           ),
         ),
 
-        // ✅ Keep the rest of the sections
         const SizedBox(height: 20),
         const SystemOverview(),
         const UserManagement(),
@@ -208,7 +201,6 @@ class Footer extends StatelessWidget {
   }
 }
 
-// Reusable Components
 Widget _buildCard({required String title, required List<Widget> children}) {
   return Card(
     margin: const EdgeInsets.all(16),

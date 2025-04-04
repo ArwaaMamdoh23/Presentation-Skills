@@ -80,10 +80,8 @@ class _SignUpPageState extends State<SignUpPage> {
         throw Exception('Failed to create user account');
       }
 
-      // Check if email confirmation was sent
       final session = authResponse.session;
       if (session == null) {
-        // This means email confirmation is required
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Verification email has been sent. Please check your inbox and spam folder.'),
@@ -93,7 +91,6 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       }
 
-      // Insert into User table
       await _supabase.from('User').insert({
         'User_id': authResponse.user!.id,
         'Name': fullName,
@@ -101,7 +98,6 @@ class _SignUpPageState extends State<SignUpPage> {
         'Role': 'user'
       });
 
-      // Show success message and redirect to sign in
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

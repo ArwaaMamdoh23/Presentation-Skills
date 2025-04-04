@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
-import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
-import 'EditProfilePage.dart'; // Import EditProfilePage
+import '../widgets/background_wrapper.dart'; 
+import 'EditProfilePage.dart'; 
 import 'ProfilePage.dart';
 import '../widgets/custom_app_bar.dart'; 
 import '../widgets/CustomDrawer .dart'; 
@@ -60,7 +60,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       final fileName = 'video_${DateTime.now().millisecondsSinceEpoch}$fileExt';
       final filePath = 'user_uploads/$userId/$fileName';
 
-      // Upload to storage
       await _supabase.storage
           .from('videos')
           .upload(
@@ -71,12 +70,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
             ),
           );
 
-      // Get public URL
       final fileUrl = _supabase.storage
           .from('videos')
           .getPublicUrl(filePath);
 
-      // Insert metadata
       await _supabase.from('Uploaded_file').insert({
         'User_id': userId,
         'File_name': fileName,
@@ -138,11 +135,11 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(  // Using CustomAppBar
-        showSignIn: true,  // You can adjust these parameters as needed
-        isUserSignedIn: true,  // Adjust according to your app's authentication logic
+      appBar: CustomAppBar(  // 
+        showSignIn: true,  // 
+        isUserSignedIn: true,  
       ),
-      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
+      drawer: CustomDrawer(isSignedIn: true),  
 
       body: BackgroundWrapper(
         child: Padding(
@@ -165,7 +162,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20), // Add space between title and content
+              const SizedBox(height: 20), 
 
               if (_videoFile != null) ...[
                 const Icon(Icons.video_library, size: 60),

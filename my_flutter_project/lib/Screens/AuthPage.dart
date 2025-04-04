@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; // For ImageFilter and blur effects
-import '../widgets/background_wrapper.dart';  // Import BackgroundWrapper
-
+import 'dart:ui'; 
+import '../widgets/background_wrapper.dart';  
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 
@@ -9,32 +8,29 @@ class AuthPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: BackgroundWrapper( // Use the BackgroundWrapper here
+      body: BackgroundWrapper( 
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // Title Text
                 Text(
-                  'PresentSense', // App name
+                  'PresentSense', 
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(
-                        blurRadius: 3.0, // Softer glow effect
+                        blurRadius: 3.0, 
                         color: Colors.white.withOpacity(0.5),
                         offset: const Offset(0, 0),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.05), // Spacing
-                
-                // Sign Up Button (Styled like HomePage button)
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05), 
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 280),
                   child: Container(
@@ -81,9 +77,7 @@ class AuthPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20), // Spacing between buttons
-                
-                // Sign In Button (Styled like HomePage button)
+                const SizedBox(height: 20), 
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 280),
                   child: Container(

@@ -18,30 +18,23 @@ from collections import Counter
 import difflib
 import string
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Load PoseNet Model for posture detection
 posenet_model_url = "https://tfhub.dev/google/movenet/singlepose/lightning/4"
 posenet_model = hub.load(posenet_model_url)
 
-# MediaPipe Hands for gesture recognition
 mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
 
-# Load Wav2Vec2 model and processor for filler word detection
 num_labels = 6
 wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
 wav2vec2_model.eval()
 
-# Pipeline for pronunciation evaluation
 pronunciation_pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
 
-# Load the pre-trained T5 model for grammar correction
 t5_model = T5ForConditionalGeneration.from_pretrained("vennify/t5-base-grammar-correction")
 tokenizer = T5Tokenizer.from_pretrained("vennify/t5-base-grammar-correction")
 
-# Define gesture-to-body language mapping
 gesture_to_body_language = {
     "Open Palm": "Honesty",
     "Closed Fist": "Determination",
@@ -54,7 +47,6 @@ gesture_to_body_language = {
     "Call Me": "Friendly"
 }
 
-# Posture meanings
 posture_meanings = {
     "Head Up": "Confidence",
     "Slouching": "Lack of confidence",
@@ -66,11 +58,9 @@ posture_meanings = {
     "Hands in Pockets": "Casual"
 }
 
-# Define counters for gestures and postures
 posture_counter = {key: 0 for key in posture_meanings}
 gesture_counter = {key: 0 for key in gesture_to_body_language}
 
-# Helper Functions for Emotion, Posture, Gesture, and Speech
 
 def run_inference(frame):
     resized_frame = cv2.resize(frame, (192, 192))
@@ -84,7 +74,7 @@ def run_inference(frame):
 
 def extract_keypoints(results):
     keypoints = []
-    for i in range(17):  # PoseNet detects 17 keypoints
+    for i in range(17):  
         x = results['output_0'][0][0][i][1].numpy()
         y = results['output_0'][0][0][i][0].numpy()
         confidence = results['output_0'][0][0][i][2].numpy()
@@ -92,7 +82,6 @@ def extract_keypoints(results):
     return keypoints
 
 def classify_posture(keypoints):
-    # Use y-coordinates for posture classification
     shoulder_y = keypoints[5]['y']
     hip_y = keypoints[11]['y']
     knee_y = keypoints[13]['y']
@@ -173,7 +162,6 @@ def extract_audio_from_video(video_file_path):
     audio.write_audiofile(audio_file_path)
     return audio_file_path
 
-# Speech analysis functions (grammar, pace, filler words)
 def process_audio_for_speech_analysis(audio_file_path):
     recognizer = sr.Recognizer()
     audio_segment = AudioSegment.from_file(audio_file_path)
@@ -194,7 +182,6 @@ def process_audio_for_speech_analysis(audio_file_path):
             current_position += 30
     return transcription
 
-# Grammar correction using T5 model
 def correct_grammar(sentence, t5_model, tokenizer, max_length=512):
     corrected_text = ""
     i = 0
@@ -283,6 +270,5 @@ def process_video():
 
     return jsonify(final_feedback)
 
-# Run Flask app
 if __name__ == '__main__':
     app.run(debug=True)

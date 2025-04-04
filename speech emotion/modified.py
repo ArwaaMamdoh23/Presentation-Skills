@@ -7,20 +7,16 @@ from pydub import AudioSegment
 from keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 
-# Load the trained model
 model_path = r"speech emotion/CNN_Model_Weights (1).h5"
 loaded_model = load_model(model_path)
 loaded_model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
-# Load the scaler
 scaler_path = r"speech emotion/D__Speech Emotion Recognition-20250207T115414Z-001_Speech Emotion Recognition_Scaler.pickle"
 with open(scaler_path, "rb") as file:
     scaler = pickle.load(file)
 
-# Define model's expected input shape
 EXPECTED_FEATURES = 2376  
 
-# Feature extraction functions
 def compute_zcr(audio_data, frame_length=2048, hop_length=512):
     return np.squeeze(librosa.feature.zero_crossing_rate(audio_data, frame_length=frame_length, hop_length=hop_length))
 
@@ -38,7 +34,6 @@ def extract_audio_features(audio_data, sample_rate=22050):
 
     features = np.hstack((zcr, rmse, mfcc))
 
-    # Pad or truncate to match model's expected input size
     if len(features) < EXPECTED_FEATURES:
         features = np.pad(features, (0, EXPECTED_FEATURES - len(features)), mode="constant")
     else:
@@ -74,7 +69,6 @@ def predict_emotion(file_path):
     predicted_label = np.argmax(prediction_scores, axis=1)[0]
     return emotion_mapping.get(predicted_label, 'Unknown')
 
-# Extract audio chunks from video
 def extract_audio_chunks(video_path, output_folder, chunk_length=3000):
     os.makedirs(output_folder, exist_ok=True)  
     video = VideoFileClip(video_path)
@@ -93,7 +87,6 @@ def extract_audio_chunks(video_path, output_folder, chunk_length=3000):
 
     return chunk_files  
 
-# Process video and find dominant emotion
 def get_dominant_emotion(video_path):
     audio_folder = "audio_chunks"  
     audio_chunks = extract_audio_chunks(video_path, audio_folder)  

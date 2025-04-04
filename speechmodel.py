@@ -17,71 +17,51 @@ import torchaudio
 import torchaudio.transforms as T
 
 
-# Function to extract audio from video and save it as .wav
 def extract_audio_from_video(video_file_path):
-    # Get the base name of the video file (without extension)
     base_name = os.path.splitext(os.path.basename(video_file_path))[0]
     
-    # Generate the audio file path by changing the extension to .wav
     audio_file_path = os.path.join(os.path.dirname(video_file_path), f"{base_name}.wav")
     
-    # Extract audio from the video
     video = VideoFileClip(video_file_path)
     audio = video.audio
-    audio.write_audiofile(audio_file_path)  # Save audio as .wav file
+    audio.write_audiofile(audio_file_path)  
     
     return audio_file_path
 
-# Specify your video file path
 video_file_path = "Videos/TedTalk.mp4"
 
-# Automatically generate the audio file path and extract the audio
 audio_file_path = extract_audio_from_video(video_file_path)
 
-# Print the generated audio file path
 print(f"Audio extracted and saved at: {audio_file_path}")
 
-# Initialize recognizer class (for recognizing speech)
 recognizer = sr.Recognizer()
 
-# Load the audio file using pydub to get duration
 audio_segment = AudioSegment.from_file(audio_file_path)
 
-# Get the duration of the audio file in seconds
-audio_duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
-
-# Load the audio file for the speech recognizer
+audio_duration = len(audio_segment) / 1000  
 audio_file = sr.AudioFile(audio_file_path)
 
-# Process the audio file in chunks
 with audio_file as source:
-    recognizer.adjust_for_ambient_noise(source, duration=1)  # Optional: helps with noisy audio
-
-    # Define chunk size in seconds (e.g., 30 seconds per chunk)
+    recognizer.adjust_for_ambient_noise(source, duration=1)  
     chunk_size = 30
 
-    transcription = ""  # To store the full transcription
+    transcription = ""  
     current_position = 0
 
-    # Loop through the audio in chunks
     while current_position < audio_duration:
         try:
-            # Record the next chunk
             audio_chunk = recognizer.record(source, duration=chunk_size)
 
-            # Transcribe the chunk
             chunk_text = recognizer.recognize_google(audio_chunk)
-            transcription += chunk_text + " "  # Append chunk transcription
+            transcription += chunk_text + " "  
             print(f"Transcribed chunk {current_position}-{current_position+chunk_size}s: {chunk_text}")
         except sr.UnknownValueError:
             print(f"Google Speech Recognition could not understand the audio between {current_position}s and {current_position+chunk_size}s")
         except sr.RequestError as e:
             print(f"Could not request results from Google Speech Recognition service; {e}")
 
-        # Update position to move to the next chunk
         current_position += chunk_size
 
-# Load the pre-trained T5 model for grammar correction
 model = T5ForConditionalGeneration.from_pretrained("vennify/t5-base-grammar-correction")
 tokenizer = T5Tokenizer.from_pretrained("vennify/t5-base-grammar-correction")
 
@@ -89,29 +69,22 @@ def correct_grammar(sentence, max_length=512):
     corrected_text = ""
     i = 0
     while i < len(sentence):
-        # Get the next chunk of the sentence
         chunk = sentence[i:i + max_length]
-        # Prepare input with prefix "grammar: " for T5 model
         input_text = "grammar: " + chunk
         inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=max_length, truncation=True)
 
-        # Generate corrected text
         outputs = model.generate(inputs, max_length=max_length, num_beams=4, early_stopping=True)
         corrected_chunk = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-        # Append the corrected chunk
         corrected_text += corrected_chunk + " "
 
-        # Move to the next chunk
         i += max_length
 
     return corrected_text.strip()
 
 corrected_sentence = correct_grammar(transcription)
 
-# Function to normalize text by removing punctuation and converting to lowercase
 def normalize_text(text):
-    # Remove punctuation and convert to lowercase
     text = text.translate(str.maketrans('', '', string.punctuation)).lower()
     return text
 
@@ -158,10 +131,8 @@ def get_grammar_feedback(score):
         return "Poor grammar. It might help to practice more and focus on sentence structure. 🚀"
 
 def calculate_speech_pace(audio_file):
-    # Load the audio file using pydub to get the duration
     audio_segment = AudioSegment.from_file(audio_file)
-    duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
-
+    duration = len(audio_segment) / 1000  
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio_file) as source:
         audio_data = recognizer.record(source)
@@ -192,7 +163,6 @@ def calculate_speech_pace(audio_file):
 
     return pace, transcription, pace_feedback
 
-# Calculate speech pace and get feedback
 pace, transcription, pace_feedback = calculate_speech_pace(audio_file_path)
 if transcription:
     print("Transcription:", transcription)
@@ -200,17 +170,14 @@ if transcription:
     print("Speech Pace (WPM):", pace)
     print("Feedback:", pace_feedback)
 
-# Load Wav2Vec2 model and processor for filler word detection
 num_labels = 6
 model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
 model.eval()
 
-# Load and resample the audio file for filler word detection
 waveform, sample_rate = torchaudio.load(audio_file_path)
 waveform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)(waveform)
 
-# Define chunking parameters
 segment_duration = 2
 sample_rate = 16000
 samples_per_segment = segment_duration * sample_rate
@@ -221,7 +188,6 @@ total_segments = total_duration // segment_duration
 filler_counts = {"Uh": 0, "Um": 0}
 label_map = {0: "Uh", 1: "Words", 2: "Laughter", 3: "Um", 4: "Music", 5: "Breath"}
 
-# Process audio in 2-second chunks for filler word detection
 for start in range(0, waveform.shape[1], samples_per_segment):
     end = start + samples_per_segment
     segment = waveform[:, start:end]
@@ -241,7 +207,6 @@ for start in range(0, waveform.shape[1], samples_per_segment):
         if label in filler_counts:
             filler_counts[label] += 1
 
-# Compute filler rate
 total_fillers = filler_counts["Uh"] + filler_counts["Um"]
 filler_rate = total_fillers / total_segments if total_segments > 0 else 0
 
@@ -258,44 +223,34 @@ else:
     filler_feedback = "High use of filler words detected! Try slowing down and structuring your thoughts before speaking. 🚀"
 
 
-# Print results
 print(f"\n🎤 Speech Fluency Score: {filler_score:.2f}/100")
 print(f"📝 Feedback: {filler_feedback}")
 print(f"📊 Filler Word Breakdown: {filler_counts}")
 
-# Initialize the pipeline for pronunciation evaluation
 pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
 
-# Load the audio file (use audio_file_path, not audio_file)
 waveform, sample_rate = torchaudio.load(audio_file_path, format="wav")
 
-# Convert stereo to mono if needed
 if waveform.shape[0] > 1:
     waveform = waveform.mean(dim=0, keepdim=True)
 
-# Resample to 16kHz if needed (Wav2Vec2 expects 16kHz audio)
 if sample_rate != 16000:
     resample = T.Resample(orig_freq=sample_rate, new_freq=16000)
     waveform = resample(waveform)
 
-# Normalize the waveform
 waveform = (waveform - waveform.mean()) / waveform.std()
 
-# Convert tensor to numpy array (if needed for the pipeline)
 waveform = waveform.squeeze(0).numpy()
 
-# Run the pronunciation evaluation model
 result = pipe(waveform)
 
-# Define score mapping
 score_mapping = {
     "advanced": 100,
     "proficient": 75,
     "intermediate": 50,
-    "beginer": 25  # Note: 'beginer' is misspelled in the model output, so keeping it as is
+    "beginer": 25 
 }
 
-# Compute final score based on the model output
 final_pronunciation_score = sum(score_mapping[item["label"]] * item["score"] for item in result)
 
 def pronunciation_feedback(score):
@@ -323,7 +278,6 @@ feedback_report = {
  
 }
 
-# Print the feedback report
 print("\nFeedback Report:")
 for key, value in feedback_report.items():
     print(f"{key}: {value}")

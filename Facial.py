@@ -7,51 +7,46 @@ from deepface import DeepFace
 def refine_emotion_prediction(emotion, eye_contact):
     
     
-    # Emotion and Eye Contact compatibility based on psychological studies
+    
     
     if emotion == "neutral":
-        # Neutral emotions might have less distinct eye contact, both with or without eye contact is possible
+      
         if eye_contact == "Eye Contact":
             return "attentive"
         else:
-            return "indifferent"  # No strong emotion, could show less engagement
+            return "indifferent"  
     
     if emotion == "angry":
-        # Angry emotions are often associated with direct eye contact
         if eye_contact == "Eye Contact":
-            return "intense"  # Direct eye contact with anger intensifies the emotion
+            return "intense"  
         else:
-            return "defensive"  # Avoiding eye contact in anger could show defensiveness
+            return "defensive"  
     
     if emotion == "fear":
-        # Fear is typically linked to avoiding eye contact (avoidance behavior)
+       
         if eye_contact == "Eye Contact":
-            return "nervous"  # Fearful but maintaining eye contact can show nervousness or anxiety
-        else:
-            return "distrust"  # Fear often leads to avoiding eye contact, showing discomfort or distrust
+            return "nervous" 
+            return "distrust"  
     
     if emotion == "happy":
-        # Happiness is often associated with more relaxed and positive body language, which can include eye contact
+       
         if eye_contact == "Eye Contact":
-            return "joyful"  # Happiness with eye contact indicates engagement and connection
+            return "joyful"  
         else:
-            return "content"  # Happiness without eye contact may indicate inner contentment
+            return "content"  
     
     if emotion == "sad":
-        # Sadness is typically associated with avoiding eye contact or looking downward
         if eye_contact == "Eye Contact":
-            return "vulnerable"  # Sadness with eye contact can be perceived as vulnerability or needing support
+            return "vulnerable"  
         else:
-            return "isolated"  # Avoiding eye contact with sadness shows emotional withdrawal
+            return "isolated"  
     
     if emotion == "surprise":
-        # Surprise can result in a momentary loss of eye contact or wide-open eyes (increased alertness)
+     
         if eye_contact == "Eye Contact":
-            return "alert"  # Surprise with eye contact shows high alertness and focus
+            return "alert"  
         else:
-            return "disoriented"  # Surprise without eye contact can indicate disorientation or shock
-
-    # Default case (if the emotion doesn't match any of the above)
+            return "disoriented"  
     return emotion
 
 

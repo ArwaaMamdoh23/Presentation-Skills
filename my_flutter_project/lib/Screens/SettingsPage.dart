@@ -19,7 +19,7 @@ class SettingsPage extends StatelessWidget {
         isUserSignedIn: true,
       ),
       
-      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
+      drawer: CustomDrawer(isSignedIn: true), 
 
       body: BackgroundWrapper(
         child: Column(
@@ -206,13 +206,13 @@ class SettingsPage extends StatelessWidget {
 
       if (existingRow != null) {
         await _supabase.from('User').delete().eq('User_id', user.id);
-        print("✅ User deleted from 'User' table");
+        print(" User deleted from 'User' table");
       } else {
-        print("⚠️ No matching row found in User table for deletion.");
+        print("No matching row found in User table for deletion.");
       }
 
       await _supabase.auth.admin.deleteUser(user.id);
-      print("✅ Deleted from Supabase Auth");
+      print("Deleted from Supabase Auth");
 
       await _supabase.auth.signOut();
 
@@ -227,7 +227,7 @@ class SettingsPage extends StatelessWidget {
         );
       }
     } catch (e) {
-      print("❌ Error deleting account: $e");
+      print("Error deleting account: $e");
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error deleting account: \${e.toString()}")),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'UploadVideo.dart'; // Import UploadVideoPage
-import 'package:email_validator/email_validator.dart'; // Add email validation
-import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase
-import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // Import the wrapper
-import 'HomePage.dart'; // Import HomePage
+import 'UploadVideo.dart'; 
+import 'package:email_validator/email_validator.dart'; 
+import 'package:supabase_flutter/supabase_flutter.dart'; 
+import '../widgets/custom_app_bar.dart'; 
+import '../widgets/background_wrapper.dart'; 
+import 'HomePage.dart'; 
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
