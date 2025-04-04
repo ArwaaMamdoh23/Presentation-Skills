@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 import tensorflow_hub as hub
 import tensorflow as tf
@@ -18,35 +19,108 @@ import difflib
 import string
 import spacy
 import aifc
-import os
 from moviepy import VideoFileClip
 
+# Function to load models
+# Initialize the model variables globally
+import tensorflow_hub as hub
+import mediapipe as mp
+from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2Processor, pipeline, T5ForConditionalGeneration, T5Tokenizer
 
-# Load PoseNet Model for posture detection (PostureNet
-posenet_model_url = "https://tfhub.dev/google/movenet/singlepose/lightning/4"
-posenet_model = hub.load(posenet_model_url)
+# Declare global variables for models
+posenet_model = None
+mp_hands = None
+mp_drawing = None
+wav2vec2_model = None
+processor = None
+pronunciation_pipe = None
+t5_model = None
+tokenizer = None
 
+def load_posenet_model():
+    global posenet_model
+    if posenet_model is None:
+        # Load PoseNet model for posture detection (PostureNet)
+        posenet_model_url = "https://tfhub.dev/google/movenet/singlepose/lightning/4"
+        try:
+            posenet_model = hub.load(posenet_model_url)
+            print("PoseNet model loaded successfully")
+        except Exception as e:
+            print(f"Error loading PoseNet model: {e}")
+    return posenet_model
 
-#MediaPipe Hands for gesture recognition
-mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
-mp_drawing = mp.solutions.drawing_utils
+def load_mediapipe_hands():
+    global mp_hands, mp_drawing
+    if mp_hands is None:
+        # MediaPipe Hands for gesture recognition
+        mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
+        mp_drawing = mp.solutions.drawing_utils
+        print("MediaPipe Hands model initialized")
+    return mp_hands, mp_drawing
 
-# Load Wav2Vec2 model and processor for filler word detection
-# Load Wav2Vec2 model for sequence classification
+def load_wav2vec2_model():
+    global wav2vec2_model, processor
+    if wav2vec2_model is None:
+        # Load Wav2Vec2 model for sequence classification
+        num_labels = 6
+        wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
+        processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
+        wav2vec2_model.eval()
+        print("Wav2Vec2 model loaded successfully")
+    return wav2vec2_model, processor
 
-num_labels = 6
-wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
-processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
-wav2vec2_model.eval()
+def load_pronunciation_pipeline():
+    global pronunciation_pipe
+    if pronunciation_pipe is None:
+        # Pipeline for pronunciation evaluation
+        pronunciation_pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
+        print("Pronunciation evaluation pipeline initialized")
+    return pronunciation_pipe
 
-# Pipeline for pronunciation evaluation (Using a separate variable for the pipeline)
-pronunciation_pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
+def load_t5_model():
+    global t5_model, tokenizer
+    if t5_model is None:
+        # Load the pre-trained T5 model for grammar correction
+        t5_model = T5ForConditionalGeneration.from_pretrained("vennify/t5-base-grammar-correction")
+        tokenizer = T5Tokenizer.from_pretrained("vennify/t5-base-grammar-correction")
+        print("T5 model for grammar correction loaded successfully")
+    return t5_model, tokenizer
 
-# Load the pre-trained T5 model for grammar correction (Use a different variable name for the T5 model)
-t5_model = T5ForConditionalGeneration.from_pretrained("vennify/t5-base-grammar-correction")
-tokenizer = T5Tokenizer.from_pretrained("vennify/t5-base-grammar-correction")
+def load_models():
+    # Lazy load each model only when needed
+    load_posenet_model()
+    load_mediapipe_hands()
+    load_wav2vec2_model()
+    load_pronunciation_pipeline()
+    load_t5_model()
 
+# Example of how the models are used in an inference function
+def perform_inference():
+    # Ensure that models are loaded
+    posenet_model = load_posenet_model()
+    mp_hands, mp_drawing = load_mediapipe_hands()
+    wav2vec2_model, processor = load_wav2vec2_model()
+    pronunciation_pipe = load_pronunciation_pipeline()
+    t5_model, tokenizer = load_t5_model()
+    
+    # Now you can perform inference with the loaded models
+    # Example: Using PoseNet for posture detection (placeholder code)
+    input_image = None  # Replace with actual input image
+    pose_results = posenet_model(input_image)
 
+    # More inference tasks can be added here for other models like Wav2Vec2, T5, etc.
+    
+# Call load_models when the script is run directly
+if _name_ == "_main_":
+    load_models()
+
+    # Example inference after models are loaded
+    perform_inference()
+
+    if posenet_model is None:
+        print("PoseNet model is not loaded properly.")
+    else:
+        print("PoseNet model is ready for inference.")
 
 
 # Gesture-to-body language mapping
@@ -238,8 +312,10 @@ def classify_posture(keypoints):
         return "Unknown Posture"
 
 
-# Run PoseNet Inference
 def run_inference(frame):
+    if posenet_model is None:
+        raise ValueError("PoseNet model is not loaded properly!")
+    
     resized_frame = cv2.resize(frame, (192, 192))
     rgb_frame = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
     rgb_frame = np.expand_dims(rgb_frame, axis=0)
@@ -247,7 +323,9 @@ def run_inference(frame):
     rgb_frame = rgb_frame / 255.0
     rgb_frame = tf.cast(rgb_frame, dtype=tf.int32)
     model_input = {"input": rgb_frame}
+    
     return posenet_model.signatures['serving_default'](**model_input)
+
 
 # Main video processing loop
 cap = cv2.VideoCapture("Videos/lolo presentation.mp4")

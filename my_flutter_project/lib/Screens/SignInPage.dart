@@ -4,6 +4,7 @@ import 'package:email_validator/email_validator.dart'; // Add email validation
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase
 import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // Import the wrapper
+import 'HomePage.dart'; // Import HomePage
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -58,59 +59,33 @@ class _SignInPageState extends State<SignInPage> {
         password: password,
       );
 
-      final Session? session = response.session;
-      final User? user = response.user;
-
-      if (session == null || user == null) {
-        throw Exception('Sign in failed - no session or user returned');
-      }
-
-      // Check if user exists in User table
-      final userData = await _supabase
-          .from('User')
-          .select()
-          .eq('User_id', user.id)
-          .single();
-
-      if (userData == null) {
-        // User exists in auth but not in User table - this shouldn't happen
-        throw Exception('User profile not found');
-      }
-
-      // Successful sign in, navigate to UploadVideoPage
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => UploadVideoPage()),
-        );
+      if (response.session != null) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
+      } else {
+        throw Exception('Sign in failed - no session returned');
       }
     } on AuthException catch (e) {
-      _showError(_handleAuthError(e));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
-      _showError('An unexpected error occurred. Please try again.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  String _handleAuthError(dynamic e) {
-    if (e is AuthException) {
-      switch (e.message) {
-        case 'Invalid login credentials':
-          return 'Invalid email or password';
-        case 'Email not confirmed':
-          return 'Please verify your email first';
-        case 'User profile not found':
-          return 'Your account needs to be set up. Please contact support.';
-        default:
-          return 'Sign in failed: ${e.message}';
-      }
-    }
-    return 'An unexpected error occurred. Please try again.';
   }
 
   @override
