@@ -72,7 +72,7 @@ class SignOutPage extends StatelessWidget {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const UploadVideoPage()), // Redirect to UploadVideoPage
+                            MaterialPageRoute(builder: (context) =>  UploadVideoPage()), // Redirect to UploadVideoPage
                           );
                         },
                         style: ElevatedButton.styleFrom(

@@ -3,21 +3,69 @@ import 'dart:ui';
 import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
 import '../widgets/background_wrapper.dart'; // Import the wrapper
 import '../widgets/CustomDrawer .dart'; 
+<<<<<<< HEAD
 import 'package:my_flutter_project/Screens/AuthPage.dart';
+=======
+import 'package:supabase_flutter/supabase_flutter.dart';
+>>>>>>> d918e83b012316de464d5489cbc6046090043acf
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isUserSignedIn = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthState();
+  }
+
+  Future<void> _checkAuthState() async {
+    try {
+      final session = await Supabase.instance.client.auth.currentSession;
+      if (mounted) {
+        setState(() {
+          _isUserSignedIn = session != null;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error checking auth state: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    bool isUserSignedIn = false; // Simulate user authentication
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: CustomAppBar(
+<<<<<<< HEAD
         showSignIn: !isUserSignedIn,
         isUserSignedIn: isUserSignedIn,
       ), 
       drawer: isUserSignedIn ? CustomDrawer(isSignedIn: isUserSignedIn) : null,
+=======
+        showSignIn: !_isUserSignedIn,
+        isUserSignedIn: _isUserSignedIn,
+      ),
+      drawer: _isUserSignedIn ? CustomDrawer(isSignedIn: _isUserSignedIn) : null,
+>>>>>>> d918e83b012316de464d5489cbc6046090043acf
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       body: BackgroundWrapper( // Wrap the entire page content

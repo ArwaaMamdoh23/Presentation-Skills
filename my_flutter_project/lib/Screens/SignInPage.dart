@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'UploadVideo.dart'; // Import UploadVideoPage
 import 'package:email_validator/email_validator.dart'; // Add email validation
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Authentication
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore Database
+import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase
 import '../widgets/custom_app_bar.dart'; // Import Custom AppBar
-import '../widgets/background_wrapper.dart'; // ✅ Import the wrapper
-// import '../widgets/CustomDrawer .dart'; 
+import '../widgets/background_wrapper.dart'; // Import the wrapper
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -18,40 +16,80 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false; // ✅ Loading state
+  bool _isLoading = false;
+  
+  // Get the Supabase client
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExistingSession();
+  }
+
+  Future<void> _checkExistingSession() async {
+    try {
+      final session = await _supabase.auth.currentSession;
+      if (session != null) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => UploadVideoPage()),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error checking session: $e');
+    }
+  }
 
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true); // Show loading indicator
+    setState(() => _isLoading = true);
 
     try {
-      String email = _emailController.text.trim().toLowerCase();
-      String password = _passwordController.text.trim();
+      final email = _emailController.text.trim().toLowerCase();
+      final password = _passwordController.text.trim();
 
-      // Authenticate with Firebase
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      // Sign in with Supabase
+      final AuthResponse response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      String userId = userCredential.user!.uid;
+      final Session? session = response.session;
+      final User? user = response.user;
 
-      // Check Firestore if user exists
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('User').doc(userId).get();
-
-      if (userDoc.exists) {
-        // User found, navigate to UploadVideoPage
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const UploadVideoPage()));
-      } else {
-        // User not found in Firestore, sign out and show error
-        await FirebaseAuth.instance.signOut();
-        _showError('Account not found in database. Please sign up.');
+      if (session == null || user == null) {
+        throw Exception('Sign in failed - no session or user returned');
       }
-    } catch (e) {
+
+      // Check if user exists in User table
+      final userData = await _supabase
+          .from('User')
+          .select()
+          .eq('User_id', user.id)
+          .single();
+
+      if (userData == null) {
+        // User exists in auth but not in User table - this shouldn't happen
+        throw Exception('User profile not found');
+      }
+
+      // Successful sign in, navigate to UploadVideoPage
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => UploadVideoPage()),
+        );
+      }
+    } on AuthException catch (e) {
       _showError(_handleAuthError(e));
+    } catch (e) {
+      _showError('An unexpected error occurred. Please try again.');
     } finally {
-      setState(() => _isLoading = false); // Hide loading indicator
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -60,12 +98,16 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   String _handleAuthError(dynamic e) {
-    if (e is FirebaseAuthException) {
-      switch (e.code) {
-        case 'user-not-found': return 'No account found with this email.';
-        case 'wrong-password': return 'Incorrect password.';
-        case 'invalid-email': return 'Invalid email format.';
-        default: return 'Sign-In failed. Please try again.';
+    if (e is AuthException) {
+      switch (e.message) {
+        case 'Invalid login credentials':
+          return 'Invalid email or password';
+        case 'Email not confirmed':
+          return 'Please verify your email first';
+        case 'User profile not found':
+          return 'Your account needs to be set up. Please contact support.';
+        default:
+          return 'Sign in failed: ${e.message}';
       }
     }
     return 'An unexpected error occurred. Please try again.';
@@ -74,15 +116,14 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // ✅ Allows background behind the AppBar
+      extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
-        showSignIn: false, // ✅ No Sign-In button on Sign-In page
-        isUserSignedIn: false, // ✅ Ensure it's false since we're signing in
-        hideSignInButton: true, // ✅ Explicitly hide Sign-In button
+        showSignIn: false,
+        isUserSignedIn: false,
+        hideSignInButton: true,
       ),
-      // drawer: CustomDrawer(isSignedIn: false), // ✅ Sidebar (won't be visible until signed in)
       backgroundColor: Colors.transparent,
-      body: BackgroundWrapper( // ✅ Apply background
+      body: BackgroundWrapper(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -106,9 +147,9 @@ class _SignInPageState extends State<SignInPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 40),
-                  // Email Field with Validation
+                  
+                  // Email Field
                   TextFormField(
                     controller: _emailController,
                     decoration: _inputDecoration('Email'),
@@ -124,7 +165,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Password Field with Validation
+                  // Password Field
                   TextFormField(
                     controller: _passwordController,
                     decoration: _inputDecoration('Password'),
@@ -145,7 +186,7 @@ class _SignInPageState extends State<SignInPage> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
-                      decoration: _buttonDecoration(),
+                      decoration: _buttonDecoration(),  
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _signIn,
                         style: _buttonStyle(),
@@ -153,7 +194,11 @@ class _SignInPageState extends State<SignInPage> {
                             ? const CircularProgressIndicator(color: Colors.white)
                             : const Text(
                                 'Sign In',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                style: TextStyle(
+                                  fontSize: 18, 
+                                  fontWeight: FontWeight.bold, 
+                                  color: Colors.white
+                                ),
                               ),
                       ),
                     ),
@@ -184,7 +229,10 @@ class _SignInPageState extends State<SignInPage> {
       hintStyle: const TextStyle(color: Colors.white70),
       filled: true,
       fillColor: Colors.white.withOpacity(0.2),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30), 
+        borderSide: BorderSide.none
+      ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
     );
   }
@@ -218,7 +266,9 @@ class _SignInPageState extends State<SignInPage> {
       backgroundColor: Colors.transparent,
       shadowColor: Colors.transparent,
       padding: const EdgeInsets.symmetric(vertical: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
     );
   }
 }

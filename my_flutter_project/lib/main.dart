@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // Ensure this file exists
-
+import 'package:supabase_flutter/supabase_flutter.dart'; // ✅ Import Supabase
 import 'Screens/AuthPage.dart';
 import 'Screens/SignUpPage.dart';
 import 'Screens/SignInPage.dart';
@@ -10,18 +8,18 @@ import 'Screens/SettingsPage.dart'; // Import Settings Page
 import 'Screens/ProfilePage.dart'; // Import Profile Page;
 import 'Screens/ReportsPage.dart';
 import 'Screens/UploadVideo.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';  // ✅ Import Firebase options
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // ✅ Proper Firebase Initialization with Web Support
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  // ✅ Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://ohllbliwedftnyqmthze.supabase.co', // Replace with your Supabase project URL
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9obGxibGl3ZWRmdG55cW10aHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NDIxMzAsImV4cCI6MjA1OTExODEzMH0.XW1XNf7v3-JX94-1xJNgPM70t2qvZoEClyAab85ie1o', // Replace with your Supabase anonymous key
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

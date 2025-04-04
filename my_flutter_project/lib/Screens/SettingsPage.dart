@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'package:my_flutter_project/Screens/SignInPage.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  SettingsPage({super.key});
+  final _supabase = Supabase.instance.client;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
+    await _supabase.auth.signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomePage()),
@@ -142,82 +142,93 @@ class SettingsPage extends StatelessWidget {
       },
     );
   }
-Future<String?> _askForPassword(BuildContext context) async {
-  TextEditingController passwordController = TextEditingController();
 
-  return await showDialog<String>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Confirm Password"),
-        content: TextField(
-          controller: passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: "Enter your password",
+  Future<String?> _askForPassword(BuildContext context) async {
+    TextEditingController passwordController = TextEditingController();
+
+    return await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Password"),
+          content: TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: "Enter your password",
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, null),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context, passwordController.text.trim());
-            },
-            child: const Text("Confirm"),
-          ),
-        ],
-      );
-    },
-  );
-}
-void _deleteAccount(BuildContext context) async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user == null) return;
-
-  try {
-    // ✅ Ask for the current password if the user signed in via email/password
-    if (user.email != null) {
-      String? currentPassword = await _askForPassword(context);
-      if (currentPassword == null) return; // User canceled the password input
-
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user.email!,
-        password: currentPassword,
-      );
-
-      // ✅ Re-authenticate user before deleting the account
-      await user.reauthenticateWithCredential(credential);
-    }
-
-    // ✅ Delete user from Firestore
-    await FirebaseFirestore.instance.collection('User').doc(user.uid).delete();
-    print("✅ User document deleted from Firestore");
-
-    // ✅ Delete user from Firebase Authentication
-    await user.delete();
-    print("✅ User deleted from Firebase Auth");
-
-    // ✅ Sign out the user
-    await FirebaseAuth.instance.signOut();
-    print("✅ User signed out");
-
-    // ✅ Navigate to SignInPage immediately after deletion
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const SignInPage()),
-      (route) => false, // Clears all previous routes
-    );
-    print("✅ Redirected to SignInPage");
-  } catch (e) {
-    print("❌ Error deleting account: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error deleting account: $e")),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, passwordController.text.trim());
+              },
+              child: const Text("Confirm"),
+            ),
+          ],
+        );
+      },
     );
   }
-}
 
+  void _deleteAccount(BuildContext context) async {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
 
+    try {
+      if (user.email != null) {
+        String? currentPassword = await _askForPassword(context);
+        if (currentPassword == null || currentPassword.isEmpty) return;
+
+        final authResponse = await _supabase.auth.signInWithPassword(
+          email: user.email!,
+          password: currentPassword,
+        );
+
+        if (authResponse.user == null) {
+          throw Exception("Reauthentication failed");
+        }
+      }
+
+      final existingRow = await _supabase
+          .from('User')
+          .select()
+          .eq('User_id', user.id)
+          .maybeSingle();
+
+      if (existingRow != null) {
+        await _supabase.from('User').delete().eq('User_id', user.id);
+        print("✅ User deleted from 'User' table");
+      } else {
+        print("⚠️ No matching row found in User table for deletion.");
+      }
+
+      await _supabase.auth.admin.deleteUser(user.id);
+      print("✅ Deleted from Supabase Auth");
+
+      await _supabase.auth.signOut();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account deleted successfully")),
+        );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const SignInPage()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      print("❌ Error deleting account: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error deleting account: \${e.toString()}")),
+        );
+      }
+    }
+  }
 }
