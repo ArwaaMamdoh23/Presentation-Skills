@@ -4,6 +4,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'UploadVideo.dart';
+import 'HomePage.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -63,20 +64,36 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => _isLoading = true);
 
     try {
-      final email = _emailController.text.trim();
+      final email = _emailController.text.trim().toLowerCase();
       final password = _passwordController.text.trim();
       final fullName = _fullNameController.text.trim();
 
+      // Sign up with email verification
       final authResponse = await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {'full_name': fullName},
+        emailRedirectTo: 'presentationskills://login-callback',
       );
 
       if (authResponse.user == null) {
         throw Exception('Failed to create user account');
       }
 
+      // Check if email confirmation was sent
+      final session = authResponse.session;
+      if (session == null) {
+        // This means email confirmation is required
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email has been sent. Please check your inbox and spam folder.'),
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+
+      // Insert into User table
       await _supabase.from('User').insert({
         'User_id': authResponse.user!.id,
         'Name': fullName,
@@ -84,19 +101,49 @@ class _SignUpPageState extends State<SignUpPage> {
         'Role': 'user'
       });
 
+      // Show success message and redirect to sign in
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Account created successfully!'),
+                Text('Email: $email'),
+                Text('Please check your email (including spam folder) to verify your account'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 10),
+          ),
+        );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => SignInPage()),
         );
       }
     } on AuthException catch (e) {
+      String errorMessage = e.message;
+      if (e.message.contains('Email rate limit exceeded')) {
+        errorMessage = 'Too many signup attempts. Please try again later.';
+      } else if (e.message.contains('User already registered')) {
+        errorMessage = 'This email is already registered. Please try signing in.';
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration error: ${e.message}'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -148,9 +195,7 @@ class _SignUpPageState extends State<SignUpPage> {
         if (value == null || value.isEmpty) {
           return 'Please enter your email';
         }
-        bool hasNum = RegExp(r'[0-9]').hasMatch(value);
         bool format = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value);
-        if (!hasNum) return 'Email must contain at least one number.';
         if (!format) return 'This is not a valid email format.';
         return null;
       },
