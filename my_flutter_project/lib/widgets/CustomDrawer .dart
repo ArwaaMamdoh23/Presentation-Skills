@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CustomDrawer extends StatelessWidget {
   final bool isSignedIn;
@@ -8,64 +9,61 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: SafeArea(  // Use SafeArea here to ensure the drawer content is inside safe bounds
+      child: SafeArea(
         child: Column(
           children: [
-            // ListTile(
-            //   leading: const Icon(Icons.home),
-            //   title: const Text('Home'),
-            //   onTap: () {
-            //     Navigator.pushNamed(context, '/home');
-            //   },
-            // ),
-            
-            // Main Menu Options
             ListTile(
-              leading: const Icon(Icons.person), // Profile Icon
+              leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                Navigator.pushNamed(context, '/profile');  // Change to your actual profile page
+                Navigator.pushNamed(context, '/profile');
               },
             ),
-  
             ListTile(
-              leading: const Icon(Icons.upload_file), // Upload Icon
+              leading: const Icon(Icons.upload_file),
               title: const Text('Upload'),
               onTap: () {
-                Navigator.pushNamed(context, '/upload');  // Change to your actual page route
+                Navigator.pushNamed(context, '/upload');
               },
             ),
-            
             ListTile(
               leading: const Icon(Icons.insert_drive_file),
               title: const Text('Reports'),
               onTap: () {
-                Navigator.pushNamed(context, '/report');  // Change to your actual page route
+                Navigator.pushNamed(context, '/report');
               },
             ),
-  
-            const Spacer(),  // Pushes Settings and Log Out to the bottom
-  
-            // Settings (Above Log Out)
+
+            const Spacer(),
+
+            
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.pushNamed(context, '/settings'); // Change to actual settings route
+                Navigator.pushNamed(context, '/settings');
               },
             ),
-  
-            // Log Out (At the Bottom)
+
             if (isSignedIn)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: ListTile(
                   leading: const Icon(Icons.exit_to_app, color: Colors.red),
-                  title: const Text('Log Out', style: TextStyle(color: Colors.red)),
-                  onTap: () {
-                    // Handle log out logic
-                    Navigator.pushNamed(context, '/home');
-                  },
+                  title: const Text(
+                    'Log Out',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                 onTap: () async {
+  try {
+    await Supabase.instance.client.auth.signOut();
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Logout failed: $e')),
+    );
+  }
+},
                 ),
               ),
           ],
@@ -74,80 +72,3 @@ class CustomDrawer extends StatelessWidget {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-
-// class CustomDrawer extends StatelessWidget {
-//   final bool isSignedIn;
-
-//   const CustomDrawer({Key? key, required this.isSignedIn}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: Column(
-//         children: [
-//           ListTile(
-//             leading: const Icon(Icons.home),
-//             title: const Text('Home'),
-//             onTap: () {
-//               Navigator.pushNamed(context, '/home');
-//             },
-//           ),
-          
-//           // ✅ Main Menu Options
-//           ListTile(
-//             leading: const Icon(Icons.person), // 👤 Profile Icon
-//             title: const Text('Profile'),
-//             onTap: () {
-//               Navigator.pushNamed(context, '/profile');  // Change to your actual profile page
-//             },
-//           ),
-
-          
-
-//           ListTile(
-//             leading: const Icon(Icons.upload_file), // 📤 Upload Icon
-//             title: const Text('Upload'),
-//             onTap: () {
-//               Navigator.pushNamed(context, '/upload');  // Change to your actual page route
-//             },
-//           ),
-          
-//           ListTile(
-//             leading: const Icon(Icons.insert_drive_file),
-//             title: const Text('Reports'),
-//             onTap: () {
-//               Navigator.pushNamed(context, '/report');  // Change to your actual page route
-//             },
-//           ),
-
-//           const Spacer(),  // Pushes Settings and Log Out to the bottom
-
-//           // ✅ Settings (Above Log Out)
-//           ListTile(
-//             leading: const Icon(Icons.settings),
-//             title: const Text('Settings'),
-//             onTap: () {
-//               Navigator.pushNamed(context, '/settings'); // Change to actual settings route
-//             },
-//           ),
-
-//           // ✅ Log Out (At the Bottom)
-//           if (isSignedIn)
-//             Align(
-//               alignment: Alignment.bottomCenter,
-//               child: ListTile(
-//                 leading: const Icon(Icons.exit_to_app, color: Colors.red),
-//                 title: const Text('Log Out', style: TextStyle(color: Colors.red)),
-//                 onTap: () {
-//                   // Handle log out logic
-//                   Navigator.pushNamed(context, '/home');
-//                 },
-//               ),
-//             ),
-//         ],
-//       ),
-//     );
-//   }
-// }

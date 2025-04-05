@@ -5,6 +5,7 @@ import '../widgets/background_wrapper.dart';
 import '../widgets/CustomDrawer .dart'; 
 import 'package:my_flutter_project/Screens/AuthPage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'UploadVideo.dart'; 
 
 class HomePage extends StatefulWidget {    
   const HomePage({super.key});
@@ -81,14 +82,20 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),  
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
-                  
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthPage()),
-                  );
+                  if (_isUserSignedIn) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>  UploadVideoPage()),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AuthPage()),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), 
