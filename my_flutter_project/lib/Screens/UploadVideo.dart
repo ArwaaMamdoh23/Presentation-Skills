@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
-import '../widgets/background_wrapper.dart'; 
-import 'EditProfilePage.dart'; 
+import '../widgets/background_wrapper.dart';
+import 'EditProfilePage.dart';
+import 'package:file_picker/file_picker.dart';
+import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
+import 'EditProfilePage.dart'; // Import EditProfilePage
 import 'ProfilePage.dart';
-import '../widgets/custom_app_bar.dart'; 
-import '../widgets/CustomDrawer .dart'; 
-
+import '../widgets/custom_app_bar.dart';
+import '../widgets/CustomDrawer .dart';
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -22,16 +24,34 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   final _supabase = Supabase.instance.client;
   final _picker = ImagePicker();
 
-  Future<void> _pickVideo() async {
+  Future<void> _pickVideoFromGallery() async {
     try {
       final pickedFile = await _picker.pickVideo(
         source: ImageSource.gallery,
-        maxDuration: const Duration(minutes: 10),
+        maxDuration: const Duration(minutes: 5),
       );
 
       if (pickedFile != null) {
         setState(() {
           _videoFile = File(pickedFile.path);
+          _uploadProgress = 0;
+        });
+      }
+    } catch (e) {
+      _showError('Error selecting video: ${e.toString()}');
+    }
+  }
+
+  Future<void> _pickVideoFromDrive() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: false,
+      );
+
+      if (result != null) {
+        setState(() {
+          _videoFile = File(result.files.single.path!);
           _uploadProgress = 0;
         });
       }
@@ -65,14 +85,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
           .upload(
             filePath,
             _videoFile!,
-            fileOptions: FileOptions(
-              contentType: _getMimeType(fileExt),
-            ),
+            fileOptions: FileOptions(contentType: _getMimeType(fileExt)),
           );
 
-      final fileUrl = _supabase.storage
-          .from('videos')
-          .getPublicUrl(filePath);
+      final fileUrl = _supabase.storage.from('videos').getPublicUrl(filePath);
 
       await _supabase.from('Uploaded_file').insert({
         'User_id': userId,
@@ -102,6 +118,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         return 'video/quicktime';
       case '.avi':
         return 'video/x-msvideo';
+      case '.mkv':
+        return 'video/x-matroska';
+      case '.webm':
+        return 'video/webm';
       default:
         return 'video/mp4';
     }
@@ -135,11 +155,12 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(  // 
-        showSignIn: true,  // 
-        isUserSignedIn: true,  
+      appBar: CustomAppBar(
+        //
+        showSignIn: true, //
+        isUserSignedIn: true,
       ),
-      drawer: CustomDrawer(isSignedIn: true),  
+      drawer: CustomDrawer(isSignedIn: true),
 
       body: BackgroundWrapper(
         child: Padding(
@@ -162,7 +183,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20), 
+              const SizedBox(height: 20),
 
               if (_videoFile != null) ...[
                 const Icon(Icons.video_library, size: 60),
@@ -183,43 +204,57 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                 ),
                 const SizedBox(height: 30),
               ],
+              // Gallery Upload Button
               ElevatedButton.icon(
-                onPressed: _pickVideo,
-                icon: const Icon(Icons.video_library),
-                label: const Text('Select Video'),
-                style: _buttonStyle(),
+                onPressed: _pickVideoFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Select from Gallery'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor:
+                      Colors.transparent, // Set background to transparent
+                  shadowColor: Colors.transparent, // Remove shadow
+                ),
               ),
-              const SizedBox(height: 20),
+
+              ElevatedButton.icon(
+                onPressed: _pickVideoFromDrive,
+                icon: const Icon(Icons.folder),
+                label: const Text('Select from Drive'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor:
+                      Colors.transparent, // Set background to transparent
+                  shadowColor: Colors.transparent, // Remove shadow
+                ),
+              ),
+
               ElevatedButton.icon(
                 onPressed: _isUploading ? null : _uploadVideo,
-                icon: _isUploading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.cloud_upload),
+                icon:
+                    _isUploading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                        : const Icon(Icons.cloud_upload),
                 label: const Text('Upload Video'),
-                style: _buttonStyle(),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor:
+                      _isUploading
+                          ? Colors.transparent
+                          : Colors.transparent, // Set background to transparent
+                  shadowColor: Colors.transparent, // Remove shadow
+                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  ButtonStyle _buttonStyle() {
-    return ElevatedButton.styleFrom(
-      minimumSize: const Size(double.infinity, 50),
-      backgroundColor: Colors.transparent,
-      shadowColor: Colors.transparent,
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
       ),
     );
   }
