@@ -34,6 +34,14 @@ class CustomDrawer extends StatelessWidget {
               },
             ),
 
+             ListTile(
+              leading: const Icon(Icons.help),
+              title: const Text('Instructions'),
+              onTap: () {
+                Navigator.pushNamed(context, '/instructions'); 
+              },
+            ),
+
             const Spacer(),
 
             
@@ -42,6 +50,14 @@ class CustomDrawer extends StatelessWidget {
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pushNamed(context, '/settings');
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('About Us'),
+              onTap: () {
+                Navigator.pushNamed(context, '/aboutus'); // Change to actual settings route
               },
             ),
 

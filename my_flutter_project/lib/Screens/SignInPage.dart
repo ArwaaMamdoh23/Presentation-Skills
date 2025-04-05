@@ -63,7 +63,7 @@ class _SignInPageState extends State<SignInPage> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
+            MaterialPageRoute(builder: (context) => UploadVideoPage()),
           );
         }
       } else {

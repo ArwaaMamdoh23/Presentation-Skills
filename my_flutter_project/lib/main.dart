@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/Screens/AboutUs.dart';
+import 'package:my_flutter_project/Screens/Instructions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // 
 import 'Screens/AuthPage.dart';
 import 'Screens/SignUpPage.dart';
@@ -39,6 +41,9 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(), 
         '/report': (context) => ReportsPage(), 
         '/upload': (context) => UploadVideoPage(),
+        '/aboutus': (context) => AboutUs(),
+        '/instructions': (context) => Instructions(),
+        
       },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
