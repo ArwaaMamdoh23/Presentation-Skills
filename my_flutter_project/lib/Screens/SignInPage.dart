@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/custom_app_bar.dart'; 
 import '../widgets/background_wrapper.dart'; 
 import 'HomePage.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -18,7 +19,9 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  
+  bool _isPasswordVisible = false;  // Track the visibility of the password
+  List<String> _savedEmails = [];
+
   // Get the Supabase client
   final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -26,6 +29,20 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     super.initState();
     _checkExistingSession();
+    _loadSavedEmails();
+  }
+
+  Future<void> _loadSavedEmails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedEmails = prefs.getStringList('emails') ?? [];
+    });
+  }
+
+  Future<void> _saveEmail(String email) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _savedEmails.add(email);
+    prefs.setStringList('emails', _savedEmails);
   }
 
   Future<void> _checkExistingSession() async {
@@ -66,6 +83,7 @@ class _SignInPageState extends State<SignInPage> {
             MaterialPageRoute(builder: (context) => UploadVideoPage()),
           );
         }
+        _saveEmail(email);  // Save email after successful login
       } else {
         throw Exception('Sign in failed - no session returned');
       }
@@ -123,7 +141,7 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -140,11 +158,28 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Password Field
+                  // Password Field with show/hide functionality
                   TextFormField(
                     controller: _passwordController,
-                    decoration: _inputDecoration('Password'),
-                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: const TextStyle(color: Colors.white),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.2),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.white,
+                        ),
+                        onPressed: _togglePasswordVisibility,
+                      ),
+                    ),
+                    obscureText: !_isPasswordVisible,  // Toggle visibility
                     style: const TextStyle(color: Colors.white),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -161,7 +196,7 @@ class _SignInPageState extends State<SignInPage> {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
-                      decoration: _buttonDecoration(),  
+                      decoration: _buttonDecoration(),
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _signIn,
                         style: _buttonStyle(),
@@ -170,9 +205,9 @@ class _SignInPageState extends State<SignInPage> {
                             : const Text(
                                 'Sign In',
                                 style: TextStyle(
-                                  fontSize: 16, // Font size change
-                                  fontWeight: FontWeight.bold, 
-                                  color: Colors.white
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                       ),
@@ -197,6 +232,13 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
+  // Toggle Password Visibility
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+
   // Common Input Decoration
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
@@ -205,8 +247,8 @@ class _SignInPageState extends State<SignInPage> {
       filled: true,
       fillColor: Colors.white.withOpacity(0.2),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30), 
-        borderSide: BorderSide.none
+        borderRadius: BorderRadius.circular(30),
+        borderSide: BorderSide.none,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
     );
@@ -238,7 +280,7 @@ class _SignInPageState extends State<SignInPage> {
   ButtonStyle _buttonStyle() {
     return ElevatedButton.styleFrom(
       minimumSize: const Size(280, 60),
-      backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
+      backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5),
       shadowColor: Colors.transparent,
       padding: const EdgeInsets.symmetric(vertical: 20),
       shape: RoundedRectangleBorder(

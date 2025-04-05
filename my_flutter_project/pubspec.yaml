@@ -17,9 +17,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_signin_button: ^2.0.0
 
-  # State & Storage
-  shared_preferences: ^2.2.2
+  # State & Storage  
   path_provider: ^2.1.1
+  shared_preferences: ^2.0.15
 
   # Supabase
   supabase_flutter: ^2.8.4

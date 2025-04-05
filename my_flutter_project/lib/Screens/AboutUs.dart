@@ -7,11 +7,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class AboutUs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    bool isUserSignedIn = true; 
+    bool isUserSignedIn = true;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       extendBodyBehindAppBar: true,  // Makes the body extend behind the app bar
       appBar: CustomAppBar(
-        showSignIn: false, 
+        showSignIn: false,
         isUserSignedIn: isUserSignedIn,
       ),
       drawer: CustomDrawer(isSignedIn: isUserSignedIn),
@@ -29,7 +32,7 @@ class AboutUs extends StatelessWidget {
                 'About PresentSense',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 28,
+                  fontSize: screenWidth * 0.07,  // Adjust font size based on screen width
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,  // Ensures title is centered
@@ -41,7 +44,7 @@ class AboutUs extends StatelessWidget {
                 'we offer a comprehensive set of tools to enhance your performance.',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 16,
+                  fontSize: screenWidth * 0.045,  // Adjust font size for body text
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,  // Center the text
@@ -53,7 +56,7 @@ class AboutUs extends StatelessWidget {
                 'Our Team',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06,  // Adjust font size for the team section title
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,  // Center the section title
@@ -77,7 +80,7 @@ class AboutUs extends StatelessWidget {
                       SizedBox(height: 5),
                       Text(
                         'Mayar Adel',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
                   ),
@@ -96,7 +99,7 @@ class AboutUs extends StatelessWidget {
                       SizedBox(height: 5),
                       Text(
                         'Arwaa Mamdoh',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
                   ),
@@ -115,7 +118,7 @@ class AboutUs extends StatelessWidget {
                       SizedBox(height: 5),
                       Text(
                         'Mostafa Wael',
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
                   ),
@@ -133,8 +136,8 @@ class AboutUs extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Ahmed yehia',
-                        style: TextStyle(color: Colors.white70),
+                        'Ahmed Yehia',
+                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
                   ),
@@ -147,7 +150,7 @@ class AboutUs extends StatelessWidget {
                 'Contact Us',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06,  // Adjust font size for the contact section title
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,  // Center the section title
@@ -160,7 +163,7 @@ class AboutUs extends StatelessWidget {
                   SizedBox(width: 10),
                   Text(
                     'contact@presentsense.com',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                   ),
                 ],
               ),
@@ -172,7 +175,7 @@ class AboutUs extends StatelessWidget {
                   SizedBox(width: 10),
                   Text(
                     '+1 800-123-4567',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                   ),
                 ],
               ),
@@ -183,7 +186,7 @@ class AboutUs extends StatelessWidget {
                 'Follow Us',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06,  // Adjust font size for the social media section title
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,  // Center the section title

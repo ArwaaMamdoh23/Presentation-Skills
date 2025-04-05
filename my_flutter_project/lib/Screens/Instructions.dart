@@ -8,6 +8,9 @@ class Instructions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isUserSignedIn = true; 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       extendBodyBehindAppBar: true,  // Ensures the content extends behind the app bar
       appBar: CustomAppBar(
@@ -29,7 +32,7 @@ class Instructions extends StatelessWidget {
                 'Instructions for PresentSense',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 28,
+                  fontSize: screenWidth * 0.08,  // Dynamically adjust font size based on screen width
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,  // Ensures the text is centered
@@ -41,7 +44,7 @@ class Instructions extends StatelessWidget {
                 'Welcome to PresentSense.\n This tool is designed to help you evaluate and improve your presentation skills.',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 18,
+                  fontSize: screenWidth * 0.045,  // Dynamically adjust font size based on screen width
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,  // Center the text
@@ -52,14 +55,14 @@ class Instructions extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,  // Center the icons and text
                 children: [
-                  FaIcon(FontAwesomeIcons.upload, color: Colors.white, size: 30), // Upload Icon
+                  FaIcon(FontAwesomeIcons.upload, color: Colors.white, size: screenWidth * 0.08), // Upload Icon
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Step 1: Upload your presentation file (video). Our system will analyze your presentation.',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16,
+                        fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
                         height: 1.5,
                       ),
                     ),
@@ -72,14 +75,14 @@ class Instructions extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,  // Center the icons and text
                 children: [
-                  FaIcon(FontAwesomeIcons.search, color: Colors.white, size: 30), // Evaluation Icon
+                  FaIcon(FontAwesomeIcons.search, color: Colors.white, size: screenWidth * 0.08), // Evaluation Icon
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Step 2: The system will evaluate various aspects such as speech fluency, posture, gestures, and eye contact.',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16,
+                        fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
                         height: 1.5,
                       ),
                     ),
@@ -92,14 +95,14 @@ class Instructions extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,  // Center the icons and text
                 children: [
-                  FaIcon(FontAwesomeIcons.commentAlt, color: Colors.white, size: 30), // Feedback Icon
+                  FaIcon(FontAwesomeIcons.commentAlt, color: Colors.white, size: screenWidth * 0.08), // Feedback Icon
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Step 3: Receive detailed feedback on your performance to help you improve your presentation skills.',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 16,
+                        fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
                         height: 1.5,
                       ),
                     ),
@@ -113,7 +116,7 @@ class Instructions extends StatelessWidget {
                 'Make sure to practice and upload your presentations regularly to see improvements over time. Happy presenting!',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 16,
+                  fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,  // Center the final note text
@@ -125,7 +128,7 @@ class Instructions extends StatelessWidget {
                 'Additional Notes:',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: screenWidth * 0.06,  // Dynamically adjust font size based on screen width
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -137,7 +140,7 @@ class Instructions extends StatelessWidget {
                 '- The analysis may take a few minutes to process.',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 16,
+                  fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,  // Center the additional notes
