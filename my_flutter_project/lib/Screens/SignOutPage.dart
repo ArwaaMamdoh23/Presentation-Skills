@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'UploadVideo.dart'; // Import UploadVideo for navigation
-import 'dart:ui'; // Import for ImageFilter
+import 'UploadVideo.dart'; 
+import 'dart:ui'; 
 
 class SignOutPage extends StatelessWidget {
   const SignOutPage({super.key});
@@ -14,17 +14,17 @@ class SignOutPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: const AssetImage('assets/images/back.jpg'), // Background image
+                image: const AssetImage('assets/images/back.jpg'), 
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.4), // Slight dark overlay
+                  Colors.black.withOpacity(0.4), 
                   BlendMode.darken,
                 ),
               ),
             ),
             child: ClipRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5), // Slight blur
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
                   color: Colors.transparent,
                 ),
@@ -72,12 +72,12 @@ class SignOutPage extends StatelessWidget {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) =>  UploadVideoPage()), // Redirect to UploadVideoPage
+                            MaterialPageRoute(builder: (context) =>  UploadVideoPage()), 
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(280, 60),
-                          backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
+                          backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), 
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           shape: RoundedRectangleBorder(
@@ -87,7 +87,7 @@ class SignOutPage extends StatelessWidget {
                         child: const Text(
                           'Go to Upload Video',
                           style: TextStyle(
-                            fontSize: 16, // Font size change
+                            fontSize: 16, 
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),

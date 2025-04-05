@@ -5,6 +5,7 @@ import '../widgets/background_wrapper.dart';
 import '../widgets/CustomDrawer .dart'; 
 import 'package:my_flutter_project/Screens/AuthPage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'UploadVideo.dart'; 
 
 class HomePage extends StatefulWidget {    
   const HomePage({super.key});
@@ -52,14 +53,14 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: CustomAppBar(
-        showSignIn: !_isUserSignedIn,  // You can still keep showSignIn for other logic
+        showSignIn: !_isUserSignedIn,  
         isUserSignedIn: _isUserSignedIn,
-        hideSignInButton: true,  // Pass this to hide the button
+        hideSignInButton: true,  
       ),
       drawer: _isUserSignedIn ? CustomDrawer(isSignedIn: _isUserSignedIn) : null,
       backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
-      body: BackgroundWrapper( // Wrap the entire page content
+      body: BackgroundWrapper( 
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -68,7 +69,7 @@ class _HomePageState extends State<HomePage> {
                 "Welcome to PresentSense\nEnhance Your Presentation Skills with AI!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'MyCustomFont', // Apply the custom font
+                  fontFamily: 'MyCustomFont', 
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -81,19 +82,23 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),  // Add space between the text and the button
-
-              // Add the "Get Started" button here
+              const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to AuthPage when the "Get Started" button is pressed
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AuthPage()),
-                  );
+                  if (_isUserSignedIn) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>  UploadVideoPage()),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AuthPage()),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Set background color
+                  backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), 
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),

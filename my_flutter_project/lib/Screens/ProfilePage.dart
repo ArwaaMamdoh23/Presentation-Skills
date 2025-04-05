@@ -64,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
           .eq('User_id', user.id)
           .single();
 
-      print("📌 Supabase Data: $response");
+      print(" Supabase Data: $response");
 
       if (mounted) {
         setState(() {
@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } catch (e) {
-      print("❌ Supabase Error: $e");
+      print("Supabase Error: $e");
     } finally {
       setState(() => isLoading = false);
     }
@@ -123,8 +123,7 @@ class _ProfilePageState extends State<ProfilePage> {
         isUserSignedIn: true,
       ),
       
-      drawer: CustomDrawer(isSignedIn: true),  // Using CustomDrawer
-
+      drawer: CustomDrawer(isSignedIn: true),  
       body: BackgroundWrapper(
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -210,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(280, 60),
-            backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5), // Button color change
+            backgroundColor: const Color.fromARGB(255, 71, 41, 6).withOpacity(0.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
             ),
@@ -218,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Text(
             text,
             style: const TextStyle(
-              fontSize: 16, // Font size change
+              fontSize: 16, 
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),

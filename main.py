@@ -17,26 +17,20 @@ from celery import Celery
 import subprocess
 from Finalmodel import load_models, classify_hand_gesture, predict_emotions, refine_emotion_prediction, detect_eye_contact
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(_name_)
 
-# Sample function to simulate CPU-bound task (e.g., model inference)
 def cpu_bound_task(input_data):
-    time.sleep(2)  # Simulate long task
+    time.sleep(2) 
     return f"Processed {input_data}"
 
-# Initialize FastAPI app
 app = FastAPI()
 
-# Initialize multiprocessing pool
 pool = multiprocessing.Pool(processes=4)
 
-# Shared memory manager for multiprocessing
 manager = multiprocessing.Manager()
 shared_data = manager.dict()
 
-# Producer function to update shared data at regular intervals
 def producer(shared_data):
     count = 0
     while True:
@@ -44,11 +38,9 @@ def producer(shared_data):
         time.sleep(10)
         count += 1
 
-# Start long-running tasks like loading models
 @app.on_event("startup")
 def startup_event():
-    load_models()  # Load models only once on startup
-    # Start the producer process to update shared data
+    load_models()  
     p = multiprocessing.Process(target=producer, args=(shared_data,))
     p.start()
 
@@ -60,13 +52,11 @@ def read_root():
 async def analyze_video_endpoint(file: UploadFile = File(...)):
     return await analyze_video(file)
 
-# Function to extract audio from video using FFmpeg
 async def extract_audio_from_video(video_file_path):
     try:
         base_name = os.path.splitext(os.path.basename(video_file_path))[0]
         audio_file_path = os.path.join(os.path.dirname(video_file_path), f"{base_name}.wav")
         
-        # Use FFmpeg for faster audio extraction
         command = ['ffmpeg', '-i', video_file_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', audio_file_path]
         subprocess.run(command, check=True)
         
@@ -76,7 +66,6 @@ async def extract_audio_from_video(video_file_path):
         logger.error(f"Error extracting audio: {e}")
         return None
 
-# Function to transcribe the audio file
 async def transcribe_audio(audio_file_path):
     try:
         recognizer = sr.Recognizer()
@@ -86,7 +75,7 @@ async def transcribe_audio(audio_file_path):
 
         transcription = ""
         current_position = 0
-        chunk_size = 30  # in seconds
+        chunk_size = 30 
 
         with audio_file as source:
             recognizer.adjust_for_ambient_noise(source)
@@ -108,7 +97,6 @@ async def transcribe_audio(audio_file_path):
         logger.error(f"Error transcribing audio: {e}")
         return ""
 
-# Video analysis for gesture, emotion, and eye contact
 async def analyze_video(file: UploadFile = File(...)):
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp_video:
@@ -179,7 +167,6 @@ def get_shared_value():
 
 @app.get("/start-task")
 async def start_task():
-    # Start a CPU-bound task using the multiprocessing pool
     result = await asyncio.get_event_loop().run_in_executor(None, pool.apply, cpu_bound_task, ('data',))
     return {"result": result}
 @app.post("/async-endpoint")
