@@ -716,64 +716,96 @@ for start in range(0, waveform.shape[0], samples_per_segment):
 # After detecting interruptions, analyze the speaker's response
 def analyze_post_interruption_speech(posture, gesture, emotion, eye_contact, interruptions):
     feedback = set()  # Using a set to store feedback and eliminate duplicates
+    audience_feedback = []  # Will hold the audience interaction feedback specifically
 
+    # Check if the interruptions list is empty
     if not interruptions:
-        return ["No interaction with the audience detected."]  # If no interruptions, return this message
-    
-    # If there were interruptions, process feedback
-    for interruption in interruptions:
-        # Analyzing posture after interruption
-        if posture == "Crossed Arms":
-            feedback.add("The speaker seems defensive after the interruption.")
-        elif posture == "Leaning Back":
-            feedback.add("The speaker seems relaxed after the interruption.")
-        elif posture == "Arms on Hips":
-            feedback.add("The speaker appears confident but might be aggressive after the interruption.")
-        elif posture == "Slouching":
-            feedback.add("The speaker seems disengaged or insecure after the interruption.")
-        elif posture == "Head Down":
-            feedback.add("The speaker may feel defeated or unsure after the interruption.")
-        elif posture == "Head Up":
-            feedback.add("The speaker seems confident and unphased after the interruption.")
-        elif posture == "Hands in Pockets":
-            feedback.add("The speaker seems distant or detached after the interruption.")
-        
-        # Analyzing gestures after interruption
-        if gesture == "Thumbs Up":
-            feedback.add("The speaker is reassuring and positive despite the interruption.")
-        elif gesture == "Thumbs Down":
-            feedback.add("The speaker is likely displeased or frustrated after the interruption.")
-        elif gesture == "OK Sign":
-            feedback.add("The speaker may be trying to convey agreement but seems hesitant.")
-        elif gesture == "Victory Sign":
-            feedback.add("The speaker shows confidence and success, but might be mocking after the interruption.")
-        elif gesture == "Closed Fist":
-            feedback.add("The speaker seems determined but possibly frustrated after the interruption.")
-        elif gesture == "Pointing Finger":
-            feedback.add("The speaker may be emphasizing a point more forcefully after the interruption.")
-        
-        # Analyzing emotion after interruption
-        if emotion == "angry":
-            feedback.add("The speaker seems angry after the interruption.")
-        elif emotion == "happy":
-            feedback.add("The speaker seems joyful and unaffected by the interruption.")
-        elif emotion == "sad":
-            feedback.add("The speaker may feel discouraged or upset after the interruption.")
-        elif emotion == "fear":
-            feedback.add("The speaker seems nervous or anxious after the interruption.")
-        elif emotion == "surprise":
-            feedback.add("The speaker is taken aback by the interruption and looks surprised.")
-        elif emotion == "neutral" or emotion not in ["angry", "happy", "sad", "fear", "surprise"]:
-            feedback.add("The speaker maintains a neutral expression, unaffected by the interruption.")
-        
-        # Analyzing eye contact after interruption
-        if eye_contact == "No Eye Contact":
-            feedback.add("The speaker avoids eye contact after the interruption, possibly indicating discomfort.")
-        elif eye_contact == "Eye Contact":
-            feedback.add("The speaker maintains eye contact, showing confidence despite the interruption.")
-    
-    # Convert the set back to a list for further processing
-    return list(feedback)
+        # No interruptions, add the appropriate feedback for no interaction
+        audience_feedback.append("No interaction with the audience detected.")
+    else:
+        # If there were interruptions, process feedback
+        for interruption in interruptions:
+            # Analyzing posture after interruption
+            if posture == "Crossed Arms":
+                feedback.add("The speaker seems defensive after the interruption.")
+            elif posture == "Leaning Back":
+                feedback.add("The speaker seems relaxed after the interruption.")
+            elif posture == "Arms on Hips":
+                feedback.add("The speaker appears confident but might be aggressive after the interruption.")
+            elif posture == "Slouching":
+                feedback.add("The speaker seems disengaged or insecure after the interruption.")
+            elif posture == "Head Down":
+                feedback.add("The speaker may feel defeated or unsure after the interruption.")
+            elif posture == "Head Up":
+                feedback.add("The speaker seems confident and unphased after the interruption.")
+            elif posture == "Hands in Pockets":
+                feedback.add("The speaker seems distant or detached after the interruption.")
+            else:
+                feedback.add("Unrecognized posture. Please check the input.")
+
+            # Analyzing gestures after interruption
+            if gesture == "Thumbs Up":
+                feedback.add("The speaker is reassuring and positive despite the interruption.")
+            elif gesture == "Thumbs Down":
+                feedback.add("The speaker is likely displeased or frustrated after the interruption.")
+            elif gesture == "OK Sign":
+                feedback.add("The speaker may be trying to convey agreement but seems hesitant.")
+            elif gesture == "Victory Sign":
+                feedback.add("The speaker shows confidence and success, but might be mocking after the interruption.")
+            elif gesture == "Closed Fist":
+                feedback.add("The speaker seems determined but possibly frustrated after the interruption.")
+            elif gesture == "Pointing Finger":
+                feedback.add("The speaker may be emphasizing a point more forcefully after the interruption.")
+            elif gesture == "Open Palm":
+                feedback.add("The speaker is showing honesty and openness after the interruption.")
+            else:
+                feedback.add("Unrecognized gesture. Please check the input.")
+            
+            # Analyzing emotion after interruption
+            if emotion == "angry":
+                feedback.add("The speaker seems angry after the interruption.")
+            elif emotion == "happy":
+                feedback.add("The speaker seems joyful and unaffected by the interruption.")
+            elif emotion == "sad":
+                feedback.add("The speaker may feel discouraged or upset after the interruption.")
+            elif emotion == "fear":
+                feedback.add("The speaker seems nervous or anxious after the interruption.")
+            elif emotion == "surprise":
+                feedback.add("The speaker is taken aback by the interruption and looks surprised.")
+            elif emotion == "neutral" or emotion not in ["angry", "happy", "sad", "fear", "surprise"]:
+                feedback.add("The speaker maintains a neutral expression, unaffected by the interruption.")
+            elif emotion == "attentive":
+                feedback.add("You appear attentive. Keep your facial expressions engaging.")
+            else:
+                feedback.add("Unrecognized emotion. Please check the input.")
+            
+            # Analyzing eye contact after interruption
+            if eye_contact == "No Eye Contact":
+                feedback.add("The speaker avoids eye contact after the interruption, possibly indicating discomfort.")
+            elif eye_contact == "Eye Contact":
+                feedback.add("The speaker maintains eye contact, showing confidence despite the interruption.")
+            else:
+                feedback.add("Unrecognized eye contact. Please check the input.")
+
+    # Combine all feedback into the final report, ensuring we don't add both no interaction and interruption feedback
+    if audience_feedback:
+        # If there were no interruptions, return only the no-interaction message
+        return audience_feedback
+    else:
+        # If there were interruptions, return the relevant feedback
+        return list(feedback)
+
+
+# Testing with no interruptions
+result_no_interruption = analyze_post_interruption_speech("Head Up", "Thumbs Up", "attentive", "Eye Contact", [])
+print("Audience Interaction Feedback ---")
+print(result_no_interruption)
+
+# Testing with valid interruptions
+result_with_interruptions = analyze_post_interruption_speech("Leaning Back", "Thumbs Down", "fear", "No Eye Contact", ["interruption1"])
+print("Audience Interaction Feedback ---")
+print(result_with_interruptions)
+
 
 # Get response feedback
 response_feedback = analyze_post_interruption_speech(posture, gesture, refined_emotion, eye_contact, interruptions)

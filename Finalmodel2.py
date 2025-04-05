@@ -22,8 +22,15 @@ import os
 from moviepy import VideoFileClip
 from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2Processor, pipeline, T5ForConditionalGeneration, T5Tokenizer
 import logging
+from flask import Flask, request, jsonify
+import mediapipe as mp
 
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+app = Flask(__name__)
 # Load PoseNet Model for posture detection (PostureNet
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -83,21 +90,7 @@ def load_models():
     except Exception as e:
         logger.error(f"Error loading T5 model: {e}")
 
-# FastAPI integration (Startup Event)
-# from fastapi import FastAPI
-
-# app = FastAPI()
-
-# @app.on_event("startup")
-# def startup_event():
-#     # Load all models during the startup of the FastAPI app
-#     load_models()
-
-# @app.get("/")
-# def read_root():
-#     return {"message": "Models loaded successfully"}
-
-# Gesture-to-body language mapping
+#
 gesture_to_body_language = {
     "Open Palm": "Honesty",
     "Closed Fist": "Determination",
