@@ -6,10 +6,15 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.7.0 <4.0.0' # Matches your Dart 3.7.0 version
-
 dependencies:
   flutter:
     sdk: flutter
+  googleapis: ^9.0.0
+  googleapis_auth: ^1.2.0
+  google_sign_in: ^5.0.7
+  flutter_secure_storage: ^5.0.2
+
+
 
   # google_fonts: ^2.3.3  # Use the latest stable version of google_fonts
 
