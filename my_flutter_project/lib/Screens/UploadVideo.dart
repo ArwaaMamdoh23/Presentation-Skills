@@ -1,16 +1,22 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:path/path.dart' as path;
-import '../widgets/background_wrapper.dart';
-import 'EditProfilePage.dart';
-import 'package:file_picker/file_picker.dart';
-import '../widgets/background_wrapper.dart'; // Import BackgroundWrapper
-import 'EditProfilePage.dart'; // Import EditProfilePage
-import 'ProfilePage.dart';
-import '../widgets/custom_app_bar.dart';
-import '../widgets/CustomDrawer .dart';
+import 'package:image_picker/image_picker.dart'; // For picking videos from the gallery
+import 'package:supabase_flutter/supabase_flutter.dart'; // For interacting with Supabase
+import 'package:path/path.dart' as path; // For handling file paths
+import 'package:file_picker/file_picker.dart'; // For picking files from the system
+import 'package:googleapis/drive/v3.dart' as drive; // For interacting with Google Drive API
+import 'package:googleapis_auth/googleapis_auth.dart'; // For OAuth2 authentication
+import 'package:google_sign_in/google_sign_in.dart'; // For Google Sign-In functionality
+import 'package:http/http.dart' as http; // For making HTTP requests
+import 'package:flutter/services.dart' show rootBundle; // For loading assets
+import 'dart:convert'; // For JSON handling
+
+import '../widgets/background_wrapper.dart'; // Custom widget for background styling
+import 'EditProfilePage.dart'; // EditProfilePage widget
+import 'ProfilePage.dart'; // ProfilePage widget
+import '../widgets/custom_app_bar.dart'; // Custom AppBar widget
+import '../widgets/CustomDrawer .dart'; // Custom Drawer widget
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -23,7 +29,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   double _uploadProgress = 0;
   final _supabase = Supabase.instance.client;
   final _picker = ImagePicker();
+  final _googleSignIn = GoogleSignIn(scopes: ['https://www.googleapis.com/auth/drive.file']);
 
+  // Function to pick video from the gallery
   Future<void> _pickVideoFromGallery() async {
     try {
       final pickedFile = await _picker.pickVideo(
@@ -42,6 +50,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
+  // Function to pick video from Google Drive
   Future<void> _pickVideoFromDrive() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -60,6 +69,45 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
+  // Function to load credentials for Google API authentication
+  Future<Map<String, dynamic>> loadCredentials() async {
+    final String credentialsJson = await rootBundle.loadString('assets/credentials.json');
+    return json.decode(credentialsJson);
+  }
+
+  // Function to authenticate with Google via OAuth2
+  Future<void> _authenticateWithGoogle() async {
+    try {
+      // Use GoogleSignIn to authenticate the user
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+
+      if (account == null) {
+        _showError('Google Sign-In failed.');
+        return;
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      // Get the authentication token (access token)
+      final String accessToken = auth.accessToken!;
+
+      // Create the authenticated HTTP client
+      final authHeaders = {'Authorization': 'Bearer $accessToken'};
+      final authenticateClient = http.Client();
+
+      // Use the authenticated client to interact with Google APIs
+      final driveApi = drive.DriveApi(authenticateClient);
+
+      // You can now interact with Google Drive
+      print("Authenticated successfully!");
+
+    } catch (e) {
+      print('Authentication failed: $e');
+      _showError('Authentication failed: $e');
+    }
+  }
+
+  // Function to upload the selected video to Google Drive
   Future<void> _uploadVideo() async {
     if (_videoFile == null) {
       _showError('Please select a video first');
@@ -73,34 +121,28 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     });
 
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) throw Exception('User not authenticated');
-
-      final fileExt = path.extension(_videoFile!.path).toLowerCase();
-      final fileName = 'video_${DateTime.now().millisecondsSinceEpoch}$fileExt';
-      final filePath = 'user_uploads/$userId/$fileName';
-
-      await _supabase.storage
-          .from('videos')
-          .upload(
-            filePath,
-            _videoFile!,
-            fileOptions: FileOptions(contentType: _getMimeType(fileExt)),
-          );
-
-      final fileUrl = _supabase.storage.from('videos').getPublicUrl(filePath);
-
-      await _supabase.from('Uploaded_file').insert({
-        'User_id': userId,
-        'File_name': fileName,
-        'File_path': fileUrl,
-        'File_type': 'video${fileExt.replaceFirst('.', '')}',
-      });
-
-      _showSuccess('Video uploaded successfully!');
-      if (mounted) {
-        Navigator.of(context).pop();
+      final account = _googleSignIn.currentUser;
+      if (account == null) {
+        await _authenticateWithGoogle();
       }
+
+      final authHeaders = await account!.authHeaders;
+      final authenticateClient = GoogleHttpClient(authHeaders);
+
+      final driveApi = drive.DriveApi(authenticateClient);
+
+      final media = drive.Media(_videoFile!.openRead(), _videoFile!.lengthSync());
+      final driveFile = drive.File()
+        ..name = 'video_${DateTime.now().millisecondsSinceEpoch}.mp4'
+        ..mimeType = 'video/mp4';
+
+      final response = await driveApi.files.create(
+        driveFile,
+        uploadMedia: media,
+      );
+
+      final fileUrl = 'https://drive.google.com/file/d/${response.id}/view';
+      _showSuccess('Video uploaded successfully! URL: $fileUrl');
     } catch (e) {
       _showError('Upload failed: ${e.toString()}');
     } finally {
@@ -110,6 +152,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
+  // Helper method to get the mime type for different video extensions
   String _getMimeType(String extension) {
     switch (extension) {
       case '.mp4':
@@ -127,6 +170,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
+  // Helper method to show error messages
   void _showError(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,6 +183,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
+  // Helper method to show success messages
   void _showSuccess(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -156,12 +201,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
-        //
-        showSignIn: true, //
+        showSignIn: true,
         isUserSignedIn: true,
       ),
       drawer: CustomDrawer(isSignedIn: true),
-
       body: BackgroundWrapper(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -184,7 +227,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                 ),
               ),
               const SizedBox(height: 20),
-
               if (_videoFile != null) ...[
                 const Icon(Icons.video_library, size: 60),
                 const SizedBox(height: 10),
@@ -204,52 +246,45 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                 ),
                 const SizedBox(height: 30),
               ],
-              // Gallery Upload Button
               ElevatedButton.icon(
                 onPressed: _pickVideoFromGallery,
                 icon: const Icon(Icons.photo_library),
                 label: const Text('Select from Gallery'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor:
-                      Colors.transparent, // Set background to transparent
-                  shadowColor: Colors.transparent, // Remove shadow
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
                 ),
               ),
-
               ElevatedButton.icon(
                 onPressed: _pickVideoFromDrive,
                 icon: const Icon(Icons.folder),
                 label: const Text('Select from Drive'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor:
-                      Colors.transparent, // Set background to transparent
-                  shadowColor: Colors.transparent, // Remove shadow
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
                 ),
               ),
-
               ElevatedButton.icon(
                 onPressed: _isUploading ? null : _uploadVideo,
-                icon:
-                    _isUploading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Icon(Icons.cloud_upload),
+                icon: _isUploading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.cloud_upload),
                 label: const Text('Upload Video'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor:
-                      _isUploading
-                          ? Colors.transparent
-                          : Colors.transparent, // Set background to transparent
-                  shadowColor: Colors.transparent, // Remove shadow
+                  backgroundColor: _isUploading
+                      ? Colors.transparent
+                      : Colors.transparent,
+                  shadowColor: Colors.transparent,
                 ),
               ),
             ],
@@ -257,5 +292,18 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         ),
       ),
     );
+  }
+}
+
+// GoogleHttpClient class to handle HTTP requests
+class GoogleHttpClient extends http.BaseClient {
+  final Map<String, String> _headers;
+  GoogleHttpClient(this._headers);
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    request.headers.addAll(_headers);
+    final streamedResponse = await http.Client().send(request);
+    return streamedResponse;
   }
 }

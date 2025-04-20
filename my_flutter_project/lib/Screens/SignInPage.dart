@@ -6,6 +6,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart'; 
 import 'HomePage.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -19,10 +20,11 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  bool _isPasswordVisible = false;  // Track the visibility of the password
+  bool _isPasswordVisible = false;  
   List<String> _savedEmails = [];
-
-  // Get the Supabase client
+  
+  bool _isUserSignedIn = false; // Track user sign-in state
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['https://www.googleapis.com/auth/drive.file']);
   final SupabaseClient _supabase = Supabase.instance.client;
 
   @override
@@ -30,6 +32,12 @@ class _SignInPageState extends State<SignInPage> {
     super.initState();
     _checkExistingSession();
     _loadSavedEmails();
+    _googleSignIn.onCurrentUserChanged.listen((account) {
+      setState(() {
+        _isUserSignedIn = account != null;
+      });
+    });
+    _googleSignIn.signInSilently();
   }
 
   Future<void> _loadSavedEmails() async {
@@ -48,13 +56,11 @@ class _SignInPageState extends State<SignInPage> {
   Future<void> _checkExistingSession() async {
     try {
       final session = await _supabase.auth.currentSession;
-      if (session != null) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => UploadVideoPage()),
-          );
-        }
+      if (session != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => UploadVideoPage()),
+        );
       }
     } catch (e) {
       print('Error checking session: $e');
@@ -70,7 +76,6 @@ class _SignInPageState extends State<SignInPage> {
       final email = _emailController.text.trim().toLowerCase();
       final password = _passwordController.text.trim();
 
-      // Sign in with Supabase
       final AuthResponse response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
@@ -83,7 +88,7 @@ class _SignInPageState extends State<SignInPage> {
             MaterialPageRoute(builder: (context) => UploadVideoPage()),
           );
         }
-        _saveEmail(email);  // Save email after successful login
+        _saveEmail(email);
       } else {
         throw Exception('Sign in failed - no session returned');
       }
@@ -97,7 +102,7 @@ class _SignInPageState extends State<SignInPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text('An error occurred: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -111,8 +116,8 @@ class _SignInPageState extends State<SignInPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
-        showSignIn: false,
-        isUserSignedIn: false,
+        showSignIn: !_isUserSignedIn, // Dynamically show sign-in button based on user state
+        isUserSignedIn: _isUserSignedIn, // Reflect user sign-in status
         hideSignInButton: true,
       ),
       backgroundColor: Colors.transparent,
@@ -141,8 +146,6 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                   const SizedBox(height: 40),
-
-                  // Email Field
                   TextFormField(
                     controller: _emailController,
                     decoration: _inputDecoration('Email'),
@@ -157,8 +160,6 @@ class _SignInPageState extends State<SignInPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-
-                  // Password Field with show/hide functionality
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
@@ -179,7 +180,7 @@ class _SignInPageState extends State<SignInPage> {
                         onPressed: _togglePasswordVisibility,
                       ),
                     ),
-                    obscureText: !_isPasswordVisible,  // Toggle visibility
+                    obscureText: !_isPasswordVisible,
                     style: const TextStyle(color: Colors.white),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -191,8 +192,6 @@ class _SignInPageState extends State<SignInPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-
-                  // Sign In Button
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 280),
                     child: Container(
@@ -214,8 +213,6 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Sign Up Navigation
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/sign-up'),
                     child: const Text(
@@ -232,14 +229,12 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  // Toggle Password Visibility
   void _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
     });
   }
 
-  // Common Input Decoration
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
@@ -254,7 +249,6 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  // Common Button Decoration
   BoxDecoration _buttonDecoration() {
     return BoxDecoration(
       gradient: LinearGradient(
@@ -276,7 +270,6 @@ class _SignInPageState extends State<SignInPage> {
     );
   }
 
-  // Common Button Style
   ButtonStyle _buttonStyle() {
     return ElevatedButton.styleFrom(
       minimumSize: const Size(280, 60),
