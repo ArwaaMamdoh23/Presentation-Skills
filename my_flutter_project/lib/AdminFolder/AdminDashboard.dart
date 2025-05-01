@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart'; // Import easy_localization
 import '../widgets/background_wrapper.dart';
 
 void main() {
@@ -22,62 +24,59 @@ class AdminDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, 
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-  backgroundColor: Colors.transparent,
-  elevation: 0,
-  title: const Text(
-        'PresentSense', 
-        style: TextStyle(
-          color: Colors.white, 
-          fontWeight: FontWeight.bold, 
-          fontSize: 28,
-        ),
-      ),
-    
-  centerTitle: false, 
-),
-
-      drawer: const AdminDrawer(),
-      body: BackgroundWrapper(
-  child: SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 20), 
-
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Center(
-            child: Text(
-              'Admin Dashboard',
-              style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 3.0,
-                        color: Colors.white54,
-                        offset: Offset(0, 0),
-                      ),
-                    ],
-                  ),
-            ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'PresentSense', 
+          style: TextStyle(
+            color: Colors.white, 
+            fontWeight: FontWeight.bold, 
+            fontSize: 28,
           ),
         ),
+        centerTitle: false, 
+      ),
+      drawer: const AdminDrawer(),
+      body: BackgroundWrapper(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20), 
 
-        const SizedBox(height: 20),
-        const SystemOverview(),
-        const UserManagement(),
-        const PresentationAnalysisSummary(),
-        const AIInsights(),
-        const Footer(),
-      ],
-    ),
-  ),
-),
-);
+               Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Center(
+                  child: Text(
+                    'Admin Dashboard'.tr(), // Localize text
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 3.0,
+                          color: Colors.white54,
+                          offset: Offset(0, 0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const SystemOverview(),
+              const UserManagement(),
+              const PresentationAnalysisSummary(),
+              const AIInsights(),
+              const Footer(),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -111,15 +110,15 @@ class AdminDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('User Management'),
+            title: Text('User Management'.tr()), // Localize text
             onTap: () {},
           ),
           ListTile(
-            title: const Text('System Overview'),
+            title: Text('System Overview'.tr()), // Localize text
             onTap: () {},
           ),
           ListTile(
-            title: const Text('Reports'),
+            title: Text('Reports'.tr()), // Localize text
             onTap: () {},
           ),
         ],
@@ -134,11 +133,11 @@ class SystemOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'System Overview',
+      title: 'System Overview'.tr(), // Localize text
       children: [
-        _buildRow(Icons.people, 'Total Active Users', '125'),
-        _buildRow(Icons.video_library, 'Total Analyses', '250'),
-        _buildRow(Icons.check_circle, 'System Status', 'All Systems Operational', Colors.green),
+        _buildRow(Icons.people, 'Total Active Users'.tr(), '125'),
+        _buildRow(Icons.video_library, 'Total Analyses'.tr(), '250'),
+        _buildRow(Icons.check_circle, 'System Status'.tr(), 'All Systems Operational', Colors.green),
       ],
     );
   }
@@ -150,10 +149,10 @@ class UserManagement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'User Management',
+      title: 'User Management'.tr(), // Localize text
       children: [
-        _buildUserTile('Arwaa Mamdoh', 'Active'),
-        _buildUserTile('Mostafa Wael', 'Inactive'),
+        _buildUserTile('Arwaa Mamdoh', 'Active'.tr()),
+        _buildUserTile('Mostafa Wael', 'Inactive'.tr()),
       ],
     );
   }
@@ -165,7 +164,7 @@ class PresentationAnalysisSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'Recent Presentation Analysis',
+      title: 'Recent Presentation Analysis'.tr(), // Localize text
       children: [
         _buildListTile(Icons.video_library, 'Presentation 1', 'Score: 8/10'),
         _buildListTile(Icons.video_library, 'Presentation 2', 'Score: 7/10'),
@@ -180,10 +179,10 @@ class AIInsights extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'AI Insights & System Performance',
+      title: 'AI Insights & System Performance'.tr(), // Localize text
       children: [
-        _buildRow(Icons.insights, 'AI Performance', 'Accuracy: 92%'),
-        _buildRow(Icons.trending_up, 'Trending Issues', 'Improve tone detection'),
+        _buildRow(Icons.insights, 'AI Performance'.tr(), 'Accuracy: 92%'),
+        _buildRow(Icons.trending_up, 'Trending Issues'.tr(), 'Improve tone detection'),
       ],
     );
   }
@@ -193,7 +192,7 @@ class Footer extends StatelessWidget {
   const Footer({super.key});
 
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.all(16),
       child: Text('App Version 1.0', style: TextStyle(fontSize: 14, color: Colors.grey)),

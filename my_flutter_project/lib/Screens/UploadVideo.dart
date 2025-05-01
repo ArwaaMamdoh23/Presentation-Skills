@@ -1,22 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // For picking videos from the gallery
-import 'package:supabase_flutter/supabase_flutter.dart'; // For interacting with Supabase
-import 'package:path/path.dart' as path; // For handling file paths
-import 'package:file_picker/file_picker.dart'; // For picking files from the system
-import 'package:googleapis/drive/v3.dart' as drive; // For interacting with Google Drive API
-import 'package:googleapis_auth/googleapis_auth.dart'; // For OAuth2 authentication
-import 'package:google_sign_in/google_sign_in.dart'; // For Google Sign-In functionality
-import 'package:http/http.dart' as http; // For making HTTP requests
-import 'package:flutter/services.dart' show rootBundle; // For loading assets
-import 'dart:convert'; // For JSON handling
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path/path.dart' as path;
+import 'package:file_picker/file_picker.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:googleapis_auth/googleapis_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:easy_localization/easy_localization.dart';
 
-import '../widgets/background_wrapper.dart'; // Custom widget for background styling
-import 'EditProfilePage.dart'; // EditProfilePage widget
-import 'ProfilePage.dart'; // ProfilePage widget
-import '../widgets/custom_app_bar.dart'; // Custom AppBar widget
-import '../widgets/CustomDrawer .dart'; // Custom Drawer widget
+import '../widgets/LanguageSwitcherIcon.dart';
+import '../widgets/background_wrapper.dart';
+import 'EditProfilePage.dart';
+import 'ProfilePage.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/CustomDrawer .dart';
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -31,7 +32,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   final _picker = ImagePicker();
   final _googleSignIn = GoogleSignIn(scopes: ['https://www.googleapis.com/auth/drive.file']);
 
-  // Function to pick video from the gallery
   Future<void> _pickVideoFromGallery() async {
     try {
       final pickedFile = await _picker.pickVideo(
@@ -46,11 +46,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         });
       }
     } catch (e) {
-      _showError('Error selecting video: ${e.toString()}');
+      _showError('Error selecting video: ${e.toString()}'.tr());
     }
   }
 
-  // Function to pick video from Google Drive
   Future<void> _pickVideoFromDrive() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -65,52 +64,40 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         });
       }
     } catch (e) {
-      _showError('Error selecting video: ${e.toString()}');
+      _showError('Error selecting video: ${e.toString()}'.tr());
     }
   }
 
-  // Function to load credentials for Google API authentication
   Future<Map<String, dynamic>> loadCredentials() async {
     final String credentialsJson = await rootBundle.loadString('assets/credentials.json');
     return json.decode(credentialsJson);
   }
 
-  // Function to authenticate with Google via OAuth2
   Future<void> _authenticateWithGoogle() async {
     try {
-      // Use GoogleSignIn to authenticate the user
       final GoogleSignInAccount? account = await _googleSignIn.signIn();
 
       if (account == null) {
-        _showError('Google Sign-In failed.');
+        _showError('Google Sign-In failed.'.tr());
         return;
       }
 
       final GoogleSignInAuthentication auth = await account.authentication;
-
-      // Get the authentication token (access token)
       final String accessToken = auth.accessToken!;
-
-      // Create the authenticated HTTP client
       final authHeaders = {'Authorization': 'Bearer $accessToken'};
       final authenticateClient = http.Client();
 
-      // Use the authenticated client to interact with Google APIs
       final driveApi = drive.DriveApi(authenticateClient);
-
-      // You can now interact with Google Drive
       print("Authenticated successfully!");
-
     } catch (e) {
       print('Authentication failed: $e');
-      _showError('Authentication failed: $e');
+      _showError('Authentication failed: $e'.tr());
     }
   }
 
-  // Function to upload the selected video to Google Drive
   Future<void> _uploadVideo() async {
     if (_videoFile == null) {
-      _showError('Please select a video first');
+      _showError('Please select a video first'.tr());
       return;
     }
 
@@ -128,7 +115,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
       final authHeaders = await account!.authHeaders;
       final authenticateClient = GoogleHttpClient(authHeaders);
-
       final driveApi = drive.DriveApi(authenticateClient);
 
       final media = drive.Media(_videoFile!.openRead(), _videoFile!.lengthSync());
@@ -142,9 +128,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       );
 
       final fileUrl = 'https://drive.google.com/file/d/${response.id}/view';
-      _showSuccess('Video uploaded successfully! URL: $fileUrl');
+      _showSuccess('Video uploaded successfully! URL: $fileUrl'.tr());
     } catch (e) {
-      _showError('Upload failed: ${e.toString()}');
+      _showError('Upload failed: ${e.toString()}'.tr());
     } finally {
       if (mounted) {
         setState(() => _isUploading = false);
@@ -152,25 +138,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
-  // Helper method to get the mime type for different video extensions
-  String _getMimeType(String extension) {
-    switch (extension) {
-      case '.mp4':
-        return 'video/mp4';
-      case '.mov':
-        return 'video/quicktime';
-      case '.avi':
-        return 'video/x-msvideo';
-      case '.mkv':
-        return 'video/x-matroska';
-      case '.webm':
-        return 'video/webm';
-      default:
-        return 'video/mp4';
-    }
-  }
-
-  // Helper method to show error messages
   void _showError(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -183,7 +150,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
-  // Helper method to show success messages
   void _showSuccess(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -203,6 +169,12 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       appBar: CustomAppBar(
         showSignIn: true,
         isUserSignedIn: true,
+        extraActions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: LanguageSwitcherIcon(),
+          ),
+        ],
       ),
       drawer: CustomDrawer(isSignedIn: true),
       body: BackgroundWrapper(
@@ -211,9 +183,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'Upload Presentation',
-                style: TextStyle(
+              Text(
+                'Upload Presentation'.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -249,7 +221,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
               ElevatedButton.icon(
                 onPressed: _pickVideoFromGallery,
                 icon: const Icon(Icons.photo_library),
-                label: const Text('Select from Gallery'),
+                label:  Text('Select from Gallery'.tr()),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Colors.transparent,
@@ -259,7 +231,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
               ElevatedButton.icon(
                 onPressed: _pickVideoFromDrive,
                 icon: const Icon(Icons.folder),
-                label: const Text('Select from Drive'),
+                label:  Text('Select from Drive'.tr()),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Colors.transparent,
@@ -278,12 +250,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
                         ),
                       )
                     : const Icon(Icons.cloud_upload),
-                label: const Text('Upload Video'),
+                label:  Text('Upload Video'.tr()),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: _isUploading
-                      ? Colors.transparent
-                      : Colors.transparent,
+                  backgroundColor: _isUploading ? Colors.transparent : Colors.transparent,
                   shadowColor: Colors.transparent,
                 ),
               ),
@@ -295,7 +265,6 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   }
 }
 
-// GoogleHttpClient class to handle HTTP requests
 class GoogleHttpClient extends http.BaseClient {
   final Map<String, String> _headers;
   GoogleHttpClient(this._headers);
