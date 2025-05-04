@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showSignIn;
   final bool isUserSignedIn;
-  final bool hideSignInButton;  // New parameter to hide button on sign-in page
+  final bool hideSignInButton;
+  final List<Widget>? extraActions; // ✅ Add this parameter
 
   const CustomAppBar({
     super.key,
     required this.showSignIn,
     required this.isUserSignedIn,
-    this.hideSignInButton = false,  // Default value to show sign-in button
+    this.hideSignInButton = false,
+    this.extraActions, // ✅ Include it in the constructor
   });
 
   @override
@@ -18,7 +20,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       title: GestureDetector(
-      
         child: const Text(
           "PresentSense",
           style: TextStyle(
@@ -28,18 +29,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      centerTitle: false, // Aligns title to the left
+      centerTitle: false,
       actions: [
-        // 🔹 **Fix: Separated `hideSignInButton` logic from `showSignIn` check**
-
-        if (isUserSignedIn) 
+        if (isUserSignedIn)
           IconButton(
-            icon: const Icon(Icons.person, color: Colors.white), 
-            iconSize: 40, 
+            icon: const Icon(Icons.person, color: Colors.white),
+            iconSize: 40,
             onPressed: () {
-              Navigator.pushNamed(context, '/profile'); // Navigate to Profile Page
+              Navigator.pushNamed(context, '/profile');
             },
           ),
+        // ✅ Add any extra widgets passed from the parent
+        if (extraActions != null) ...extraActions!,
       ],
     );
   }

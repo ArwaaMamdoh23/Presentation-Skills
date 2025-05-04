@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';  // Import easy_localization
 
 class CustomDrawer extends StatelessWidget {
   final bool isSignedIn;
@@ -14,72 +15,67 @@ class CustomDrawer extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Profile'),
+              title: Text('Profile'.tr()), // Localize text
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
             ListTile(
               leading: const Icon(Icons.upload_file),
-              title: const Text('Upload'),
+              title: Text('Upload'.tr()), // Localize text
               onTap: () {
                 Navigator.pushNamed(context, '/upload');
               },
             ),
             ListTile(
               leading: const Icon(Icons.insert_drive_file),
-              title: const Text('Reports'),
+              title: Text('Reports'.tr()), // Localize text
               onTap: () {
                 Navigator.pushNamed(context, '/report');
               },
             ),
-
-             ListTile(
+            ListTile(
               leading: const Icon(Icons.help),
-              title: const Text('Instructions'),
+              title: Text('Instructions'.tr()), // Localize text
               onTap: () {
-                Navigator.pushNamed(context, '/instructions'); 
+                Navigator.pushNamed(context, '/instructions');
               },
             ),
-
             const Spacer(),
-
-            
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: Text('Settings'.tr()), // Localize text
               onTap: () {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
-
             ListTile(
               leading: const Icon(Icons.info),
-              title: const Text('About Us'),
+              title: Text('About Us'.tr()), // Localize text
               onTap: () {
-                Navigator.pushNamed(context, '/aboutus'); // Change to actual settings route
+                Navigator.pushNamed(context, '/aboutus');
               },
             ),
-
             if (isSignedIn)
               Align(
                 alignment: Alignment.bottomCenter,
                 child: ListTile(
                   leading: const Icon(Icons.exit_to_app, color: Colors.red),
-                  title: const Text(
-                    'Log Out',
-                    style: TextStyle(color: Colors.red),
+                  title: Text(
+                    'Log Out'.tr(),  // Localize text
+                    style: const TextStyle(color: Colors.red),
                   ),
-                 onTap: () async {
-  try {
-    await Supabase.instance.client.auth.signOut();
-    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Logout failed: $e')),
-    );
-  }
-},
+                  onTap: () async {
+                    try {
+                      await Supabase.instance.client.auth.signOut();
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/home', (route) => false);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Logout failed: $e')),
+                      );
+                    }
+                  },
                 ),
               ),
           ],

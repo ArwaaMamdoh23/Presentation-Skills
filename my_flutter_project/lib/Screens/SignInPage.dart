@@ -214,6 +214,17 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                   const SizedBox(height: 20),
                   TextButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/forgot-password');
+  },
+  child: const Text(
+    'Forgot Password?',
+    style: TextStyle(color: Colors.white),
+  ),
+),
+
+const SizedBox(height: 10),
+                  TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/sign-up'),
                     child: const Text(
                       'Don\'t have an account? Sign Up',

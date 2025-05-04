@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_app_bar.dart'; // 
-import '../widgets/background_wrapper.dart'; // 
-import '../widgets/CustomDrawer .dart'; 
+import 'package:easy_localization/easy_localization.dart';
+import '../widgets/custom_app_bar.dart';
+import '../widgets/background_wrapper.dart';
+import '../widgets/CustomDrawer .dart';
 
 class ReportsPage extends StatelessWidget {
   ReportsPage({super.key});
@@ -10,29 +11,29 @@ class ReportsPage extends StatelessWidget {
     {"title": "Presentation 1", "date": "March 10, 2025"},
     {"title": "Presentation 2", "date": "March 8, 2025"},
     {"title": "Presentation 3", "date": "March 5, 2025"},
-  ]; //
+  ];
 
   @override
   Widget build(BuildContext context) {
-    bool isUserSignedIn = true; 
+    bool isUserSignedIn = true;
     return Scaffold(
-      extendBodyBehindAppBar: true, 
+      extendBodyBehindAppBar: true,
       appBar: CustomAppBar(
-        showSignIn: false, // 
+        showSignIn: false,
         isUserSignedIn: isUserSignedIn,
       ),
-      drawer: CustomDrawer(isSignedIn: isUserSignedIn), 
-      body: BackgroundWrapper( 
+      drawer: CustomDrawer(isSignedIn: isUserSignedIn),
+      body: BackgroundWrapper(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: kToolbarHeight + 20), 
-                const Text(
-                  'Presentation Reports',
-                  style: TextStyle(
+                const SizedBox(height: kToolbarHeight + 20),
+                Text(
+                  'presentation_reports'.tr(), // Translated text key for 'Presentation Reports'
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -47,11 +48,11 @@ class ReportsPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                
-                reports.isEmpty //
-                    ? const Text(
-                        'No Reports Yet',
-                        style: TextStyle(color: Colors.white70, fontSize: 18),
+
+                reports.isEmpty
+                    ? Text(
+                        'no_reports_yet'.tr(), // Translated text key for 'No Reports Yet'
+                        style: const TextStyle(color: Colors.white70, fontSize: 18),
                       )
                     : Expanded(
                         child: ListView.builder(
@@ -83,10 +84,10 @@ class ReportsPage extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text("Date: $date"),
-        leading: const Icon(Icons.insert_drive_file, color: Colors.blueAccent), 
-        trailing: const Icon(Icons.arrow_forward_ios, size: 18), 
-        onTap: onTap, 
+        subtitle: Text("date: $date".tr()), // Translated text key for 'Date:'
+        leading: const Icon(Icons.insert_drive_file, color: Colors.blueAccent),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+        onTap: onTap,
       ),
     );
   }
@@ -101,7 +102,7 @@ class ReportsPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: Text ('close'.tr()), // Translated text key for 'Close'
             ),
           ],
         );
@@ -109,9 +110,3 @@ class ReportsPage extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-

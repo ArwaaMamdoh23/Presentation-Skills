@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_app_bar.dart'; 
-import '../widgets/background_wrapper.dart'; 
-import '../widgets/CustomDrawer .dart'; 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Import Font Awesome icons
+import '../widgets/custom_app_bar.dart';
+import '../widgets/background_wrapper.dart';
+import '../widgets/CustomDrawer .dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:easy_localization/easy_localization.dart'; // Add this import
 
 class Instructions extends StatelessWidget {
   @override
@@ -29,7 +30,7 @@ class Instructions extends StatelessWidget {
 
               // Page Title (Centered)
               Text(
-                'Instructions for PresentSense',
+                'Instructions for PresentSense'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.08,  // Dynamically adjust font size based on screen width
@@ -41,7 +42,7 @@ class Instructions extends StatelessWidget {
 
               // Introductory Text
               Text(
-                'Welcome to PresentSense.\n This tool is designed to help you evaluate and improve your presentation skills.',
+                'Welcome to PresentSense.\n This tool is designed to help you evaluate and improve your presentation skills.'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: screenWidth * 0.045,  // Dynamically adjust font size based on screen width
@@ -59,7 +60,7 @@ class Instructions extends StatelessWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Step 1: Upload your presentation file (video). Our system will analyze your presentation.',
+                      'Step 1: Upload your presentation file (video). Our system will analyze your presentation.'.tr(), // Use .tr() for translation
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
@@ -79,7 +80,7 @@ class Instructions extends StatelessWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Step 2: The system will evaluate various aspects such as speech fluency, posture, gestures, and eye contact.',
+                      'Step 2: The system will evaluate various aspects such as speech fluency, posture, gestures, and eye contact.'.tr(), // Use .tr() for translation
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
@@ -99,7 +100,7 @@ class Instructions extends StatelessWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Step 3: Receive detailed feedback on your performance to help you improve your presentation skills.',
+                      'Step 3: Receive detailed feedback on your performance to help you improve your presentation skills.'.tr(), // Use .tr() for translation
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
@@ -113,7 +114,7 @@ class Instructions extends StatelessWidget {
 
               // Final Note
               Text(
-                'Make sure to practice and upload your presentations regularly to see improvements over time. Happy presenting!',
+                'Make sure to practice and upload your presentations regularly to see improvements over time. Happy presenting!'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width
@@ -125,7 +126,7 @@ class Instructions extends StatelessWidget {
 
               // Additional Notes Section
               Text(
-                'Additional Notes:',
+                'Additional Notes:'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.06,  // Dynamically adjust font size based on screen width
@@ -137,7 +138,7 @@ class Instructions extends StatelessWidget {
                 '- This system is designed to analyze various aspects of your presentation.\n'
                 '- Ensure the video is of high quality, and with clear visibility of the speaker to facilitate accurate analysis and detection.\n'
                 '- The video duration should not exceed 5 minutes to ensure effective evaluation and feedback.\n'
-                '- The analysis may take a few minutes to process.',
+                '- The analysis may take a few minutes to process.'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: screenWidth * 0.04,  // Dynamically adjust font size based on screen width

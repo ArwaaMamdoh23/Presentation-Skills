@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';  // Import easy_localization
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 
@@ -59,7 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load profile: ${e.toString()}')),
+          SnackBar(content: Text('Failed to load profile: ${e.toString()}'.tr())),
         );
       }
     } finally {
@@ -97,7 +98,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
+          SnackBar(content: Text('Failed to pick image: ${e.toString()}'.tr())),
         );
       }
     }
@@ -111,7 +112,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (user == null || user.email == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No authenticated user found')),
+           SnackBar(content: Text('No authenticated user found'.tr())),
         );
       }
       return;
@@ -124,7 +125,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (newName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name cannot be empty')),
+        SnackBar(content: Text('Name cannot be empty'.tr())),
       );
       return;
     }
@@ -153,14 +154,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
+          SnackBar(content: Text('Profile updated successfully!'.tr())),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
+          SnackBar(content: Text('Failed to update profile: ${e.toString()}'.tr())),
         );
       }
     } finally {
@@ -175,7 +176,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       obscureText: obscureText,
       onChanged: onChanged,
       decoration: InputDecoration(
-        hintText: hintText,
+        hintText: hintText.tr(), // Use tr() for translation
         hintStyle: const TextStyle(color: Colors.white70),
         filled: true,
         fillColor: Colors.white.withOpacity(0.2),
@@ -195,7 +196,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Icon(Icons.check_circle, color: isMet ? Colors.green : Colors.grey),
         const SizedBox(width: 5),
-        Text(text, style: TextStyle(color: isMet ? Colors.green : Colors.white70)),
+        Text(text.tr(), style: TextStyle(color: isMet ? Colors.green : Colors.white70)),
       ],
     );
   }
@@ -211,13 +212,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Password Requirements", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          Text("Password Requirements".tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
-          _buildPasswordRequirement('At least one uppercase letter', hasUppercase),
-          _buildPasswordRequirement('At least one number', hasNumber),
-          _buildPasswordRequirement('At least one special character', hasSpecialChar),
-          _buildPasswordRequirement('Minimum 8 characters', hasMinLength),
-          _buildPasswordRequirement('Passwords match', passwordsMatch),
+          _buildPasswordRequirement('At least one uppercase letter'.tr(), hasUppercase),
+          _buildPasswordRequirement('At least one number'.tr(), hasNumber),
+          _buildPasswordRequirement('At least one special character'.tr(), hasSpecialChar),
+          _buildPasswordRequirement('Minimum 8 characters'.tr(), hasMinLength),
+          _buildPasswordRequirement('Passwords match'.tr(), passwordsMatch),
         ],
       ),
     );
@@ -248,7 +249,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           child: _isLoading
               ? const CircularProgressIndicator(color: Colors.white)
-              : const Text('Save Changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+              : Text('Save Changes'.tr(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
       ),
     );
@@ -301,17 +302,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      _buildTextField(_nameController, 'Full Name', validator: (value) {
-                        if (value == null || value.isEmpty) return 'Name cannot be empty';
+                      _buildTextField(_nameController, 'Full Name'.tr(), validator: (value) {
+                        if (value == null || value.isEmpty) return 'Name cannot be empty'.tr();
                         return null;
                       }),
                       const SizedBox(height: 16),
-                      _buildTextField(_currentPasswordController, 'Current Password', obscureText: true),
+                      _buildTextField(_currentPasswordController, 'Current Password'.tr(), obscureText: true),
                       const SizedBox(height: 16),
-                      _buildTextField(_newPasswordController, 'New Password', obscureText: true, onChanged: _validatePassword),
+                      _buildTextField(_newPasswordController, 'New Password'.tr(), obscureText: true, onChanged: _validatePassword),
                       const SizedBox(height: 16),
-                      _buildTextField(_confirmPasswordController, 'Confirm New Password', obscureText: true, validator: (value) {
-                        if (value != _newPasswordController.text) return 'Passwords do not match';
+                      _buildTextField(_confirmPasswordController, 'Confirm New Password'.tr(), obscureText: true, validator: (value) {
+                        if (value != _newPasswordController.text) return 'Passwords do not match'.tr();
                         return null;
                       }),
                       if (showPasswordRequirements) _buildPasswordRequirements(),

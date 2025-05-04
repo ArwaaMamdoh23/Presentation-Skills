@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
+import 'package:my_flutter_project/Screens/SignInPage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
-import 'package:my_flutter_project/Screens/SignInPage.dart';
-import '../widgets/CustomDrawer .dart'; 
+import '../widgets/CustomDrawer .dart';
+import 'package:easy_localization/easy_localization.dart'; // Add this import
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({super.key});
@@ -19,16 +20,16 @@ class SettingsPage extends StatelessWidget {
         isUserSignedIn: true,
       ),
       
-      drawer: CustomDrawer(isSignedIn: true), 
+      drawer: CustomDrawer(isSignedIn: true),
 
       body: BackgroundWrapper(
         child: Column(
           children: [
             const SizedBox(height: kToolbarHeight),
-            const Padding(
+             Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
               child: Text(
-                "Settings",
+                "Settings".tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 26,
@@ -50,34 +51,34 @@ class SettingsPage extends StatelessWidget {
                   children: [
                     _buildSettingsItem(
                       icon: Icons.dark_mode,
-                      title: "Theme",
-                      subtitle: "Switch between Light and Dark mode",
+                      title: "Theme".tr(), // Use .tr() for translation
+                      subtitle: "Switch between Light and Dark mode".tr(), // Use .tr() for translation
                       onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.notifications,
-                      title: "Notifications",
-                      subtitle: "Manage notification preferences",
+                      title: "Notifications".tr(), // Use .tr() for translation
+                      subtitle: "Manage notification preferences".tr(), // Use .tr() for translation
                       onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.privacy_tip,
-                      title: "Terms & Privacy",
-                      subtitle: "View our terms and privacy policy",
+                      title: "Terms & Privacy".tr(), // Use .tr() for translation
+                      subtitle: "View our terms and privacy policy".tr(), // Use .tr() for translation
                       onTap: () {},
                     ),
                     _buildSettingsItem(
                       icon: Icons.delete_forever,
-                      title: "Delete Account",
-                      subtitle: "Permanently remove your account",
+                      title: "Delete Account".tr(), // Use .tr() for translation
+                      subtitle: "Permanently remove your account".tr(), // Use .tr() for translation
                       onTap: () {
                         _showDeleteConfirmationDialog(context);
                       },
                     ),
                     _buildSettingsItem(
                       icon: Icons.logout,
-                      title: "Sign Out",
-                      subtitle: "Log out from your account",
+                      title: "Sign Out".tr(), // Use .tr() for translation
+                      subtitle: "Log out from your account".tr(), // Use .tr() for translation
                       onTap: () {
                         _signOut(context);
                       },
@@ -127,19 +128,19 @@ class SettingsPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirm Deletion"),
-          content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
+          title: Text("Confirm Deletion".tr()), // Use .tr() for translation
+          content: Text("Are you sure you want to permanently delete your account? This action cannot be undone.".tr()), // Use .tr() for translation
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
+              child: Text("Cancel".tr(), style: TextStyle(color: Colors.blue)), // Use .tr() for translation
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteAccount(context);
               },
-              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+              child: Text("Delete".tr(), style: TextStyle(color: Colors.red)), // Use .tr() for translation
             ),
           ],
         );
@@ -154,24 +155,24 @@ class SettingsPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirm Password"),
+          title: Text("Confirm Password".tr()), // Use .tr() for translation
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: "Enter your password",
+            decoration: InputDecoration(
+              labelText: "Enter your password".tr(), // Use .tr() for translation
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, null),
-              child: const Text("Cancel"),
+              child: Text("Cancel".tr()), // Use .tr() for translation
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context, passwordController.text.trim());
               },
-              child: const Text("Confirm"),
+              child: Text("Confirm".tr()), // Use .tr() for translation
             ),
           ],
         );
@@ -218,7 +219,7 @@ class SettingsPage extends StatelessWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Account deleted successfully")),
+           SnackBar(content: Text("Account deleted successfully").tr()), // Use .tr() for translation
         );
         Navigator.pushAndRemoveUntil(
           context,
@@ -230,7 +231,7 @@ class SettingsPage extends StatelessWidget {
       print("Error deleting account: $e");
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error deleting account: \${e.toString()}")),
+          SnackBar(content: Text("Error deleting account: ${e.toString()}".tr())), // Use .tr() for translation
         );
       }
     }

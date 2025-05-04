@@ -3,6 +3,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import '../widgets/CustomDrawer .dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:easy_localization/easy_localization.dart'; // Add this import
 
 class AboutUs extends StatelessWidget {
   @override
@@ -29,7 +30,7 @@ class AboutUs extends StatelessWidget {
 
               // About Section
               Text(
-                'About PresentSense',
+                'About PresentSense'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.07,  // Adjust font size based on screen width
@@ -41,7 +42,7 @@ class AboutUs extends StatelessWidget {
               Text(
                 'PresentSense is an innovative platform designed to provide seamless presentation analysis and feedback.\n'
                 'Whether you are looking to improve your presentation skills, track posture, gestures, or speech fluency, '
-                'we offer a comprehensive set of tools to enhance your performance.',
+                'we offer a comprehensive set of tools to enhance your performance.'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: screenWidth * 0.045,  // Adjust font size for body text
@@ -53,7 +54,7 @@ class AboutUs extends StatelessWidget {
 
               // Team Section
               Text(
-                'Our Team',
+                'Our Team'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.06,  // Adjust font size for the team section title
@@ -79,7 +80,7 @@ class AboutUs extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Mayar Adel',
+                        'Mayar Adel'.tr(), // Use .tr() for translation
                         style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
@@ -98,7 +99,7 @@ class AboutUs extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Arwaa Mamdoh',
+                        'Arwaa Mamdoh'.tr(), // Use .tr() for translation
                         style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
@@ -117,7 +118,7 @@ class AboutUs extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Mostafa Wael',
+                        'Mostafa Wael'.tr(), // Use .tr() for translation
                         style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
@@ -136,7 +137,7 @@ class AboutUs extends StatelessWidget {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Ahmed Yehia',
+                        'Ahmed Yehia'.tr(), // Use .tr() for translation
                         style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                       ),
                     ],
@@ -147,7 +148,7 @@ class AboutUs extends StatelessWidget {
 
               // Contact Section
               Text(
-                'Contact Us',
+                'Contact Us'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.06,  // Adjust font size for the contact section title
@@ -162,7 +163,7 @@ class AboutUs extends StatelessWidget {
                   Icon(Icons.email, color: Colors.white, size: 30),
                   SizedBox(width: 10),
                   Text(
-                    'contact@presentsense.com',
+                    'contact@presentsense.com'.tr(), // Use .tr() for translation
                     style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                   ),
                 ],
@@ -174,7 +175,7 @@ class AboutUs extends StatelessWidget {
                   Icon(Icons.phone, color: Colors.white, size: 30),
                   SizedBox(width: 10),
                   Text(
-                    '+1 800-123-4567',
+                    '+1 800-123-4567'.tr(), // Use .tr() for translation
                     style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
                   ),
                 ],
@@ -183,7 +184,7 @@ class AboutUs extends StatelessWidget {
 
               // Social Media Section
               Text(
-                'Follow Us',
+                'Follow Us'.tr(), // Use .tr() for translation
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: screenWidth * 0.06,  // Adjust font size for the social media section title

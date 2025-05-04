@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:easy_localization/easy_localization.dart'; // Import easy_localization
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
@@ -81,16 +82,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _loadImage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? storedImage = prefs.getString('profile_image_bytes');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedImage = prefs.getString('profile_image_bytes');
 
-  if (storedImage != null) {
-    setState(() {
-      _imageBytes = base64Decode(storedImage);
-    });
+    if (storedImage != null) {
+      setState(() {
+        _imageBytes = base64Decode(storedImage);
+      });
+    }
   }
-}
-
 
   void _signOut() async {
     await _supabase.auth.signOut();
@@ -122,7 +122,6 @@ class _ProfilePageState extends State<ProfilePage> {
         showSignIn: false,
         isUserSignedIn: true,
       ),
-      
       drawer: CustomDrawer(isSignedIn: true),  
       body: BackgroundWrapper(
         child: isLoading
@@ -160,11 +159,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _buildInfoTile('Name', name),
-                      _buildInfoTile('Email', email),
-                      _buildInfoTile('Profession', profession),
+                      _buildInfoTile('Name'.tr(), name),
+                      _buildInfoTile('Email'.tr(), email),
+                      _buildInfoTile('Profession'.tr(), profession),
                       const SizedBox(height: 30),
-                      _buildButton('Edit Profile', () {
+                      _buildButton('Edit Profile'.tr(), () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -172,15 +171,15 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       }),
                       const SizedBox(height: 20),
-                      _buildButton('Dashboard', _goToDashboard),
+                      _buildButton('Dashboard'.tr(), _goToDashboard),
                       const SizedBox(height: 30),
                       Column(
                         children: [
-                          _buildListTile(Icons.payment, 'Billing Details'),
-                          _buildListTile(Icons.account_box, 'User Management'),
-                          _buildListTile(Icons.info, 'Information'),
-                          _buildListTile(Icons.settings, 'Settings', _goToSettings),
-                          _buildListTile(Icons.exit_to_app, 'Logout', _signOut),
+                          _buildListTile(Icons.payment, 'Billing Details'.tr()),
+                          _buildListTile(Icons.account_box, 'User Management'.tr()),
+                          _buildListTile(Icons.info, 'Information'.tr()),
+                          _buildListTile(Icons.settings, 'Settings'.tr(), _goToSettings),
+                          _buildListTile(Icons.exit_to_app, 'Logout'.tr(), _signOut),
                         ],
                       ),
                     ],
