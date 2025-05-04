@@ -20,6 +20,11 @@ import spacy
 import aifc
 import os
 from moviepy import VideoFileClip
+import whisper
+import librosa
+import requests
+from transformers import pipeline
+from argostranslate import package, translate
 
 
 # Load PoseNet Model for posture detection (PostureNet
@@ -249,7 +254,7 @@ def run_inference(frame):
     return posenet_model.signatures['serving_default'](**model_input)
 
 # Main video processing loop
-cap = cv2.VideoCapture("Videos/lolo presentation.mp4")
+cap = cv2.VideoCapture("Videos/China.mp4")
 frame_count = 0
 is_paused = False
 playback_speed = 1
@@ -351,7 +356,7 @@ def extract_audio_from_video(video_file_path):
     return audio_file_path
 
 # Specify your video file path
-video_file_path = "Videos/lolo presentation.mp4"
+video_file_path = "Videos/China.mp4"
 
 # Automatically generate the audio file path and extract the audio
 audio_file_path = extract_audio_from_video(video_file_path)
@@ -359,45 +364,59 @@ audio_file_path = extract_audio_from_video(video_file_path)
 # Print the generated audio file path
 print(f"Audio extracted and saved at: {audio_file_path}")
 
+
+model = whisper.load_model("base")
+
+# Load audio using librosa
+waveform, sr = librosa.load(audio_file_path, sr=16000)
+waveform = waveform / max(abs(waveform))  # Normalize
+
+# Transcribe using Whisper
+result = model.transcribe(audio=waveform)
+transcription = result["text"]
+detected_lang = result["language"]
+print("Transcription:", transcription)
+
 # Initialize recognizer class (for recognizing speech)
-recognizer = sr.Recognizer()
+# recognizer = sr.Recognizer()
 
-# Load the audio file using pydub to get duration
-audio_segment = AudioSegment.from_file(audio_file_path)
+# # Load the audio file using pydub to get duration
+# audio_segment = AudioSegment.from_file(audio_file_path)
 
-# Get the duration of the audio file in seconds
-audio_duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
+# # Get the duration of the audio file in seconds
+# audio_duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
 
-# Load the audio file for the speech recognizer
-audio_file = sr.AudioFile(audio_file_path)
+# # Load the audio file for the speech recognizer
+# audio_file = sr.AudioFile(audio_file_path)
 
-# Process the audio file in chunks
-with audio_file as source:
-    recognizer.adjust_for_ambient_noise(source, duration=1)  # Optional: helps with noisy audio
+# # Process the audio file in chunks
+# with audio_file as source:
+#     recognizer.adjust_for_ambient_noise(source, duration=1)  # Optional: helps with noisy audio
 
-    # Define chunk size in seconds (e.g., 30 seconds per chunk)
-    chunk_size = 30
+#     # Define chunk size in seconds (e.g., 30 seconds per chunk)
+#     chunk_size = 30
 
-    transcription = ""  # To store the full transcription
-    current_position = 0
+#     transcription = ""  # To store the full transcription
+#     current_position = 0
 
-    # Loop through the audio in chunks
-    while current_position < audio_duration:
-        try:
-            # Record the next chunk
-            audio_chunk = recognizer.record(source, duration=chunk_size)
+#     # Loop through the audio in chunks
+#     while current_position < audio_duration:
+#         try:
+#             # Record the next chunk
+#             audio_chunk = recognizer.record(source, duration=chunk_size)
 
-            # Transcribe the chunk
-            chunk_text = recognizer.recognize_google(audio_chunk)
-            transcription += chunk_text + " "  # Append chunk transcription
-            print(f"Transcribed chunk {current_position}-{current_position+chunk_size}s: {chunk_text}")
-        except sr.UnknownValueError:
-            print(f"Google Speech Recognition could not understand the audio between {current_position}s and {current_position+chunk_size}s")
-        except sr.RequestError as e:
-            print(f"Could not request results from Google Speech Recognition service; {e}")
+#             # Transcribe the chunk
+#             chunk_text = recognizer.recognize_google(audio_chunk)
+#             transcription += chunk_text + " "  # Append chunk transcription
+#             print(f"Transcribed chunk {current_position}-{current_position+chunk_size}s: {chunk_text}")
+#         except sr.UnknownValueError:
+#             print(f"Google Speech Recognition could not understand the audio between {current_position}s and {current_position+chunk_size}s")
+#         except sr.RequestError as e:
+#             print(f"Could not request results from Google Speech Recognition service; {e}")
 
-        # Update position to move to the next chunk
-        current_position += chunk_size
+#         # Update position to move to the next chunk
+#         current_position += chunk_size
+
 
 
 def correct_grammar(sentence, t5_model, tokenizer, max_length=512):
@@ -425,6 +444,32 @@ def correct_grammar(sentence, t5_model, tokenizer, max_length=512):
 
 
 corrected_sentence = correct_grammar(transcription, t5_model, tokenizer)
+
+# def correct_grammar(sentence, t5_model, tokenizer, max_length=512):
+#     corrected_text = ""
+#     i = 0
+#     while i < len(sentence):
+#         # Get the next chunk of the sentence
+#         chunk = sentence[i:i + max_length]
+#         # Prepare input with prefix "grammar: " for T5 model
+#         input_text = "grammar: " + chunk
+#         inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=max_length, truncation=True)
+
+#         # Generate corrected text
+#         outputs = t5_model.generate(inputs, max_length=max_length, num_beams=4, early_stopping=True)
+#         corrected_chunk = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+#         # Append the corrected chunk
+#         corrected_text += corrected_chunk + " "
+
+#         # Move to the next chunk
+#         i += max_length
+
+#     return corrected_text.strip()
+
+
+
+# corrected_sentence = correct_grammar(transcription, t5_model, tokenizer)
 
 # Function to normalize text by removing punctuation and converting to lowercase
 def normalize_text(text):
@@ -474,61 +519,146 @@ def get_grammar_feedback(score):
     else:
         return "Poor grammar. It might help to practice more and focus on sentence structure. 🚀"
 
+
 def calculate_speech_pace(audio_file):
-    # Load the audio file using pydub to get the duration
+    # Use pydub to get the duration of the audio
     audio_segment = AudioSegment.from_file(audio_file)
-    duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
-
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(audio_file) as source:
-        audio_data = recognizer.record(source)
-        try:
-            transcription = recognizer.recognize_google(audio_data)
-        except sr.UnknownValueError:
-            print("Speech Recognition could not understand audio")
-            return None  # Return None if speech recognition fails
-        except sr.RequestError:
-            print("Could not request results from Google Speech Recognition service")
-            return None  # Return None if there is a request error
-
+    duration = len(audio_segment) / 1000  # seconds
+    # Load audio waveform using librosa (no ffmpeg)
+    waveform, sr = librosa.load(audio_file, sr=16000)
+    waveform = waveform / max(abs(waveform))  # Normalize
+    # Transcribe with Whisper using waveform
+    result = model.transcribe(audio=waveform)
+    transcription = result["text"]
+    # Calculate pace
     word_count = len(transcription.split())
     minutes = duration / 60
     pace = word_count / minutes if minutes > 0 else 0
-
-    if pace is not None:
-        if 130 <= pace <= 160:
-            pace_feedback = "Your pace is perfect."
-        elif 100 <= pace < 130:
-            pace_feedback = "You need to speed up a little bit."
-        elif pace < 100:
-            pace_feedback = "You are going very slow."
-        elif 160 < pace <= 190:
-            pace_feedback = "You need to slow down a little bit."
-        else:
-            pace_feedback = "You are going very fast."
+    # Feedback
+    if 130 <= pace <= 160:
+        pace_feedback = "Your pace is perfect."
+    elif 100 <= pace < 130:
+        pace_feedback = "You need to speed up a little bit."
+    elif pace < 100:
+        pace_feedback = "You are going very slow."
+    elif 160 < pace <= 190:
+        pace_feedback = "You need to slow down a little bit."
     else:
-        pace_feedback = "Unable to calculate speech pace."
-
+        pace_feedback = "You are going very fast."
     return pace, transcription, pace_feedback
-
-# Main code that calls calculate_speech_pace and handles None case
-result = calculate_speech_pace(audio_file_path)
-
 # Check if result is None before unpacking
-if result is None:
+pace_result = calculate_speech_pace(audio_file_path)
+
+if pace_result is None:
     print("Error: Could not process the audio.")
 else:
-    pace, transcription, pace_feedback = result
-
-    if transcription:
-        print("Transcription:", transcription)
-        print(f"Your grammatical score was: {grammatical_score(transcription, corrected_sentence)}/10")
+    pace, transcribed_text, pace_feedback = pace_result
+    if transcribed_text:
+        print("Transcription:", transcribed_text)
+        print(f"Your grammatical score was: {grammatical_score(transcribed_text, corrected_sentence)}/10")
         print("Speech Pace (WPM):", pace)
         print("Feedback:", pace_feedback)
     else:
         print("No transcription available.")
 
+# def calculate_speech_pace(audio_file):
+#     # Load the audio file using pydub to get the duration
+#     audio_segment = AudioSegment.from_file(audio_file)
+#     duration = len(audio_segment) / 1000  # pydub returns duration in milliseconds
 
+#     recognizer = sr.Recognizer()
+#     with sr.AudioFile(audio_file) as source:
+#         audio_data = recognizer.record(source)
+#         try:
+#             transcription = recognizer.recognize_google(audio_data)
+#         except sr.UnknownValueError:
+#             print("Speech Recognition could not understand audio")
+#             return None  # Return None if speech recognition fails
+#         except sr.RequestError:
+#             print("Could not request results from Google Speech Recognition service")
+#             return None  # Return None if there is a request error
+
+#     word_count = len(transcription.split())
+#     minutes = duration / 60
+#     pace = word_count / minutes if minutes > 0 else 0
+
+#     if pace is not None:
+#         if 130 <= pace <= 160:
+#             pace_feedback = "Your pace is perfect."
+#         elif 100 <= pace < 130:
+#             pace_feedback = "You need to speed up a little bit."
+#         elif pace < 100:
+#             pace_feedback = "You are going very slow."
+#         elif 160 < pace <= 190:
+#             pace_feedback = "You need to slow down a little bit."
+#         else:
+#             pace_feedback = "You are going very fast."
+#     else:
+#         pace_feedback = "Unable to calculate speech pace."
+
+#     return pace, transcription, pace_feedback
+
+# # Main code that calls calculate_speech_pace and handles None case
+# result = calculate_speech_pace(audio_file_path)
+
+# # Check if result is None before unpacking
+# if result is None:
+#     print("Error: Could not process the audio.")
+# else:
+#     pace, transcription, pace_feedback = result
+
+#     if transcription:
+#         print("Transcription:", transcription)
+#         print(f"Your grammatical score was: {grammatical_score(transcription, corrected_sentence)}/10")
+#         print("Speech Pace (WPM):", pace)
+#         print("Feedback:", pace_feedback)
+#     else:
+#         print("No transcription available.")
+
+
+
+
+# def correct_with_languagetool(text, lang_code):
+#         url = "https://api.languagetoolplus.com/v2/check"
+#         params = {
+#             "text": text,
+#             "language": lang_code,
+#             "enabledOnly": False
+#         }
+#         response = requests.post(url, data=params)
+#         matches = response.json().get("matches", [])
+#         corrected_text = text
+#         for match in reversed(matches):
+#             offset = match["offset"]
+#             length = match["length"]
+#             replacement = match["replacements"][0]["value"] if match["replacements"] else ""
+#             corrected_text = corrected_text[:offset] + replacement + corrected_text[offset+length:]
+#         return corrected_text
+
+#     # Use it on the Whisper transcription
+# corrected_lt_sentence = correct_with_languagetool(transcription, detected_lang)
+# print("Corrected (via LanguageTool):", corrected_lt_sentence)
+import requests
+
+def correct_with_languagetool(text, lang_code):
+        url = "https://api.languagetoolplus.com/v2/check"
+        params = {
+            "text": text,
+            "language": lang_code,
+            "enabledOnly": False
+        }
+        response = requests.post(url, data=params)
+        matches = response.json().get("matches", [])
+        corrected_text = text
+        for match in reversed(matches):
+            offset = match["offset"]
+            length = match["length"]
+            replacement = match["replacements"][0]["value"] if match["replacements"] else ""
+            corrected_text = corrected_text[:offset] + replacement + corrected_text[offset+length:]
+        return corrected_text
+    # Use it on the Whisper transcription
+corrected_lt_sentence = correct_with_languagetool(transcription, detected_lang)
+print("Corrected (via LanguageTool):", corrected_lt_sentence)
 
 # Load and resample the audio file for filler word detection
 waveform, sample_rate = torchaudio.load(audio_file_path)
@@ -941,9 +1071,14 @@ for gesture, count in Counter(gesture_counter).most_common(2):
 
 combined_feedback_report.append(f"Gesture Feedback: {gesture_feedback}")
 
+
 # Add speech analysis feedback (grammar, pace, fluency, pronunciation)
 combined_feedback_report.append("\n--- Speech Analysis ---")
+combined_feedback_report.append(f" Detected Language: {detected_lang}")
+combined_feedback_report.append(f"Corrected Sentence (T5 for English): {corrected_sentence}")
+combined_feedback_report.append(f"Corrected Sentence (LanguageTool for '{detected_lang}'): {corrected_lt_sentence}")
 combined_feedback_report.append(f"Grammar Score: {grammar_score}/10")
+combined_feedback_report.append(f"Corrected Sentence: {corrected_sentence}")
 combined_feedback_report.append(f"Grammar Feedback: {get_grammar_feedback(grammar_score)}")
 combined_feedback_report.append(f"Speech Pace: {pace} WPM")
 combined_feedback_report.append(f"Speech Pace Feedback: {pace_feedback}")
@@ -956,8 +1091,57 @@ combined_feedback_report.append("\n--- Audience Interaction Feedback ---")
 for line in response_feedback:
     combined_feedback_report.append(line)
 
-
 # Print the entire combined feedback report
 print("\n--- Comprehensive Feedback Report ---")
 for line in combined_feedback_report:
     print(line)
+
+# Install translation model from English to the detected language
+def install_translation_model(from_code, to_code):
+    available_packages = package.get_available_packages()
+    matching_package = next(
+        (pkg for pkg in available_packages if pkg.from_code == from_code and pkg.to_code == to_code),
+        None
+    )
+    if matching_package:
+        download_path = matching_package.download()
+        package.install_from_path(download_path)
+        print(f"  translation from: {from_code} → {to_code}")
+    else:
+        print(f"No translation available for {from_code} → {to_code}")
+# Only translate if the language isn't English
+if detected_lang != "en":
+    install_translation_model("en", detected_lang)
+    installed_languages = translate.get_installed_languages()
+    from_lang = next((lang for lang in installed_languages if lang.code == "en"), None)
+    to_lang = next((lang for lang in installed_languages if lang.code == detected_lang), None)
+    if from_lang and to_lang:
+        translator = from_lang.get_translation(to_lang)
+        translated_feedback_report = [translator.translate(line) for line in combined_feedback_report]
+        print("\n --- Translated Feedback Report ---")
+        for line in translated_feedback_report:
+            print(line)
+    else:
+        print("Translation not available. Feedback shown in English.")
+    # Use LanguageTool API for grammar correction
+    
+# # Add speech analysis feedback (grammar, pace, fluency, pronunciation)
+# combined_feedback_report.append("\n--- Speech Analysis ---")
+# combined_feedback_report.append(f"Grammar Score: {grammar_score}/10")
+# combined_feedback_report.append(f"Grammar Feedback: {get_grammar_feedback(grammar_score)}")
+# combined_feedback_report.append(f"Speech Pace: {pace} WPM")
+# combined_feedback_report.append(f"Speech Pace Feedback: {pace_feedback}")
+# combined_feedback_report.append(f"Fluency Score: {filler_score}/100")
+# combined_feedback_report.append(f"Fluency Feedback: {filler_feedback}")
+# combined_feedback_report.append(f"Filler Word Breakdown: {filler_counts}")
+# combined_feedback_report.append(f"Pronunciation Score: {final_pronunciation_score}/100")
+# combined_feedback_report.append(f"Pronunciation Feedback: {pronunciation_feedback}")
+# combined_feedback_report.append("\n--- Audience Interaction Feedback ---")
+# for line in response_feedback:
+#     combined_feedback_report.append(line)
+
+
+# Print the entire combined feedback report
+# print("\n--- Comprehensive Feedback Report ---")
+# for line in combined_feedback_report:
+#     print(line)
