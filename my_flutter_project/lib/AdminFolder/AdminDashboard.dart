@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:easy_localization/easy_localization.dart'; // Import easy_localization
 import '../widgets/background_wrapper.dart';
 
@@ -21,6 +20,29 @@ class MyApp extends StatelessWidget {
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
+  void showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Submit a Support Request'),
+        content: const TextField(
+          maxLines: 5,
+          decoration: InputDecoration(hintText: 'Describe your issue...'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              // TODO: implement support request sending
+              Navigator.pop(context);
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,14 +51,14 @@ class AdminDashboard extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
-          'PresentSense', 
+          'PresentSense',
           style: TextStyle(
-            color: Colors.white, 
-            fontWeight: FontWeight.bold, 
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
         ),
-        centerTitle: false, 
+        centerTitle: false,
       ),
       drawer: const AdminDrawer(),
       body: BackgroundWrapper(
@@ -44,24 +66,17 @@ class AdminDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20), 
-
-               Padding(
+              const SizedBox(height: 20),
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Center(
                   child: Text(
-                    'Admin Dashboard'.tr(), // Localize text
+                    'Admin Dashboard',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 3.0,
-                          color: Colors.white54,
-                          offset: Offset(0, 0),
-                        ),
-                      ],
+                      shadows: [Shadow(blurRadius: 3.0, color: Colors.white54)],
                     ),
                   ),
                 ),
@@ -71,10 +86,17 @@ class AdminDashboard extends StatelessWidget {
               const UserManagement(),
               const PresentationAnalysisSummary(),
               const AIInsights(),
+              const FeedbackReviewSection(),
+              SupportSection(),
               const Footer(),
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showSupportDialog(context),
+        child: const Icon(Icons.chat),
+        tooltip: 'Live Support',
       ),
     );
   }
@@ -110,15 +132,15 @@ class AdminDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('User Management'.tr()), // Localize text
+            title: Text('User Management'.tr()),
             onTap: () {},
           ),
           ListTile(
-            title: Text('System Overview'.tr()), // Localize text
+            title: Text('System Overview'.tr()),
             onTap: () {},
           ),
           ListTile(
-            title: Text('Reports'.tr()), // Localize text
+            title: Text('Reports'.tr()),
             onTap: () {},
           ),
         ],
@@ -133,7 +155,7 @@ class SystemOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'System Overview'.tr(), // Localize text
+      title: 'System Overview'.tr(),
       children: [
         _buildRow(Icons.people, 'Total Active Users'.tr(), '125'),
         _buildRow(Icons.video_library, 'Total Analyses'.tr(), '250'),
@@ -149,7 +171,7 @@ class UserManagement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'User Management'.tr(), // Localize text
+      title: 'User Management'.tr(),
       children: [
         _buildUserTile('Arwaa Mamdoh', 'Active'.tr()),
         _buildUserTile('Mostafa Wael', 'Inactive'.tr()),
@@ -164,7 +186,7 @@ class PresentationAnalysisSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'Recent Presentation Analysis'.tr(), // Localize text
+      title: 'Recent Presentation Analysis'.tr(),
       children: [
         _buildListTile(Icons.video_library, 'Presentation 1', 'Score: 8/10'),
         _buildListTile(Icons.video_library, 'Presentation 2', 'Score: 7/10'),
@@ -179,10 +201,93 @@ class AIInsights extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _buildCard(
-      title: 'AI Insights & System Performance'.tr(), // Localize text
+      title: 'AI Insights & System Performance'.tr(),
       children: [
         _buildRow(Icons.insights, 'AI Performance'.tr(), 'Accuracy: 92%'),
         _buildRow(Icons.trending_up, 'Trending Issues'.tr(), 'Improve tone detection'),
+      ],
+    );
+  }
+}
+
+class FeedbackReviewSection extends StatelessWidget {
+  const FeedbackReviewSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildCard(
+      title: 'User Feedback Review'.tr(),
+      children: [
+        _buildListTile(Icons.feedback, 'User: Arwaa Mamdoh', 'Grammar: 9/10, Fluency: 8/10, Pronunciation: 8/10, Body: 7/10, Facial expressions: 8/10, Lang: English'),
+        _buildListTile(Icons.feedback, 'User: Mostafa Wael', 'Grammar: 6/10, Fluency: 7/10, Pronunciation: 6/10, Body: 6/10, Facial expressions: 7/10, Lang: Arabic'),
+      ],
+    );
+  }
+}
+
+class SupportSection extends StatelessWidget {
+  const SupportSection({super.key});
+
+  void showSupportDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Submit a Support Request'),
+        content: const TextField(
+          maxLines: 5,
+          decoration: InputDecoration(hintText: 'Describe your issue...'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              // TODO: implement sending logic
+              Navigator.pop(context);
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildCard(
+      title: 'User Support',
+      children: [
+        ExpansionTile(
+          title: const Text('How do I upload a presentation?'),
+          children: const [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Go to the Upload tab, select your video, and click Submit.'),
+            ),
+          ],
+        ),
+        ExpansionTile(
+          title: const Text('Can I analyze videos in other languages?'),
+          children: const [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('Yes, we support multilingual feedback using Whisper and Argos Translate.'),
+            ),
+          ],
+        ),
+        ExpansionTile(
+          title: const Text('What does the feedback score mean?'),
+          children: const [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text('It reflects grammar, fluency, pronunciation, emotion, and body language accuracy.'),
+            ),
+          ],
+        ),
+        const ListTile(
+          leading: Icon(Icons.email),
+          title: Text('Contact Us'),
+          subtitle: Text('support@presentsense.ai'),
+        ),
       ],
     );
   }

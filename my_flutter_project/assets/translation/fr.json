@@ -36,5 +36,9 @@
   "Terms & Privacy": "Conditions et confidentialité",
   "Delete Account": "Supprimer le compte",
   "Sign Out": "Se déconnecter",
-  "Presentation_reports": "Rapports de présentation"
+  "Presentation_reports": "Rapports de présentation",
+  "confirm password": "Confirmer le mot de passe",
+  "Enter your password": "Entrez votre mot de passe",
+  "Cancel": "Annuler",
+  "Confirm": "Confirmer"
 }

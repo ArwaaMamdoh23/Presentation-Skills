@@ -49,6 +49,9 @@
 " This system is designed to analyze various aspects of your presentation.": "تم تصميم هذا النظام لتحليل جوانب مختلفة من عرضك التقديمي.",
 "Ensure the video is of high quality, and with clear visibility of the speaker to facilitate accurate analysis and detection.": "تأكد من أن الفيديو بجودة عالية، وأن الرؤية واضحة للمتحدث لتسهيل التحليل والتعرف الدقيق.",
 "The video duration should not exceed 5 minutes to ensure effective evaluation and feedback.": "يجب ألا تتجاوز مدة الفيديو 5 دقائق لضمان التقييم الفعال والتعليقات.",
-"The analysis may take a few minutes to process.": "قد تستغرق عملية التحليل بضع دقائق."
-
+"The analysis may take a few minutes to process.": "قد تستغرق عملية التحليل بضع دقائق.",
+"confirm password": "تأكيد كلمة المرور",
+"Enter your password": "أدخل كلمة المرور الخاصة بك",
+"Cancel": "إلغاء",
+"Confirm": "تأكيد"
 }
