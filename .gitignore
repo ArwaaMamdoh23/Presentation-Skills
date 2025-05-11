@@ -1,5 +1,4 @@
-venv/
-
+myenv/
 emotion_model.weights.h5
 fine_tuned_wav2vec2.pth
 assets/credentials.json
