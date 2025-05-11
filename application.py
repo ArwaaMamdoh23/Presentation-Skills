@@ -4,6 +4,7 @@ import cv2
 import torch
 import torch.nn.functional as F
 from moviepy import VideoFileClip
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import logging
 from collections import Counter
 from deepface import DeepFace

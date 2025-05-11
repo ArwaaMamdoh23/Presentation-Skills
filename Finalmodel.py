@@ -42,7 +42,7 @@ mp_drawing = mp.solutions.drawing_utils
 num_labels = 6
 wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
-wav2vec2_model.load_state_dict(torch.load("fine_tuned_wav2vec2.pth", map_location=torch.device("cpu")))
+# wav2vec2_model.load_state_dict(torch.load("fine_tuned_wav2vec2.pth", map_location=torch.device("cpu")))
 wav2vec2_model.eval()
 
 # Pipeline for pronunciation evaluation (Using a separate variable for the pipeline)
@@ -862,13 +862,13 @@ def get_emotion_feedback(refined_emotion, eye_contact):
     elif refined_emotion == "content":
         feedback = "You're happy, but make sure to engage with your audience by maintaining eye contact."
     elif refined_emotion == "vulnerable":
-        feedback = "You seem vulnerable. Try smiling to lighten the mood if you’re comfortable."
+        feedback = "You seem vulnerable. Try smiling to lighten the mood if you're comfortable."
     elif refined_emotion == "isolated":
         feedback = "Lack of eye contact combined with sadness may appear disengaged. Try to make eye contact for a stronger presence."
     elif refined_emotion == "alert":
         feedback = "You seem alert! Maintain eye contact to help convey your surprise more clearly."
     elif refined_emotion == "disoriented":
-        feedback = "You’re surprised but seem disconnected. Try focusing and engaging with your audience."
+        feedback = "You're surprised but seem disconnected. Try focusing and engaging with your audience."
     else:
         feedback = "Unknown emotion. Try to maintain a balanced expression to convey clarity."
     
