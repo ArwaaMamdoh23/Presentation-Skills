@@ -66,7 +66,6 @@ mp_drawing = mp.solutions.drawing_utils
 # Load Wav2Vec2 model for filler word detection
 wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=6)
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
-wav2vec2_model.load_state_dict(torch.load("fine_tuned_wav2vec2.pth", map_location=torch.device("cpu")))
 wav2vec2_model.eval()
 
 # Load T5 model for grammar correction
