@@ -1,9 +1,0 @@
-flask
-tensorflow
-mediapipe
-deepface
-transformers
-torchaudio
-moviepy
-speechrecognition
-pydub
