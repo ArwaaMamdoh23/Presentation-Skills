@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_flutter_project/Screens/Loading.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
@@ -101,11 +102,13 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       return;
     }
 
-    if (!mounted) return;
-    setState(() {
-      _isUploading = true;
-      _uploadProgress = 0;
-    });
+    // Navigate to loading screen
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoadingScreen()),
+      );
+    }
 
     try {
       final account = _googleSignIn.currentUser;
@@ -128,12 +131,17 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       );
 
       final fileUrl = 'https://drive.google.com/file/d/${response.id}/view';
-      _showSuccess('Video uploaded successfully! URL: $fileUrl'.tr());
-    } catch (e) {
-      _showError('Upload failed: ${e.toString()}'.tr());
-    } finally {
+      
+      // Pop the loading screen and show success message
       if (mounted) {
-        setState(() => _isUploading = false);
+        Navigator.pop(context);
+        _showSuccess('Video uploaded successfully! URL: $fileUrl'.tr());
+      }
+    } catch (e) {
+      // Pop the loading screen and show error message
+      if (mounted) {
+        Navigator.pop(context);
+        _showError('Upload failed: ${e.toString()}'.tr());
       }
     }
   }

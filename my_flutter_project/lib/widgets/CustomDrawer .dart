@@ -41,6 +41,13 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.pushNamed(context, '/instructions');
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.help),
+              title: Text('Loading'.tr()), // Localize text
+              onTap: () {
+                Navigator.pushNamed(context, '/loading');
+              },
+            ),
             const Spacer(),
             ListTile(
               leading: const Icon(Icons.settings),
