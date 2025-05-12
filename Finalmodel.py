@@ -31,6 +31,8 @@ from argostranslate import package, translate
 posenet_model_url = "https://tfhub.dev/google/movenet/singlepose/lightning/4"
 posenet_model = hub.load(posenet_model_url)
 
+# Load face detection cascade classifier
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 #MediaPipe Hands for gesture recognition
 mp_hands = mp.solutions.hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
@@ -42,7 +44,7 @@ mp_drawing = mp.solutions.drawing_utils
 num_labels = 6
 wav2vec2_model = Wav2Vec2ForSequenceClassification.from_pretrained("facebook/wav2vec2-base", num_labels=num_labels)
 processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base")
-wav2vec2_model.load_state_dict(torch.load("fine_tuned_wav2vec2.pth", map_location=torch.device("cpu")))
+# wav2vec2_model.load_state_dict(torch.load("fine_tuned_wav2vec2.pth", map_location=torch.device("cpu")))
 wav2vec2_model.eval()
 
 # Pipeline for pronunciation evaluation (Using a separate variable for the pipeline)
@@ -78,8 +80,6 @@ posture_meanings = {
 }
 
 # Define counters for gestures and postures
-# gesture_counter = Counter()
-# # posture_counter = Counter()
 posture_counter = {
     "Head Up": 0,
     "Slouching": 0,
@@ -196,13 +196,13 @@ def classify_hand_gesture(hand_landmarks):
 
 # Function to extract keypoints from PoseNet output
 def extract_keypoints(results):
-    print("Shape of the output tensor:", results['output_0'].shape)
+    # print("Shape of the output tensor:", results['output_0'].shape)
     keypoints = []
     for i in range(17):  # PoseNet detects 17 keypoints
         x = results['output_0'][0][0][i][1].numpy()
         y = results['output_0'][0][0][i][0].numpy()
         confidence = results['output_0'][0][0][i][2].numpy()
-        print(f"Keypoint {i}: x={x}, y={y}, confidence={confidence}")
+        # print(f"Keypoint {i}: x={x}, y={y}, confidence={confidence}")
         keypoints.append({
             "x": x,
             "y": y,
@@ -254,12 +254,29 @@ def run_inference(frame):
     return posenet_model.signatures['serving_default'](**model_input)
 
 # Main video processing loop
-cap = cv2.VideoCapture("Videos/China.mp4")
+cap = cv2.VideoCapture("Videos/TedDutch.mp4")
+# cap = cv2.VideoCapture("Videos/lolo presentation.mp4")
+# cap = cv2.VideoCapture("Videos/TedTalk.mp4")
+# cap = cv2.VideoCapture("Videos/TedChinese.mp4")
+
+# Set the resolution to high values (e.g., Full HD: 1920x1080)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Set width
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Set height
+
+# Get FPS of the video
+fps = cap.get(cv2.CAP_PROP_FPS)
+print(f"Frames per second: {fps}")  # Print FPS
 frame_count = 0
 is_paused = False
 playback_speed = 1
 all_emotions = []
 all_eye_contacts = []
+
+# Initialize variables for display
+posture = "Unknown"
+gesture = "Unknown"
+refined_emotion = "Unknown"
+eye_contact = "Unknown"
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -273,33 +290,68 @@ while cap.isOpened():
         keypoints = extract_keypoints(results)
         posture = classify_posture(keypoints)
 
+        # Draw posture keypoints
+        for keypoint in keypoints:
+            # print(f"Keypoint: x={keypoint['x']}, y={keypoint['y']}, confidence={keypoint['confidence']}")
+            if 0 <= keypoint['x'] <= 1 and 0 <= keypoint['y'] <= 1 and keypoint['confidence'] > 0.5:
+                x = int(keypoint['x'] * frame.shape[1])
+                y = int(keypoint['y'] * frame.shape[0])
+                cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
+
         # Ensure the posture is a valid one before incrementing
         if posture in posture_counter:
             posture_counter[posture] += 1
         else:
             print(f"Detected an invalid posture: {posture}")
 
-        print(f"Detected Posture: {posture}")
+        # print(f"Detected Posture: {posture}")
         gesture = "Unknown Gesture"
         # Process MediaPipe for Gesture Detection
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results_hands = mp_hands.process(image_rgb)
+
+        # Draw only hand bounding boxes (no landmarks)
         if results_hands.multi_hand_landmarks:
             for hand_landmarks in results_hands.multi_hand_landmarks:
+                # Get bounding box for hand
+                h, w, _ = frame.shape
+                x_min = w
+                y_min = h
+                x_max = 0
+                y_max = 0
+                
+                for landmark in hand_landmarks.landmark:
+                    x, y = int(landmark.x * w), int(landmark.y * h)
+                    x_min = min(x_min, x)
+                    y_min = min(y_min, y)
+                    x_max = max(x_max, x)
+                    y_max = max(y_max, y)
+                
+                # Draw bounding box around hand with thicker lines
+                cv2.rectangle(frame, (x_min-10, y_min-10), (x_max+10, y_max+10), (255, 0, 0), 3)
+                
                 gesture = classify_hand_gesture(hand_landmarks)
                 if gesture != "Unknown Gesture":
                     gesture_counter[gesture] += 1
-                print(f"Detected Gesture: {gesture}")
+                # print(f"Detected Gesture: {gesture}")
 
-        # Detect emotions and eye contact
-        emotion = predict_emotions(frame)
-        eye_contact = detect_eye_contact(frame)
-        refined_emotion = refine_emotion_prediction(emotion, eye_contact)
-        print(f"Emotion: {refined_emotion}, Eye Contact: {eye_contact}")
+        # Detect face and draw face box
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+        for (x, y, w, h) in faces:
+            # Draw face rectangle
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+            
+            # Detect emotions and eye contact
+            face_roi = frame[y:y+h, x:x+w]
+            emotion = predict_emotions(face_roi)
+            eye_contact = detect_eye_contact(face_roi)
+            refined_emotion = refine_emotion_prediction(emotion, eye_contact)
+            # print(f"Emotion: {refined_emotion}, Eye Contact: {eye_contact}")
 
-        # Append detected emotion and eye contact to the lists
-        all_emotions.append(refined_emotion)
-        all_eye_contacts.append(eye_contact)
+            # Append detected emotion and eye contact to the lists
+            all_emotions.append(refined_emotion)
+            all_eye_contacts.append(eye_contact)
 
     frame_count += 1
 
@@ -356,7 +408,11 @@ def extract_audio_from_video(video_file_path):
     return audio_file_path
 
 # Specify your video file path
-video_file_path = "Videos/China.mp4"
+# video_file_path = "Videos/lolo presentation.mp4"
+# video_file_path = "Videos/TedTalk.mp4"
+video_file_path = "Videos/TedDutch.mp4"
+# video_file_path = "Videos/TedChinese.mp4"
+
 
 # Automatically generate the audio file path and extract the audio
 audio_file_path = extract_audio_from_video(video_file_path)
@@ -862,13 +918,13 @@ def get_emotion_feedback(refined_emotion, eye_contact):
     elif refined_emotion == "content":
         feedback = "You're happy, but make sure to engage with your audience by maintaining eye contact."
     elif refined_emotion == "vulnerable":
-        feedback = "You seem vulnerable. Try smiling to lighten the mood if you’re comfortable."
+        feedback = "You seem vulnerable. Try smiling to lighten the mood if you're comfortable."
     elif refined_emotion == "isolated":
         feedback = "Lack of eye contact combined with sadness may appear disengaged. Try to make eye contact for a stronger presence."
     elif refined_emotion == "alert":
         feedback = "You seem alert! Maintain eye contact to help convey your surprise more clearly."
     elif refined_emotion == "disoriented":
-        feedback = "You’re surprised but seem disconnected. Try focusing and engaging with your audience."
+        feedback = "You're surprised but seem disconnected. Try focusing and engaging with your audience."
     else:
         feedback = "Unknown emotion. Try to maintain a balanced expression to convey clarity."
     
@@ -929,27 +985,238 @@ combined_feedback_report.append(f"Gesture Feedback: {gesture_feedback}")
 
 # Add speech analysis feedback (grammar, pace, fluency, pronunciation)
 combined_feedback_report.append("\n--- Speech Analysis ---")
-combined_feedback_report.append(f" Detected Language: {detected_lang}")
-combined_feedback_report.append(f"Corrected Sentence (T5 for English): {corrected_sentence}")
-combined_feedback_report.append(f"Corrected Sentence (LanguageTool for '{detected_lang}'): {corrected_lt_sentence}")
-combined_feedback_report.append(f"Grammar Score: {grammar_score}/10")
-combined_feedback_report.append(f"Corrected Sentence: {corrected_sentence}")
-combined_feedback_report.append(f"Grammar Feedback: {get_grammar_feedback(grammar_score)}")
-combined_feedback_report.append(f"Speech Pace: {pace} WPM")
-combined_feedback_report.append(f"Speech Pace Feedback: {pace_feedback}")
-combined_feedback_report.append(f"Fluency Score: {filler_score}/100")
-combined_feedback_report.append(f"Fluency Feedback: {filler_feedback}")
-combined_feedback_report.append(f"Filler Word Breakdown: {filler_counts}")
-combined_feedback_report.append(f"Pronunciation Score: {final_pronunciation_score}/100")
-combined_feedback_report.append(f"Pronunciation Feedback: {pronunciation_feedback}")
-combined_feedback_report.append("\n--- Audience Interaction Feedback ---")
-for line in response_feedback:
-    combined_feedback_report.append(line)
+combined_feedback_report.append(f"Detected Language: {detected_lang}")
 
-# Print the entire combined feedback report
-print("\n--- Comprehensive Feedback Report ---")
-for line in combined_feedback_report:
-    print(line)
+# Initialize all variables needed for the feedback report
+grammar_percentage = (grammar_score / 10) * 100 if grammar_score is not None else 0
+filler_percentage = filler_score if filler_score is not None else 0
+pronunciation_percentage = final_pronunciation_score if final_pronunciation_score is not None else 0
+
+# Calculate pace score (ideal range: 130-160 WPM)
+if pace is not None:
+    if 130 <= pace <= 160:
+        pace_percentage = 100
+    elif 100 <= pace < 130 or 160 < pace <= 190:
+        pace_percentage = 75
+    else:
+        pace_percentage = 50
+else:
+    pace_percentage = 0
+
+# Calculate posture score based on confidence-indicating postures
+confident_postures = ["Head Up", "Arms on Hips", "Leaning Forward"]
+total_postures = sum(posture_counter.values()) if posture_counter else 0
+if total_postures > 0:
+    confident_posture_count = sum(posture_counter[posture] for posture in confident_postures if posture in posture_counter)
+    posture_percentage = (confident_posture_count / total_postures) * 100
+else:
+    posture_percentage = 0
+
+# Calculate gesture score based on positive gestures
+positive_gestures = ["Open Palm", "Thumbs Up", "Victory Sign", "OK Sign"]
+total_gestures = sum(gesture_counter.values()) if gesture_counter else 0
+if total_gestures > 0:
+    positive_gesture_count = sum(gesture_counter[gesture] for gesture in positive_gestures if gesture in gesture_counter)
+    gesture_percentage = (positive_gesture_count / total_gestures) * 100
+else:
+    gesture_percentage = 0
+
+# Calculate emotion and eye contact score
+positive_emotions = ["happy", "attentive", "joyful", "content"]
+emotion_score = 100 if refined_emotion in positive_emotions else 50
+eye_contact_score = 100 if eye_contact == "Eye Contact" else 50
+
+# Initialize feedback variables
+posture_feedback = get_posture_feedback(posture) if posture else "No posture data available"
+gesture_feedback = get_gesture_feedback(gesture) if gesture else "No gesture data available"
+emotion_feedback = get_emotion_feedback(refined_emotion, eye_contact)[1] if refined_emotion else "No emotion data available"
+
+# Add speech analysis feedback (grammar, pace, fluency, pronunciation)
+combined_feedback_report.append("\n--- Speech Analysis ---")
+combined_feedback_report.append(f"Detected Language: {detected_lang if detected_lang else 'Unknown'}")
+
+# Grammar Section
+combined_feedback_report.append("\n --- Grammar Analysis ---")
+combined_feedback_report.append(f"Grammar Score: {grammar_score}/10 ({grammar_percentage}%)")
+combined_feedback_report.append(f"Original Text: {transcription if transcription else 'No transcription available'}")
+combined_feedback_report.append(f"Corrected Text (T5): {corrected_sentence if corrected_sentence else 'No correction available'}")
+combined_feedback_report.append(f"Corrected Text (LanguageTool): {corrected_lt_sentence if corrected_lt_sentence else 'No correction available'}")
+combined_feedback_report.append(f"Grammar Feedback: {get_grammar_feedback(grammar_score) if grammar_score is not None else 'No grammar analysis available'}")
+
+# Pace Section
+combined_feedback_report.append("\n --- Speech Pace Analysis ---")
+combined_feedback_report.append(f"Speech Pace: {pace if pace is not None else 'N/A'} WPM")
+combined_feedback_report.append(f"Pace Score: {pace_percentage}%")
+combined_feedback_report.append(f"Pace Feedback: {pace_feedback if pace_feedback else 'No pace feedback available'}")
+
+# Fluency Section
+combined_feedback_report.append("\n --- Fluency Analysis ---")
+combined_feedback_report.append(f"Fluency Score: {filler_score if filler_score is not None else 'N/A'}/100")
+combined_feedback_report.append(f"Filler Word Breakdown: {filler_counts if filler_counts else 'No filler word data available'}")
+combined_feedback_report.append(f"Fluency Feedback: {filler_feedback if filler_feedback else 'No fluency feedback available'}")
+
+# Pronunciation Section
+combined_feedback_report.append("\n --- Pronunciation Analysis ---")
+combined_feedback_report.append(f"Pronunciation Score: {final_pronunciation_score if final_pronunciation_score is not None else 'N/A'}/100")
+combined_feedback_report.append(f"Pronunciation Feedback: {pronunciation_feedback if pronunciation_feedback else 'No pronunciation feedback available'}")
+
+# Body Language Analysis
+combined_feedback_report.append("\n--- Body Language Analysis ---")
+
+# Posture Section
+combined_feedback_report.append("\n --- Posture Analysis ---")
+if posture_counter:
+    for posture, count in Counter(posture_counter).most_common():
+        if count > 0:
+            meaning = posture_meanings.get(posture, "Unknown Meaning")
+            combined_feedback_report.append(f"Posture: {posture} - Count: {count} - Meaning: {meaning}")
+else:
+    combined_feedback_report.append("No posture data available")
+combined_feedback_report.append(f"Posture Score: {posture_percentage}%")
+combined_feedback_report.append(f"Posture Feedback: {posture_feedback}")
+
+# Gesture Section
+combined_feedback_report.append("\n --- Gesture Analysis ---")
+if gesture_counter:
+    for gesture, count in Counter(gesture_counter).most_common():
+        if count > 0:
+            meaning = gesture_to_body_language.get(gesture, "Unknown Meaning")
+            combined_feedback_report.append(f"Gesture: {gesture} - Count: {count} - Meaning: {meaning}")
+else:
+    combined_feedback_report.append("No gesture data available")
+combined_feedback_report.append(f"Gesture Score: {gesture_percentage}%")
+combined_feedback_report.append(f"Gesture Feedback: {gesture_feedback}")
+
+# Emotion and Eye Contact Section
+combined_feedback_report.append("\n --- Emotional Analysis ---")
+combined_feedback_report.append(f"Dominant Emotion: {refined_emotion if refined_emotion else 'No emotion detected'}")
+combined_feedback_report.append(f"Emotion Score: {emotion_score}%")
+combined_feedback_report.append(f"Eye Contact: {eye_contact if eye_contact else 'No eye contact data'}")
+combined_feedback_report.append(f"Eye Contact Score: {eye_contact_score}%")
+combined_feedback_report.append(f"Emotion Feedback: {emotion_feedback}")
+
+# Audience Interaction Section
+combined_feedback_report.append("\n--- Audience Interaction Analysis ---")
+if response_feedback:
+    for line in response_feedback:
+        combined_feedback_report.append(line)
+else:
+    combined_feedback_report.append("No audience interaction data available")
+
+# Calculate overall score
+def calculate_overall_score(grammar_score, filler_score, pronunciation_score, pace, posture_score, gesture_score, eye_contact_score):
+    # Define weights for each component
+    weights = {
+        'grammar': 0.15,        # 15% weight
+        'fluency': 0.15,        # 15% weight (filler words)
+        'pronunciation': 0.15,  # 15% weight
+        'pace': 0.10,          # 10% weight
+        'posture': 0.15,        # 15% weight
+        'gesture': 0.15,        # 15% weight
+        'eye_contact': 0.15     # 15% weight
+    }
+    
+    # Normalize pace score (assuming ideal pace is between 130-160 WPM)
+    if 130 <= pace <= 160:
+        pace_score = 100
+    elif 100 <= pace < 130 or 160 < pace <= 190:
+        pace_score = 75
+    else:
+        pace_score = 50
+    
+    # Calculate weighted score
+    overall_score = (
+        grammar_score * weights['grammar'] +
+        filler_score * weights['fluency'] +
+        pronunciation_score * weights['pronunciation'] +
+        pace_score * weights['pace'] +
+        posture_score * weights['posture'] +
+        gesture_score * weights['gesture'] +
+        eye_contact_score * weights['eye_contact']
+    )
+    
+    return round(overall_score, 2)
+
+# Calculate individual scores
+# Calculate posture score based on dominant posture
+def calculate_posture_score(dominant_posture):
+    posture_scores = {
+        "Head Up": 100,
+        "Arms on Hips": 90,
+        "Leaning Forward": 85,
+        "Leaning Back": 75,
+        "Hands in Pockets": 70,
+        "Crossed Arms": 65,
+        "Slouching": 60,
+        "Head Down": 55
+    }
+    return posture_scores.get(dominant_posture, 50)
+
+# Calculate gesture score based on dominant gesture
+def calculate_gesture_score(dominant_gesture):
+    gesture_scores = {
+        "Open Palm": 100,
+        "OK Sign": 95,
+        "Victory Sign": 90,
+        "Thumbs Up": 85,
+        "Rock Sign": 80,
+        "Call Me": 75,
+        "Pointing Finger": 70,
+        "Thumbs Down": 65,
+        "Closed Fist": 60
+    }
+    return gesture_scores.get(dominant_gesture, 50)
+
+# Calculate eye contact score
+def calculate_eye_contact_score(eye_contact_percentage):
+    if eye_contact_percentage >= 80:
+        return 100
+    elif eye_contact_percentage >= 60:
+        return 80
+    elif eye_contact_percentage >= 40:
+        return 60
+    else:
+        return 40
+
+# Get dominant posture and gesture
+dominant_posture = max(posture_counter.items(), key=lambda x: x[1])[0] if posture_counter else "Unknown"
+dominant_gesture = max(gesture_counter.items(), key=lambda x: x[1])[0] if gesture_counter else "Unknown"
+
+# Calculate eye contact percentage
+eye_contact_percentage = (all_eye_contacts.count("Eye Contact") / len(all_eye_contacts)) * 100 if all_eye_contacts else 0
+
+# Calculate individual scores
+posture_score = calculate_posture_score(dominant_posture)
+gesture_score = calculate_gesture_score(dominant_gesture)
+eye_contact_score = calculate_eye_contact_score(eye_contact_percentage)
+
+# Calculate overall score
+overall_score = calculate_overall_score(
+    grammar_score if grammar_score is not None else 0,
+    filler_score if filler_score is not None else 0,
+    final_pronunciation_score if final_pronunciation_score is not None else 0,
+    pace if pace is not None else 0,
+    posture_score if posture_score is not None else 0,
+    gesture_score if gesture_score is not None else 0,
+    eye_contact_score if eye_contact_score is not None else 0
+)
+
+# Get score interpretation
+if overall_score >= 90:
+    score_interpretation = "Outstanding presentation! You demonstrated excellent skills across all aspects. 🏆"
+elif overall_score >= 80:
+    score_interpretation = "Great presentation! You showed strong skills with minor areas for improvement. 🌟"
+elif overall_score >= 70:
+    score_interpretation = "Good presentation! You have a solid foundation with some areas to work on. 👍"
+elif overall_score >= 60:
+    score_interpretation = "Fair presentation. There are several areas that need improvement. 📝"
+else:
+    score_interpretation = "Needs improvement. Focus on developing your presentation skills further. 🎯"
+
+# Overall Score Section
+combined_feedback_report.append("\n--- Overall Presentation Score ---")
+combined_feedback_report.append(f"Overall Score: {overall_score}/100")
+combined_feedback_report.append(f"Score Interpretation: {score_interpretation}")
 
 # Install translation model from English to the detected language
 def install_translation_model(from_code, to_code):
@@ -964,6 +1231,54 @@ def install_translation_model(from_code, to_code):
         print(f"  translation from: {from_code} → {to_code}")
     else:
         print(f"No translation available for {from_code} → {to_code}")
+
+# Only translate if the language isn't English
+# if detected_lang != "en":
+#     install_translation_model("en", detected_lang)
+#     installed_languages = translate.get_installed_languages()
+#     from_lang = next((lang for lang in installed_languages if lang.code == "en"), None)
+#     to_lang = next((lang for lang in installed_languages if lang.code == detected_lang), None)
+#     if from_lang and to_lang:
+#         translator = from_lang.get_translation(to_lang)
+#         translated_feedback_report = [translator.translate(line) for line in combined_feedback_report]
+#         print("\n --- Translated Feedback Report ---")
+#         for line in translated_feedback_report:
+#             print(line)
+#     else:
+#         print("Translation not available. Feedback shown in English.")
+
+def get_overall_feedback(score):
+    if score >= 90:
+        return "Outstanding presentation! You demonstrated excellent skills across all aspects. 🏆"
+    elif score >= 80:
+        return "Great presentation! You showed strong skills with minor areas for improvement. 🌟"
+    elif score >= 70:
+        return "Good presentation! You have a solid foundation with some areas to work on. 👍"
+    elif score >= 60:
+        return "Fair presentation. There are several areas that need improvement. 📝"
+    else:
+        return "Needs improvement. Focus on developing your presentation skills further. 🎯"
+
+# Print the entire combined feedback report
+print("\n--- Comprehensive Feedback Report ---")
+for line in combined_feedback_report:
+    print(line)
+
+# Translation Logic (Add this part at the end of your script)
+# Install translation model from English to the detected language
+def install_translation_model(from_code, to_code):
+    available_packages = package.get_available_packages()
+    matching_package = next(
+        (pkg for pkg in available_packages if pkg.from_code == from_code and pkg.to_code == to_code),
+        None
+    )
+    if matching_package:
+        download_path = matching_package.download()
+        package.install_from_path(download_path)
+        print(f"  translation from: {from_code} → {to_code}")
+    else:
+        print(f"No translation available for {from_code} → {to_code}")
+
 # Only translate if the language isn't English
 if detected_lang != "en":
     install_translation_model("en", detected_lang)

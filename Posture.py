@@ -93,7 +93,7 @@ if use_webcam:
     output_video_path = "webcam_output.mp4"
 else:
     
-    input_video_path = "D:/4th Year 1st Term/Graduation Project/Presentation-Skills/Videos/TedTalk.mp4"  
+    input_video_path = "Videos/Yehia.mp4"  
     cap = cv2.VideoCapture(input_video_path) 
 
 paused = False
@@ -101,6 +101,8 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
+
+    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
 
     frame_resized = cv2.resize(frame, (192, 192))
 
