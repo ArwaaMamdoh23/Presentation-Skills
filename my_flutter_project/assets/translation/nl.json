@@ -38,5 +38,9 @@
   "Terms & Privacy": "Allgemeine Geschäftsbedingungen und Datenschutz",
   "Delete Account": "Konto löschen",
   "Sign Out": "Abmelden",
-  "Presentation_reports": "Präsentationsberichte"
+  "Presentation_reports": "Präsentationsberichte",
+  "confirm password": "Passwort bestätigen",
+  "Enter your password": "Geben Sie Ihr Passwort ein",
+  "cancel": "Abbrechen",
+  "Confirm": "Bestätigen"
 }

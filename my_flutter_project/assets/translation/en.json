@@ -2,5 +2,9 @@
   "uploadPresentation": "Upload Presentation",
   "selectGallery": "Select from Gallery",
   "selectDrive": "Select from Drive",
-  "uploadVideo": "Upload Video"
+  "uploadVideo": "Upload Video",
+  "Confirm Password": "Confirm Password",
+  "Enter your password": "Enter your password",
+  "Cancel": "Cancel",
+  "Confirm": "Confirm"
 }

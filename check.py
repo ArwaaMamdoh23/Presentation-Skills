@@ -1,0 +1,2 @@
+from transformers import pipeline
+from huggingface_hub import get_full_repo_name
