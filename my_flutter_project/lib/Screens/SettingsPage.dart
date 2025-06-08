@@ -206,13 +206,16 @@ class SettingsPage extends StatelessWidget {
           .maybeSingle();
 
       if (existingRow != null) {
-        await _supabase.from('User').delete().eq('User_id', user.id);
+       await _supabase.from('User').update({'isDeleted': true}).eq('User_id', user.id);
         print(" User deleted from 'User' table");
       } else {
         print("No matching row found in User table for deletion.");
       }
 
-      await _supabase.auth.admin.deleteUser(user.id);
+      await _supabase
+    .from('User')
+    .update({'isDeleted': true})
+    .eq('User_id', user.id);
       print("Deleted from Supabase Auth");
 
       await _supabase.auth.signOut();

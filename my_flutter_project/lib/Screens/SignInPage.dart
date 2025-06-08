@@ -68,48 +68,79 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future<void> _signIn() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+  setState(() => _isLoading = true);
 
-    try {
-      final email = _emailController.text.trim().toLowerCase();
-      final password = _passwordController.text.trim();
+  try {
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text.trim();
 
-      final AuthResponse response = await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+    final AuthResponse response = await _supabase.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
 
-      if (response.session != null) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => UploadVideoPage()),
-          );
-        }
-        _saveEmail(email);
-      } else {
-        throw Exception('Sign in failed - no session returned');
-      }
-    } on AuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+    final user = response.user;
+    if (user == null) {
+      throw Exception('Sign in failed - no user found');
     }
+
+    // 🔍 Check if the user is marked as deleted in the User table
+    final userData = await _supabase
+        .from('User')
+        .select('isDeleted')
+        .eq('User_id', user.id)
+        .maybeSingle();
+
+    if (userData != null && userData['isDeleted'] == true) {
+      await _supabase.auth.signOut(); // Force sign-out
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Account Deactivated"),
+            content: const Text("Your account has been deleted"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return;
+    }
+
+    // ✅ User is allowed in
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => UploadVideoPage()),
+      );
+    }
+    _saveEmail(email);
+  } on AuthException catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('An error occurred: ${e.toString()}'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
   }
+}
 
   @override
   Widget build(BuildContext context) {
