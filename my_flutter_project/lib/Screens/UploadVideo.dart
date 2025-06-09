@@ -21,13 +21,15 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/CustomDrawer .dart';
 
 class UploadVideoPage extends StatefulWidget {
+  const UploadVideoPage({super.key});
+
   @override
   _UploadVideoPageState createState() => _UploadVideoPageState();
 }
 
 class _UploadVideoPageState extends State<UploadVideoPage> {
   File? _videoFile;
-  bool _isUploading = false;
+  final bool _isUploading = false;
   double _uploadProgress = 0;
   final _supabase = Supabase.instance.client;
   final _picker = ImagePicker();

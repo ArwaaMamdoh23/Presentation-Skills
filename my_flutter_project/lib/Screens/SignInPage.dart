@@ -55,7 +55,7 @@ class _SignInPageState extends State<SignInPage> {
 
   Future<void> _checkExistingSession() async {
     try {
-      final session = await _supabase.auth.currentSession;
+      final session = _supabase.auth.currentSession;
       if (session != null && mounted) {
         Navigator.pushReplacement(
           context,

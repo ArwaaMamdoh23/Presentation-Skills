@@ -15,7 +15,7 @@ dependencies:
   http: ^0.13.6     
   flutter_localizations:
     sdk: flutter
-  intl: 0.19.0        # Ensure this is included for HTTP requests
+  intl: 0.20.2        # Ensure this is included for HTTP requests
 
 
 

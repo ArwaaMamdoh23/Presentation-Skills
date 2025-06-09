@@ -6,6 +6,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart'; // Add this import
 
 class AboutUs extends StatelessWidget {
+  const AboutUs({super.key});
+
   @override
   Widget build(BuildContext context) {
     bool isUserSignedIn = true;

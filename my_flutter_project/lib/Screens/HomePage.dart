@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _checkAuthState() async {
     try {
-      final session = await Supabase.instance.client.auth.currentSession;
+      final session = Supabase.instance.client.auth.currentSession;
       if (mounted) {
         setState(() {
           _isUserSignedIn = session != null;

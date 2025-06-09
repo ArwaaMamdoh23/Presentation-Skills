@@ -95,8 +95,8 @@ class AdminDashboard extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showSupportDialog(context),
-        child: const Icon(Icons.chat),
         tooltip: 'Live Support',
+        child: const Icon(Icons.chat),
       ),
     );
   }

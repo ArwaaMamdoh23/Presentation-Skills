@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';  // Import easy_local
 class CustomDrawer extends StatelessWidget {
   final bool isSignedIn;
 
-  const CustomDrawer({Key? key, required this.isSignedIn}) : super(key: key);
+  const CustomDrawer({super.key, required this.isSignedIn});
 
   @override
   Widget build(BuildContext context) {

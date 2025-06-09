@@ -3,8 +3,6 @@ import 'package:my_flutter_project/Screens/SignInPage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'UploadVideo.dart';
-import 'HomePage.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

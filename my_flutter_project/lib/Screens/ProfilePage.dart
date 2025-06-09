@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -12,7 +11,6 @@ import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
 import 'SettingsPage.dart';
 import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart';
-import 'package:my_flutter_project/Screens/EditProfilePage.dart';
 import '../widgets/CustomDrawer .dart'; 
 
 class ProfilePage extends StatefulWidget {
@@ -85,12 +83,10 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedImage = prefs.getString('profile_image_bytes');
 
-    if (storedImage != null) {
-      setState(() {
-        _imageBytes = base64Decode(storedImage);
-      });
+    setState(() {
+      _imageBytes = base64Decode(storedImage);
+    });
     }
-  }
 
   void _signOut() async {
     await _supabase.auth.signOut();

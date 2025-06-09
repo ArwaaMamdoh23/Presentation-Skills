@@ -3,7 +3,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 
 class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+  const LoadingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

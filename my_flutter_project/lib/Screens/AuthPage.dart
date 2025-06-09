@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui'; 
 import '../widgets/background_wrapper.dart';  
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

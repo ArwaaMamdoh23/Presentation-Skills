@@ -50,7 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .eq('User_id', user.id)
           .single();
 
-      if (response != null && mounted) {
+      if (mounted) {
         _nameController.text = response['Name'] ?? '';
         final imageString = response['ProfileImage'] as String?;
         if (imageString != null && imageString.isNotEmpty) {

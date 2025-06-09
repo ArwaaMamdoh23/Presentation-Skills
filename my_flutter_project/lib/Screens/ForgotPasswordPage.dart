@@ -4,7 +4,7 @@ import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({Key? key}) : super(key: key);
+  const ForgotPasswordPage({super.key});
 
   @override
   _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
