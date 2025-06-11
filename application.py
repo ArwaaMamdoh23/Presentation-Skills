@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 import os
 import cv2
+import numpy as np
 import torch
+import torchaudio
 import torch.nn.functional as F
 from moviepy import VideoFileClip
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
@@ -10,7 +12,6 @@ from collections import Counter
 from deepface import DeepFace
 import torchaudio
 import torchaudio.transforms as T
-import numpy as np
 import tensorflow_hub as hub
 import mediapipe as mp
 import difflib
@@ -34,12 +35,17 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 import uuid
 from datetime import datetime
+from flask_cors import CORS
+
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 
 # Initialize Supabase client
 supabase: Client = create_client(

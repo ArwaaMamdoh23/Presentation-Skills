@@ -4,7 +4,7 @@ import 'package:my_flutter_project/Screens/HomePage.dart';
 import 'package:my_flutter_project/Screens/SignInPage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
-import '../widgets/CustomDrawer .dart';
+import '../widgets/CustomDrawer.dart';
 import 'package:easy_localization/easy_localization.dart'; // Add this import
 
 class SettingsPage extends StatelessWidget {

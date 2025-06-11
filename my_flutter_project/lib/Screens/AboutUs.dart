@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
-import '../widgets/CustomDrawer .dart';
+import '../widgets/CustomDrawer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart'; // Add this import
 

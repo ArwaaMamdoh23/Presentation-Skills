@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
-import '../widgets/CustomDrawer .dart';
+import '../widgets/CustomDrawer.dart';
 
 class ReportsPage extends StatelessWidget {
   ReportsPage({super.key});

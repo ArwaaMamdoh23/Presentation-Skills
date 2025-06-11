@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../widgets/custom_app_bar.dart'; 
 import '../widgets/background_wrapper.dart'; 
-import '../widgets/CustomDrawer .dart'; 
+import '../widgets/CustomDrawer.dart';
 import 'package:my_flutter_project/Screens/AuthPage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'UploadVideo.dart'; 
