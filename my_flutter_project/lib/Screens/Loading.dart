@@ -12,6 +12,7 @@ class LoadingScreen extends StatelessWidget {
       appBar: CustomAppBar(
         showSignIn: false,
         isUserSignedIn: true,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
       ),
       body: BackgroundWrapper(
         child: Center(

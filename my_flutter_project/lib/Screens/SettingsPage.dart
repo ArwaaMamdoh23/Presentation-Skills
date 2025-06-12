@@ -1,97 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
-import 'package:my_flutter_project/Screens/SignInPage.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
-import '../widgets/CustomDrawer.dart';
-import 'package:easy_localization/easy_localization.dart'; // Add this import
+import 'package:my_flutter_project/Screens/SignInPage.dart';
+import '../widgets/CustomDrawer.dart'; 
 
 class SettingsPage extends StatelessWidget {
   SettingsPage({super.key});
   final _supabase = Supabase.instance.client;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(
-        showSignIn: false,
-        isUserSignedIn: true,
-      ),
-      
-      drawer: CustomDrawer(isSignedIn: true),
-
-      body: BackgroundWrapper(
-        child: Column(
-          children: [
-            const SizedBox(height: kToolbarHeight),
-             Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Text(
-                "Settings".tr(), // Use .tr() for translation
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 3.0,
-                      color: Colors.white54,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    extendBodyBehindAppBar: true,
+    appBar: CustomAppBar(
+      showSignIn: false,
+      isUserSignedIn: true,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
+    ),
+    drawer: CustomDrawer(isSignedIn: true),
+    body: BackgroundWrapper(
+      child: Column(
+        children: [
+          // Add padding to push the "Settings" text below the AppBar
+          const SizedBox(height: kToolbarHeight + 20),  // Add more padding for extra space below AppBar
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Text(
+              "Settings",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    blurRadius: 3.0,
+                    color: Colors.white54,
+                    offset: Offset(0, 0),
+                  ),
+                ],
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildSettingsItem(
-                      icon: Icons.dark_mode,
-                      title: "Theme".tr(), // Use .tr() for translation
-                      subtitle: "Switch between Light and Dark mode".tr(), // Use .tr() for translation
-                      onTap: () {},
-                    ),
-                    _buildSettingsItem(
-                      icon: Icons.notifications,
-                      title: "Notifications".tr(), // Use .tr() for translation
-                      subtitle: "Manage notification preferences".tr(), // Use .tr() for translation
-                      onTap: () {},
-                    ),
-                    _buildSettingsItem(
-                      icon: Icons.privacy_tip,
-                      title: "Terms & Privacy".tr(), // Use .tr() for translation
-                      subtitle: "View our terms and privacy policy".tr(), // Use .tr() for translation
-                      onTap: () {},
-                    ),
-                    _buildSettingsItem(
-                      icon: Icons.delete_forever,
-                      title: "Delete Account".tr(), // Use .tr() for translation
-                      subtitle: "Permanently remove your account".tr(), // Use .tr() for translation
-                      onTap: () {
-                        _showDeleteConfirmationDialog(context);
-                      },
-                    ),
-                    _buildSettingsItem(
-                      icon: Icons.logout,
-                      title: "Sign Out".tr(), // Use .tr() for translation
-                      subtitle: "Log out from your account".tr(), // Use .tr() for translation
-                      onTap: () {
-                        _signOut(context);
-                      },
-                    ),
-                  ],
-                ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildSettingsItem(
+                    icon: Icons.dark_mode,
+                    title: "Theme",
+                    subtitle: "Switch between Light and Dark mode",
+                    onTap: () {},
+                  ),
+                  _buildSettingsItem(
+                    icon: Icons.notifications,
+                    title: "Notifications",
+                    subtitle: "Manage notification preferences",
+                    onTap: () {},
+                  ),
+                  _buildSettingsItem(
+                    icon: Icons.privacy_tip,
+                    title: "Terms & Privacy",
+                    subtitle: "View our terms and privacy policy",
+                    onTap: () {},
+                  ),
+                  _buildSettingsItem(
+                    icon: Icons.delete_forever,
+                    title: "Delete Account",
+                    subtitle: "Permanently remove your account",
+                    onTap: () {
+                      _showDeleteConfirmationDialog(context);
+                    },
+                  ),
+                  _buildSettingsItem(
+                    icon: Icons.logout,
+                    title: "Sign Out",
+                    subtitle: "Log out from your account",
+                    onTap: () {
+                      _signOut(context);
+                    },
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSettingsItem({
     required IconData icon,
@@ -128,19 +126,19 @@ class SettingsPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Deletion".tr()), // Use .tr() for translation
-          content: Text("Are you sure you want to permanently delete your account? This action cannot be undone.".tr()), // Use .tr() for translation
+          title: const Text("Confirm Deletion"),
+          content: const Text("Are you sure you want to permanently delete your account? This action cannot be undone."),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Cancel".tr(), style: TextStyle(color: Colors.blue)), // Use .tr() for translation
+              child: const Text("Cancel", style: TextStyle(color: Colors.blue)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteAccount(context);
               },
-              child: Text("Delete".tr(), style: TextStyle(color: Colors.red)), // Use .tr() for translation
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -155,24 +153,24 @@ class SettingsPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Confirm Password".tr()), // Use .tr() for translation
+          title: const Text("Confirm Password"),
           content: TextField(
             controller: passwordController,
             obscureText: true,
-            decoration: InputDecoration(
-              labelText: "Enter your password".tr(), // Use .tr() for translation
+            decoration: const InputDecoration(
+              labelText: "Enter your password",
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, null),
-              child: Text("Cancel".tr()), // Use .tr() for translation
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context, passwordController.text.trim());
               },
-              child: Text("Confirm".tr()), // Use .tr() for translation
+              child: const Text("Confirm"),
             ),
           ],
         );
@@ -206,23 +204,20 @@ class SettingsPage extends StatelessWidget {
           .maybeSingle();
 
       if (existingRow != null) {
-       await _supabase.from('User').update({'isDeleted': true}).eq('User_id', user.id);
+        await _supabase.from('User').delete().eq('User_id', user.id);
         print(" User deleted from 'User' table");
       } else {
         print("No matching row found in User table for deletion.");
       }
 
-      await _supabase
-    .from('User')
-    .update({'isDeleted': true})
-    .eq('User_id', user.id);
+      await _supabase.auth.admin.deleteUser(user.id);
       print("Deleted from Supabase Auth");
 
       await _supabase.auth.signOut();
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text("Account deleted successfully").tr()), // Use .tr() for translation
+          const SnackBar(content: Text("Account deleted successfully")),
         );
         Navigator.pushAndRemoveUntil(
           context,
@@ -234,7 +229,7 @@ class SettingsPage extends StatelessWidget {
       print("Error deleting account: $e");
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error deleting account: ${e.toString()}".tr())), // Use .tr() for translation
+          SnackBar(content: Text("Error deleting account: \${e.toString()}")),
         );
       }
     }

@@ -19,6 +19,8 @@ class AboutUs extends StatelessWidget {
       appBar: CustomAppBar(
         showSignIn: false,
         isUserSignedIn: isUserSignedIn,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
+
       ),
       drawer: CustomDrawer(isSignedIn: isUserSignedIn),
       body: BackgroundWrapper(
@@ -54,99 +56,99 @@ class AboutUs extends StatelessWidget {
               ),
               SizedBox(height: 20),
 
-              // Team Section
-              Text(
-                'Our Team'.tr(), // Use .tr() for translation
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: screenWidth * 0.06,  // Adjust font size for the team section title
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,  // Center the section title
-              ),
-              SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,  // Center the columns of team members
-                children: [
-                  // Example team member icon
-                  Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Mayar Adel'.tr(), // Use .tr() for translation
-                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 20),
-                  Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Arwaa Mamdoh'.tr(), // Use .tr() for translation
-                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 20),
-                  Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Mostafa Wael'.tr(), // Use .tr() for translation
-                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: 20),
-                  Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.black,
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Ahmed Yehia'.tr(), // Use .tr() for translation
-                        style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+              // ...existing code...
+// Team Section
+Text(
+  'Our Team'.tr(),
+  style: TextStyle(
+    color: Colors.white,
+    fontSize: screenWidth * 0.06,
+    fontWeight: FontWeight.bold,
+  ),
+  textAlign: TextAlign.center,
+),
+SizedBox(height: 10),
+Wrap(
+  alignment: WrapAlignment.center,
+  spacing: 20,
+  runSpacing: 20,
+  children: [
+    Column(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+            size: 40,
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          'Mayar Adel'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
+        ),
+      ],
+    ),
+    Column(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+            size: 40,
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          'Arwaa Mamdoh'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
+        ),
+      ],
+    ),
+    Column(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+            size: 40,
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          'Mostafa Wael'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
+        ),
+      ],
+    ),
+    Column(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.white,
+          child: Icon(
+            Icons.person,
+            color: Colors.black,
+            size: 40,
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          'Ahmed Yehia'.tr(),
+          style: TextStyle(color: Colors.white70, fontSize: screenWidth * 0.035),
+        ),
+      ],
+    ),
+  ],
+),
+SizedBox(height: 20),
+// ...existing code...
 
               // Contact Section
               Text(

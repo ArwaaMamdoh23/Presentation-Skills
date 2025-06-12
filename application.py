@@ -1,3 +1,8 @@
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # For TensorFlow
+os.environ["CUDA_VISIBLE_DEVICES"] = "" # For PyTorch
+
 from flask import Flask, request, jsonify
 import os
 import cv2
@@ -87,7 +92,8 @@ movenet = posenet_model.signatures['serving_default']
 pronunciation_pipe = pipeline("audio-classification", model="hafidikhsan/Wav2vec2-large-robust-Pronounciation-Evaluation")
 
 # Load Whisper model
-whisper_model = whisper.load_model("base")
+# Load Whisper model (force CPU)
+whisper_model = whisper.load_model("base", device="cpu")
 
 # Define mappings and counters
 gesture_to_body_language = {

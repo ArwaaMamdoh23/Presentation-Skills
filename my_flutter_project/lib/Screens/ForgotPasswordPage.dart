@@ -61,7 +61,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: false, hideSignInButton: true),
+      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: false, hideSignInButton: true,
+      backgroundColor: Colors.transparent,  // Makes the app bar transparent
+),
       backgroundColor: Colors.transparent,
       body: BackgroundWrapper(
         child: Center(

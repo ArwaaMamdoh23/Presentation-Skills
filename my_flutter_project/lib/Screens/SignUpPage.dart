@@ -297,7 +297,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: false, hideSignInButton: true),
+      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: false, hideSignInButton: true,
+      backgroundColor: Colors.transparent,  // Makes the app bar transparent
+),
       body: BackgroundWrapper(
         child: SingleChildScrollView(
           child: Padding(
