@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:my_flutter_project/Screens/AboutUs.dart';
+import 'package:my_flutter_project/Screens/Instructions.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:my_flutter_project/Screens/HomePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:easy_localization/easy_localization.dart'; // Import easy_localization
 import '../widgets/custom_app_bar.dart';
 import '../widgets/background_wrapper.dart';
 import 'EditProfilePage.dart';
 import 'SettingsPage.dart';
 import 'package:my_flutter_project/AdminFolder/AdminDashboard.dart';
+import 'package:my_flutter_project/Screens/EditProfilePage.dart';
 import '../widgets/CustomDrawer.dart'; 
 
 class ProfilePage extends StatefulWidget {
@@ -51,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     if (!await hasInternet()) {
-      print("⚠️ No internet connection.");
+      print("⚠ No internet connection.");
       setState(() => isLoading = false);
       return;
     }
@@ -83,13 +86,11 @@ class _ProfilePageState extends State<ProfilePage> {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? storedImage = prefs.getString('profile_image_bytes');
 
-  setState(() {
-    if (storedImage != null) {
+  if (storedImage != null) {
+    setState(() {
       _imageBytes = base64Decode(storedImage);
-    } else {
-      _imageBytes = null; // or assign a default value if you want
-    }
-  });
+    });
+  }
 }
 
 
@@ -101,6 +102,18 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+void _goToInstructions() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  Instructions()),
+    );
+  }
+  void _goToAbout() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  AboutUs()),
+    );
+  }
   void _goToSettings() {
     Navigator.push(
       context,
@@ -108,88 +121,91 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _goToDashboard() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AdminDashboard()),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(
-        showSignIn: false,
-        isUserSignedIn: true,
-      ),
-      drawer: CustomDrawer(isSignedIn: true),  
-      body: BackgroundWrapper(
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Center(
-                        child: Stack(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: _imageBytes == null
-                                    ? null
-                                    : MemoryImage(_imageBytes!),
-                                child: _imageBytes == null
-                                    ? Text(
-                                        name != null ? name![0] : 'U',
-                                        style: const TextStyle(
-                                            fontSize: 40, color: Colors.white),
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildInfoTile('Name'.tr(), name),
-                      _buildInfoTile('Email'.tr(), email),
-                      _buildInfoTile('Profession'.tr(), profession),
-                      const SizedBox(height: 30),
-                      _buildButton('Edit Profile'.tr(), () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const EditProfilePage()),
-                        );
-                      }),
-                      const SizedBox(height: 20),
-                      _buildButton('Dashboard'.tr(), _goToDashboard),
-                      const SizedBox(height: 30),
-                      Column(
+  // void _goToDashboard() {
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (context) => const AdminDashboard()),
+  //   );
+  // }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    extendBodyBehindAppBar: true,  // Keep body extending behind the app bar
+    appBar: CustomAppBar(
+      showSignIn: false,
+      isUserSignedIn: true,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
+    ),
+    drawer: CustomDrawer(isSignedIn: true),
+    body: BackgroundWrapper(
+      child: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    // Add a SizedBox to push the avatar below the AppBar
+                    const SizedBox(height: 100),  // Adjust this value if necessary
+                    
+                    Center(
+                      child: Stack(
                         children: [
-                          _buildListTile(Icons.payment, 'Billing Details'.tr()),
-                          _buildListTile(Icons.account_box, 'User Management'.tr()),
-                          _buildListTile(Icons.info, 'Information'.tr()),
-                          _buildListTile(Icons.settings, 'Settings'.tr(), _goToSettings),
-                          _buildListTile(Icons.exit_to_app, 'Logout'.tr(), _signOut),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: _imageBytes == null
+                                  ? null
+                                  : MemoryImage(_imageBytes!),
+                              child: _imageBytes == null
+                                  ? Text(
+                                      name != null ? name![0] : 'U',
+                                      style: const TextStyle(
+                                          fontSize: 40, color: Colors.white),
+                                    )
+                                  : null,
+                            ),
+                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildInfoTile('Name', name),
+                    _buildInfoTile('Email', email),
+                    _buildInfoTile('Profession', profession),
+                    const SizedBox(height: 30),
+                    _buildButton('Edit Profile', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const EditProfilePage()),
+                      );
+                    }),
+                    // const SizedBox(height: 20),
+                    // _buildButton('Dashboard', _goToDashboard),
+                    const SizedBox(height: 30),
+                    Column(
+                      children: [
+                        // _buildListTile(Icons.insert_drive_file, 'Reports', ),
+                        _buildListTile(Icons.help, 'Instructions', _goToInstructions),
+                        _buildListTile(Icons.info, 'About Us', _goToAbout),
+                        _buildListTile(Icons.settings, 'Settings', _goToSettings),
+                        _buildListTile(Icons.exit_to_app, 'Logout', _signOut),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-      ),
-    );
-  }
+            ),
+    ),
+  );
+}
 
   Widget _buildInfoTile(String label, String? value) {
     return Padding(

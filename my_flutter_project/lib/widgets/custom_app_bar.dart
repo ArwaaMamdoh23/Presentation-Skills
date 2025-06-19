@@ -5,6 +5,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool isUserSignedIn;
   final bool hideSignInButton;
   final List<Widget>? extraActions; // ✅ Add this parameter
+  final Color? backgroundColor; // <-- Add this line
 
   const CustomAppBar({
     super.key,
@@ -12,12 +13,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.isUserSignedIn,
     this.hideSignInButton = false,
     this.extraActions, // ✅ Include it in the constructor
+    this.backgroundColor, // <-- Add this line
+
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: backgroundColor, // <-- Use it here
       elevation: 0,
       title: GestureDetector(
         child: const Text(

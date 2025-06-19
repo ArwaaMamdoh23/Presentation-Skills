@@ -150,6 +150,7 @@ class _SignInPageState extends State<SignInPage> {
         showSignIn: !_isUserSignedIn, // Dynamically show sign-in button based on user state
         isUserSignedIn: _isUserSignedIn, // Reflect user sign-in status
         hideSignInButton: true,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
       ),
       backgroundColor: Colors.transparent,
       body: BackgroundWrapper(

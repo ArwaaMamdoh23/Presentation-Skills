@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
         showSignIn: !_isUserSignedIn,  
         isUserSignedIn: _isUserSignedIn,
         hideSignInButton: true,  
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
       ),
       drawer: _isUserSignedIn ? CustomDrawer(isSignedIn: _isUserSignedIn) : null,
       backgroundColor: Colors.transparent,

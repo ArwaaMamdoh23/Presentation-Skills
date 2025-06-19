@@ -19,6 +19,7 @@ class Instructions extends StatelessWidget {
       appBar: CustomAppBar(
         showSignIn: false, 
         isUserSignedIn: isUserSignedIn,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
       ),
       drawer: CustomDrawer(isSignedIn: isUserSignedIn),
       body: BackgroundWrapper(

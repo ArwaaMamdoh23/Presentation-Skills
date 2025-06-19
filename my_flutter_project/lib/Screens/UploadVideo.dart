@@ -67,7 +67,7 @@ Future<void> _uploadVideoToFlask() async {
       _uploadProgress = 0;
     });
 
-    final uri = Uri.parse('http://192.168.1.237:5000/upload_video');
+    final uri = Uri.parse('http://10.0.2.2:5000/upload_video');
 
     
      final user = _supabase.auth.currentUser;
@@ -290,6 +290,8 @@ Future<void> _uploadVideoToFlask() async {
       appBar: CustomAppBar(
         showSignIn: true,
         isUserSignedIn: true,
+        backgroundColor: Colors.transparent,  // Makes the app bar transparent
+
         extraActions: const [
           Padding(
             padding: EdgeInsets.only(right: 8),

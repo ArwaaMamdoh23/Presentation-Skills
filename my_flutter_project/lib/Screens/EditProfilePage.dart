@@ -259,7 +259,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: true),
+      appBar: CustomAppBar(showSignIn: false, isUserSignedIn: true,
+      backgroundColor: Colors.transparent,  // Makes the app bar transparent
+),
       body: BackgroundWrapper(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
